@@ -485,7 +485,7 @@ const mapScenario = {
 
 // Automatic Database Version Management
 const DB_VERSION_KEY = 'ai_db_version';
-const CURRENT_DB_VERSION = 'v2_estancia'; // increment this whenever you update the seed data
+const CURRENT_DB_VERSION = 'v3_estancia'; // increment this whenever you update the seed data
 
 const checkAndMigrateDB = () => {
   if (typeof window !== 'undefined' && window.localStorage) {
