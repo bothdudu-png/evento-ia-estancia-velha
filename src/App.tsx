@@ -152,7 +152,7 @@ export default function App() {
 
   // --- Load Initial Data on Start ---
   useEffect(() => {
-    // Sync storage initially
+    // 1. Sync from localStorage synchronously for instant local load (Offline-first/Fast UX)
     const settings = db.getEventSettings();
     const finSettings = db.getFinancialSettings();
     setEventSettings(settings);
@@ -169,6 +169,28 @@ export default function App() {
     setTempTicketPrice(finSettings.ticketPriceDefault);
     setTempTargetParticipants(finSettings.targetParticipants);
     setTempLocation(settings.location);
+
+    // 2. Fetch fresh cloud data from Supabase asynchronously (Real-time Cloud Sync)
+    db.fetchAllFromCloud().then((cloudData) => {
+      if (cloudData) {
+        if (cloudData.eventSettings) {
+          setEventSettings(cloudData.eventSettings);
+          setTempName(cloudData.eventSettings.name);
+          setTempDate(cloudData.eventSettings.date);
+          setTempLocation(cloudData.eventSettings.location);
+        }
+        if (cloudData.financialSettings) {
+          setFinancialSettings(cloudData.financialSettings);
+          setTempTicketPrice(cloudData.financialSettings.ticketPriceDefault);
+          setTempTargetParticipants(cloudData.financialSettings.targetParticipants);
+        }
+        if (cloudData.investments) setInvestments(cloudData.investments);
+        if (cloudData.participants) setParticipants(cloudData.participants);
+        if (cloudData.tasks) setTasks(cloudData.tasks);
+        if (cloudData.checklists) setChecklist(cloudData.checklists);
+        if (cloudData.scenarios) setScenarios(cloudData.scenarios);
+      }
+    });
   }, []);
 
   // --- Countdown Effect ---

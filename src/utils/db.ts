@@ -1,3 +1,5 @@
+import { supabase } from '../integrations/supabase/client';
+
 export interface EventSettings {
   id: string;
   name: string;
@@ -319,6 +321,168 @@ const DEFAULT_SCENARIOS: Scenario[] = [
   }
 ];
 
+// Mapping helpers to convert between CamelCase and SnakeCase for Supabase
+const mapEventSettings = {
+  toDb(settings: EventSettings) {
+    return {
+      id: settings.id,
+      name: settings.name,
+      subtitle: settings.subtitle,
+      date: settings.date,
+      location: settings.location,
+      partner_name: settings.partnerName
+    };
+  },
+  fromDb(row: any): EventSettings {
+    return {
+      id: row.id,
+      name: row.name,
+      subtitle: row.subtitle,
+      date: row.date,
+      location: row.location,
+      partnerName: row.partner_name
+    };
+  }
+};
+
+const mapFinancialSettings = {
+  toDb(settings: FinancialSettings) {
+    return {
+      id: settings.id,
+      target_participants: settings.targetParticipants,
+      ticket_price_default: settings.ticketPriceDefault,
+      target_profit: settings.targetProfit,
+      extra_costs_default: settings.extraCostsDefault
+    };
+  },
+  fromDb(row: any): FinancialSettings {
+    return {
+      id: row.id,
+      targetParticipants: row.target_participants,
+      ticketPriceDefault: Number(row.ticket_price_default),
+      targetProfit: Number(row.target_profit),
+      extraCostsDefault: Number(row.extra_costs_default)
+    };
+  }
+};
+
+const mapInvestment = {
+  toDb(inv: Investment) {
+    return {
+      id: inv.id,
+      category: inv.category,
+      description: inv.description,
+      value: inv.value,
+      responsible: inv.responsible,
+      date: inv.date,
+      status: inv.status
+    };
+  },
+  fromDb(row: any): Investment {
+    return {
+      id: row.id,
+      category: row.category,
+      description: row.description,
+      value: Number(row.value),
+      responsible: row.responsible,
+      date: row.date,
+      status: row.status
+    };
+  }
+};
+
+const mapParticipant = {
+  toDb(part: Participant) {
+    return {
+      id: part.id,
+      name: part.name,
+      whatsapp: part.whatsapp,
+      city: part.city,
+      company: part.company,
+      role: part.role,
+      observations: part.observations,
+      status: part.status,
+      date_added: part.dateAdded
+    };
+  },
+  fromDb(row: any): Participant {
+    return {
+      id: row.id,
+      name: row.name,
+      whatsapp: row.whatsapp,
+      city: row.city,
+      company: row.company,
+      role: row.role,
+      observations: row.observations,
+      status: row.status,
+      dateAdded: row.date_added
+    };
+  }
+};
+
+const mapTask = {
+  toDb(task: Task) {
+    return {
+      id: task.id,
+      task: task.task,
+      responsible: task.responsible,
+      priority: task.priority,
+      due_date: task.dueDate,
+      status: task.status
+    };
+  },
+  fromDb(row: any): Task {
+    return {
+      id: row.id,
+      task: row.task,
+      responsible: row.responsible,
+      priority: row.priority,
+      dueDate: row.due_date,
+      status: row.status
+    };
+  }
+};
+
+const mapChecklistItem = {
+  toDb(item: ChecklistItem) {
+    return {
+      id: item.id,
+      item: item.item,
+      completed: item.completed
+    };
+  },
+  fromDb(row: any): ChecklistItem {
+    return {
+      id: row.id,
+      item: row.item,
+      completed: row.completed
+    };
+  }
+};
+
+const mapScenario = {
+  toDb(scen: Scenario) {
+    return {
+      id: scen.id,
+      name: scen.name,
+      participants: scen.participants,
+      ticket_price: scen.ticketPrice,
+      extra_costs: scen.extraCosts,
+      is_saved: scen.isSaved
+    };
+  },
+  fromDb(row: any): Scenario {
+    return {
+      id: row.id,
+      name: row.name,
+      participants: row.participants,
+      ticketPrice: Number(row.ticket_price),
+      extraCosts: Number(row.extra_costs),
+      isSaved: row.is_saved
+    };
+  }
+};
+
 // Automatic Database Version Management
 const DB_VERSION_KEY = 'ai_db_version';
 const CURRENT_DB_VERSION = 'v2_estancia'; // increment this whenever you update the seed data
@@ -354,8 +518,69 @@ const checkAndMigrateDB = () => {
 
 checkAndMigrateDB();
 
-// Helper functions for LocalStorage management
+// Helper functions for LocalStorage and Supabase management
 export const db = {
+  // Sync everything from Supabase Cloud to local storage on mount
+  async fetchAllFromCloud() {
+    if (!supabase) return null;
+    
+    try {
+      const [
+        evtRes,
+        finRes,
+        invRes,
+        partRes,
+        tskRes,
+        chkRes,
+        scenRes
+      ] = await Promise.all([
+        supabase.from('event_settings').select('*'),
+        supabase.from('financial_settings').select('*'),
+        supabase.from('investments').select('*'),
+        supabase.from('participants').select('*'),
+        supabase.from('tasks').select('*'),
+        supabase.from('checklists').select('*'),
+        supabase.from('scenarios').select('*')
+      ]);
+
+      const data: any = {};
+      
+      if (evtRes.data && evtRes.data.length > 0) {
+        data.eventSettings = mapEventSettings.fromDb(evtRes.data[0]);
+        localStorage.setItem(KEYS.EVENT_SETTINGS, JSON.stringify(data.eventSettings));
+      }
+      if (finRes.data && finRes.data.length > 0) {
+        data.financialSettings = mapFinancialSettings.fromDb(finRes.data[0]);
+        localStorage.setItem(KEYS.FINANCIAL_SETTINGS, JSON.stringify(data.financialSettings));
+      }
+      if (invRes.data) {
+        data.investments = invRes.data.map(mapInvestment.fromDb);
+        localStorage.setItem(KEYS.INVESTMENTS, JSON.stringify(data.investments));
+      }
+      if (partRes.data) {
+        data.participants = partRes.data.map(mapParticipant.fromDb);
+        localStorage.setItem(KEYS.PARTICIPANTS, JSON.stringify(data.participants));
+      }
+      if (tskRes.data) {
+        data.tasks = tskRes.data.map(mapTask.fromDb);
+        localStorage.setItem(KEYS.TASKS, JSON.stringify(data.tasks));
+      }
+      if (chkRes.data) {
+        data.checklists = chkRes.data.map(mapChecklistItem.fromDb);
+        localStorage.setItem(KEYS.CHECKLISTS, JSON.stringify(data.checklists));
+      }
+      if (scenRes.data) {
+        data.scenarios = scenRes.data.map(mapScenario.fromDb);
+        localStorage.setItem(KEYS.SCENARIOS, JSON.stringify(data.scenarios));
+      }
+      
+      return data;
+    } catch (err) {
+      console.error('Error fetching data from Supabase:', err);
+      return null;
+    }
+  },
+
   getEventSettings(): EventSettings {
     const data = localStorage.getItem(KEYS.EVENT_SETTINGS);
     if (!data) {
@@ -366,6 +591,14 @@ export const db = {
   },
   saveEventSettings(settings: EventSettings): void {
     localStorage.setItem(KEYS.EVENT_SETTINGS, JSON.stringify(settings));
+    if (supabase) {
+      supabase
+        .from('event_settings')
+        .upsert(mapEventSettings.toDb(settings))
+        .then(({ error }) => {
+          if (error) console.error('Error syncing event_settings:', error);
+        });
+    }
   },
 
   getFinancialSettings(): FinancialSettings {
@@ -378,6 +611,14 @@ export const db = {
   },
   saveFinancialSettings(settings: FinancialSettings): void {
     localStorage.setItem(KEYS.FINANCIAL_SETTINGS, JSON.stringify(settings));
+    if (supabase) {
+      supabase
+        .from('financial_settings')
+        .upsert(mapFinancialSettings.toDb(settings))
+        .then(({ error }) => {
+          if (error) console.error('Error syncing financial_settings:', error);
+        });
+    }
   },
 
   getInvestments(): Investment[] {
@@ -389,7 +630,34 @@ export const db = {
     return JSON.parse(data);
   },
   saveInvestments(investments: Investment[]): void {
+    const prevData = localStorage.getItem(KEYS.INVESTMENTS);
+    const prevList: Investment[] = prevData ? JSON.parse(prevData) : [];
+    
     localStorage.setItem(KEYS.INVESTMENTS, JSON.stringify(investments));
+    
+    if (supabase) {
+      const newIds = new Set(investments.map(i => i.id));
+      const deletedIds = prevList.filter(i => !newIds.has(i.id)).map(i => i.id);
+      
+      if (deletedIds.length > 0) {
+        supabase
+          .from('investments')
+          .delete()
+          .in('id', deletedIds)
+          .then(({ error }) => {
+            if (error) console.error('Error deleting investments:', error);
+          });
+      }
+      
+      if (investments.length > 0) {
+        supabase
+          .from('investments')
+          .upsert(investments.map(mapInvestment.toDb))
+          .then(({ error }) => {
+            if (error) console.error('Error syncing investments:', error);
+          });
+      }
+    }
   },
 
   getParticipants(): Participant[] {
@@ -401,7 +669,34 @@ export const db = {
     return JSON.parse(data);
   },
   saveParticipants(participants: Participant[]): void {
+    const prevData = localStorage.getItem(KEYS.PARTICIPANTS);
+    const prevList: Participant[] = prevData ? JSON.parse(prevData) : [];
+    
     localStorage.setItem(KEYS.PARTICIPANTS, JSON.stringify(participants));
+    
+    if (supabase) {
+      const newIds = new Set(participants.map(p => p.id));
+      const deletedIds = prevList.filter(p => !newIds.has(p.id)).map(p => p.id);
+      
+      if (deletedIds.length > 0) {
+        supabase
+          .from('participants')
+          .delete()
+          .in('id', deletedIds)
+          .then(({ error }) => {
+            if (error) console.error('Error deleting participants:', error);
+          });
+      }
+      
+      if (participants.length > 0) {
+        supabase
+          .from('participants')
+          .upsert(participants.map(mapParticipant.toDb))
+          .then(({ error }) => {
+            if (error) console.error('Error syncing participants:', error);
+          });
+      }
+    }
   },
 
   getParticipantStatuses(): ParticipantStatus[] {
@@ -422,7 +717,34 @@ export const db = {
     return JSON.parse(data);
   },
   saveTasks(tasks: Task[]): void {
+    const prevData = localStorage.getItem(KEYS.TASKS);
+    const prevList: Task[] = prevData ? JSON.parse(prevData) : [];
+    
     localStorage.setItem(KEYS.TASKS, JSON.stringify(tasks));
+    
+    if (supabase) {
+      const newIds = new Set(tasks.map(t => t.id));
+      const deletedIds = prevList.filter(t => !newIds.has(t.id)).map(t => t.id);
+      
+      if (deletedIds.length > 0) {
+        supabase
+          .from('tasks')
+          .delete()
+          .in('id', deletedIds)
+          .then(({ error }) => {
+            if (error) console.error('Error deleting tasks:', error);
+          });
+      }
+      
+      if (tasks.length > 0) {
+        supabase
+          .from('tasks')
+          .upsert(tasks.map(mapTask.toDb))
+          .then(({ error }) => {
+            if (error) console.error('Error syncing tasks:', error);
+          });
+      }
+    }
   },
 
   getChecklist(): ChecklistItem[] {
@@ -434,7 +756,34 @@ export const db = {
     return JSON.parse(data);
   },
   saveChecklist(checklist: ChecklistItem[]): void {
+    const prevData = localStorage.getItem(KEYS.CHECKLISTS);
+    const prevList: ChecklistItem[] = prevData ? JSON.parse(prevData) : [];
+    
     localStorage.setItem(KEYS.CHECKLISTS, JSON.stringify(checklist));
+    
+    if (supabase) {
+      const newIds = new Set(checklist.map(c => c.id));
+      const deletedIds = prevList.filter(c => !newIds.has(c.id)).map(c => c.id);
+      
+      if (deletedIds.length > 0) {
+        supabase
+          .from('checklists')
+          .delete()
+          .in('id', deletedIds)
+          .then(({ error }) => {
+            if (error) console.error('Error deleting checklists:', error);
+          });
+      }
+      
+      if (checklist.length > 0) {
+        supabase
+          .from('checklists')
+          .upsert(checklist.map(mapChecklistItem.toDb))
+          .then(({ error }) => {
+            if (error) console.error('Error syncing checklists:', error);
+          });
+      }
+    }
   },
 
   getScenarios(): Scenario[] {
@@ -446,7 +795,34 @@ export const db = {
     return JSON.parse(data);
   },
   saveScenarios(scenarios: Scenario[]): void {
+    const prevData = localStorage.getItem(KEYS.SCENARIOS);
+    const prevList: Scenario[] = prevData ? JSON.parse(prevData) : [];
+    
     localStorage.setItem(KEYS.SCENARIOS, JSON.stringify(scenarios));
+    
+    if (supabase) {
+      const newIds = new Set(scenarios.map(s => s.id));
+      const deletedIds = prevList.filter(s => !newIds.has(s.id)).map(s => s.id);
+      
+      if (deletedIds.length > 0) {
+        supabase
+          .from('scenarios')
+          .delete()
+          .in('id', deletedIds)
+          .then(({ error }) => {
+            if (error) console.error('Error deleting scenarios:', error);
+          });
+      }
+      
+      if (scenarios.length > 0) {
+        supabase
+          .from('scenarios')
+          .upsert(scenarios.map(mapScenario.toDb))
+          .then(({ error }) => {
+            if (error) console.error('Error syncing scenarios:', error);
+          });
+      }
+    }
   },
 
   // Reset database function
@@ -459,5 +835,27 @@ export const db = {
     localStorage.setItem(KEYS.TASKS, JSON.stringify(DEFAULT_TASKS));
     localStorage.setItem(KEYS.CHECKLISTS, JSON.stringify(DEFAULT_CHECKLIST));
     localStorage.setItem(KEYS.SCENARIOS, JSON.stringify(DEFAULT_SCENARIOS));
+
+    const client = supabase;
+    if (client) {
+      // Clear all items on Cloud as well by wiping and upserting defaults
+      Promise.all([
+        client.from('event_settings').upsert(mapEventSettings.toDb(DEFAULT_EVENT_SETTINGS)),
+        client.from('financial_settings').upsert(mapFinancialSettings.toDb(DEFAULT_FINANCIAL_SETTINGS)),
+        client.from('investments').delete().neq('id', 'placeholder'),
+        client.from('participants').delete().neq('id', 'placeholder'),
+        client.from('tasks').delete().neq('id', 'placeholder'),
+        client.from('checklists').delete().neq('id', 'placeholder'),
+        client.from('scenarios').delete().neq('id', 'placeholder')
+      ]).then(() => {
+        Promise.all([
+          client.from('investments').upsert(DEFAULT_INVESTMENTS.map(mapInvestment.toDb)),
+          client.from('participants').upsert(DEFAULT_PARTICIPANTS.map(mapParticipant.toDb)),
+          client.from('tasks').upsert(DEFAULT_TASKS.map(mapTask.toDb)),
+          client.from('checklists').upsert(DEFAULT_CHECKLIST.map(mapChecklistItem.toDb)),
+          client.from('scenarios').upsert(DEFAULT_SCENARIOS.map(mapScenario.toDb))
+        ]).catch(err => console.error('Error resetting cloud seed data:', err));
+      }).catch(err => console.error('Error wiping cloud database on reset:', err));
+    }
   }
 };
