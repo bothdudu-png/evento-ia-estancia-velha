@@ -77,9 +77,18 @@ export default function App() {
   const [taskFilterPriority, setTaskFilterPriority] = useState('Todas');
 
   // --- Scenario Simulator States (Inputs) ---
-  const [simParticipants, setSimParticipants] = useState<number>(50);
-  const [simTicketPrice, setSimTicketPrice] = useState<number>(297);
-  const [simExtraCosts, setSimExtraCosts] = useState<number>(1200);
+  const [simParticipants, setSimParticipants] = useState<number>(() => {
+    const saved = localStorage.getItem('ai_sim_participants');
+    return saved ? Number(saved) : 50;
+  });
+  const [simTicketPrice, setSimTicketPrice] = useState<number>(() => {
+    const saved = localStorage.getItem('ai_sim_ticket_price');
+    return saved ? Number(saved) : 350;
+  });
+  const [simExtraCosts, setSimExtraCosts] = useState<number>(() => {
+    const saved = localStorage.getItem('ai_sim_extra_costs');
+    return saved ? Number(saved) : 1200;
+  });
 
   // --- Modal States ---
   const [showInvModal, setShowInvModal] = useState(false);
@@ -127,6 +136,19 @@ export default function App() {
   const [tempTicketPrice, setTempTicketPrice] = useState(0);
   const [tempTargetParticipants, setTempTargetParticipants] = useState(0);
   const [tempLocation, setTempLocation] = useState('');
+
+  // --- Persist Scenario Simulator States ---
+  useEffect(() => {
+    localStorage.setItem('ai_sim_participants', String(simParticipants));
+  }, [simParticipants]);
+
+  useEffect(() => {
+    localStorage.setItem('ai_sim_ticket_price', String(simTicketPrice));
+  }, [simTicketPrice]);
+
+  useEffect(() => {
+    localStorage.setItem('ai_sim_extra_costs', String(simExtraCosts));
+  }, [simExtraCosts]);
 
   // --- Load Initial Data on Start ---
   useEffect(() => {
