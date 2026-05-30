@@ -87,16 +87,16 @@ const DEFAULT_EVENT_SETTINGS: EventSettings = {
   name: 'AI EXPERIENCE ESTÂNCIA VELHA',
   subtitle: 'Evento presencial e hands-on focado em Inteligência Artificial aplicada aos negócios. Leve seu notebook e construa soluções reais utilizando IA.',
   date: '2026-08-16T08:00:00-03:00',
-  location: 'Auditório do parceiro Gabriel Müller',
-  partnerName: 'Gabriel Müller',
+  location: 'Auditório Müller Centro Empresarial',
+  partnerName: 'Gabriel'
 };
 
 const DEFAULT_FINANCIAL_SETTINGS: FinancialSettings = {
   id: 'fin_1',
   targetParticipants: 50,
-  ticketPriceDefault: 297,
+  ticketPriceDefault: 350,
   targetProfit: 10000,
-  extraCostsDefault: 1200,
+  extraCostsDefault: 1200
 };
 
 const DEFAULT_PARTICIPANT_STATUSES: ParticipantStatus[] = [
@@ -109,51 +109,214 @@ const DEFAULT_PARTICIPANT_STATUSES: ParticipantStatus[] = [
 ];
 
 const DEFAULT_INVESTMENTS: Investment[] = [
-  { id: 'inv_1', category: 'Coffee Break', description: 'Coffee break completo (salgados, doces e sucos)', value: 1500, responsible: 'Gabriel Müller', date: '2026-08-16', status: 'Previsto' },
-  { id: 'inv_2', category: 'Marketing', description: 'Tráfego pago no Meta Ads (Estância Velha e região)', value: 800, responsible: 'Eduardo Both', date: '2026-06-10', status: 'Pago' },
-  { id: 'inv_3', category: 'Fotografia', description: 'Cobertura fotográfica profissional (4 horas)', value: 600, responsible: 'Gabriel Müller', date: '2026-08-16', status: 'Previsto' },
-  { id: 'inv_4', category: 'Brindes', description: 'Crachás personalizados e canetas touch com marca', value: 450, responsible: 'Eduardo Both', date: '2026-07-05', status: 'Pago' },
-  { id: 'inv_5', category: 'Sonorização', description: 'Som de alta fidelidade e microfones adicionais', value: 800, responsible: 'Gabriel Müller', date: '2026-08-16', status: 'Previsto' },
-  { id: 'inv_6', category: 'Tráfego Pago', description: 'Anúncios Google Ads focados em empresários locais', value: 500, responsible: 'Eduardo Both', date: '2026-07-01', status: 'Pago' },
+  {
+    id: "inv_1",
+    category: "Coffee Break",
+    description: "Coffee break completo (salgados, doces e sucos)",
+    value: 1200,
+    responsible: "Gabriel Müller",
+    date: "2026-08-16",
+    status: "Previsto"
+  },
+  {
+    id: "inv_2",
+    category: "Marketing",
+    description: "Tráfego pago no Meta Ads (Estância Velha e região)",
+    value: 800,
+    responsible: "Eduardo Both",
+    date: "2026-06-10",
+    status: "Previsto"
+  },
+  {
+    id: "inv_4",
+    category: "Brindes",
+    description: "Crachás personalizados e canetas touch com marca",
+    value: 450,
+    responsible: "Eduardo Both",
+    date: "2026-07-05",
+    status: "Previsto"
+  },
+  {
+    id: "inv_5",
+    category: "Outros",
+    description: "Aluguel do Auditório",
+    value: 1500,
+    responsible: "Gabriel Müller",
+    date: "2026-08-16",
+    status: "Previsto"
+  },
+  {
+    id: "inv_1780103554596",
+    category: "Palestrante",
+    description: "Thiago Diaz",
+    value: 6000,
+    responsible: "Eduardo Both",
+    date: "2026-06-10",
+    status: "Previsto"
+  },
+  {
+    id: "inv_1780104672226",
+    category: "Equipe",
+    description: "Recepcionista ",
+    value: 250,
+    responsible: "Eduardo Both ",
+    date: "2026-06-24",
+    status: "Previsto"
+  },
+  {
+    id: "inv_1780104760436",
+    category: "Outros",
+    description: "Camisetas para Equipe do Evento utilizar",
+    value: 300,
+    responsible: "Eduardo Both",
+    date: "2026-06-16",
+    status: "Previsto"
+  }
 ];
 
 const DEFAULT_PARTICIPANTS: Participant[] = [
-  { id: 'part_1', name: 'Rodrigo Becker', whatsapp: '51998877665', city: 'Estância Velha', company: 'Becker Calçados', role: 'Diretor Comercial', observations: 'Muito interessado em IA para automatizar equipe de vendas.', status: 'Pago', dateAdded: '2026-05-20' },
-  { id: 'part_2', name: 'Camila Schneider', whatsapp: '51987654321', city: 'Estância Velha', company: 'Studio Design EV', role: 'Sócia-Fundadora', observations: 'Quer entender como aplicar Midjourney e ChatGPT nos processos de branding.', status: 'Confirmado', dateAdded: '2026-05-22' },
-  { id: 'part_3', name: 'Guilherme Silva', whatsapp: '51976543210', city: 'Novo Hamburgo', company: 'Inovação Tech', role: 'Gerente de TI', observations: 'Estudando automações com n8n e LLMs.', status: 'Interessado', dateAdded: '2026-05-24' },
-  { id: 'part_4', name: 'Juliana Krause', whatsapp: '51965432109', city: 'Estância Velha', company: 'Krause Contabilidade', role: 'CEO', observations: 'Levará sócio. Foco em otimização de atendimento ao cliente.', status: 'Contatado', dateAdded: '2026-05-25' },
-  { id: 'part_5', name: 'Lucas Reis', whatsapp: '51954321098', city: 'Ivoti', company: 'Reis & Advogados', role: 'Sócio', observations: 'Foco em análise e geração de contratos via IA.', status: 'Lead', dateAdded: '2026-05-26' },
-  { id: 'part_6', name: 'Mariana Flores', whatsapp: '51943210987', city: 'Estância Velha', company: 'Flores & Cia Jardim', role: 'Proprietária', observations: 'Acompanhando posts do Thiago Diaz no Instagram. Super engajada.', status: 'Pago', dateAdded: '2026-05-18' },
-  { id: 'part_7', name: 'Eduardo Schmidt', whatsapp: '51932109876', city: 'Campo Bom', company: 'Schmidt Autopeças', role: 'Diretor Geral', observations: 'Confirmou presença mas ainda está pendente do pagamento.', status: 'Confirmado', dateAdded: '2026-05-19' },
-  { id: 'part_8', name: 'Gabriel Müller', whatsapp: '51921098765', city: 'Estância Velha', company: 'Müller Partner Tech', role: 'Fundador / Parceiro Local', observations: 'Dono do auditório parceiro. Participando ativamente da coordenação.', status: 'Participou', dateAdded: '2026-05-10' }
+  {
+    id: "part_1780104826644",
+    name: "Rodrigo Erhart",
+    whatsapp: "51981923939",
+    city: "Ivoti",
+    company: "EWT Engenharia",
+    role: "Diretor/Arquiteto",
+    observations: "Quer aprender sobre a IA. ",
+    status: "Lead",
+    dateAdded: "2026-05-30"
+  }
 ];
 
 const DEFAULT_TASKS: Task[] = [
-  { id: 'tsk_1', task: 'Validar capacidade elétrica e tomadas do auditório', responsible: 'Gabriel Müller', priority: 'Alta', dueDate: '2026-06-15', status: 'Em andamento' },
-  { id: 'tsk_2', task: 'Configurar a página de checkout no Stripe/Hotmart', responsible: 'Eduardo Both', priority: 'Alta', dueDate: '2026-06-10', status: 'Não iniciado' },
-  { id: 'tsk_3', task: 'Contratar serviço de Coffee Break para 60 pessoas', responsible: 'Gabriel Müller', priority: 'Média', dueDate: '2026-08-01', status: 'Não iniciado' },
-  { id: 'tsk_4', task: 'Criar criativos e copy para tráfego local', responsible: 'Eduardo Both', priority: 'Alta', dueDate: '2026-05-30', status: 'Concluído' },
-  { id: 'tsk_5', task: 'Definir kit de brindes físicos (caderno, crachá, caneta)', responsible: 'Eduardo Both', priority: 'Baixa', dueDate: '2026-07-01', status: 'Não iniciado' },
-  { id: 'tsk_6', task: 'Configurar rede Wi-Fi temporária de alta velocidade no auditório', responsible: 'Gabriel Müller', priority: 'Alta', dueDate: '2026-08-10', status: 'Não iniciado' },
+  {
+    id: "tsk_1",
+    task: "Validar capacidade elétrica e tomadas do auditório",
+    responsible: "Gabriel",
+    priority: "Alta",
+    dueDate: "2026-06-15",
+    status: "Em andamento"
+  },
+  {
+    id: "tsk_2",
+    task: "Configurar a página de checkout no Stripe/Hotmart",
+    responsible: "Thiago",
+    priority: "Alta",
+    dueDate: "2026-06-10",
+    status: "Não iniciado"
+  },
+  {
+    id: "tsk_3",
+    task: "Contratar serviço de Coffee Break para 60 pessoas",
+    responsible: "Gabriel",
+    priority: "Média",
+    dueDate: "2026-08-01",
+    status: "Não iniciado"
+  },
+  {
+    id: "tsk_4",
+    task: "Criar criativos e copy para tráfego local",
+    responsible: "Thiago",
+    priority: "Alta",
+    dueDate: "2026-05-30",
+    status: "Concluído"
+  },
+  {
+    id: "tsk_5",
+    task: "Definir kit de brindes físicos (caderno, crachá, caneta)",
+    responsible: "Thiago",
+    priority: "Baixa",
+    dueDate: "2026-07-01",
+    status: "Não iniciado"
+  },
+  {
+    id: "tsk_6",
+    task: "Configurar rede Wi-Fi temporária de alta velocidade no auditório",
+    responsible: "Gabriel",
+    priority: "Alta",
+    dueDate: "2026-08-10",
+    status: "Não iniciado"
+  }
 ];
 
 const DEFAULT_CHECKLIST: ChecklistItem[] = [
-  { id: 'chk_1', item: 'Confirmar auditório', completed: true },
-  { id: 'chk_2', item: 'Confirmar palestrante', completed: true },
-  { id: 'chk_3', item: 'Definir preço', completed: true },
-  { id: 'chk_4', item: 'Criar página de inscrição', completed: false },
-  { id: 'chk_5', item: 'Criar campanha', completed: false },
-  { id: 'chk_6', item: 'Contratar coffee break', completed: false },
-  { id: 'chk_7', item: 'Contratar fotógrafo', completed: false },
-  { id: 'chk_8', item: 'Definir brindes', completed: false },
-  { id: 'chk_9', item: 'Configurar som', completed: false },
-  { id: 'chk_10', item: 'Confirmar participantes', completed: false },
+  {
+    id: "chk_1",
+    item: "Confirmar auditório",
+    completed: true
+  },
+  {
+    id: "chk_2",
+    item: "Confirmar palestrante",
+    completed: true
+  },
+  {
+    id: "chk_3",
+    item: "Definir preço",
+    completed: true
+  },
+  {
+    id: "chk_4",
+    item: "Criar página de inscrição",
+    completed: false
+  },
+  {
+    id: "chk_5",
+    item: "Criar campanha",
+    completed: false
+  },
+  {
+    id: "chk_6",
+    item: "Contratar coffee break",
+    completed: false
+  },
+  {
+    id: "chk_7",
+    item: "Contratar fotógrafo",
+    completed: false
+  },
+  {
+    id: "chk_8",
+    item: "Definir brindes",
+    completed: false
+  },
+  {
+    id: "chk_9",
+    item: "Configurar som",
+    completed: false
+  },
+  {
+    id: "chk_10",
+    item: "Confirmar participantes",
+    completed: false
+  }
 ];
 
 const DEFAULT_SCENARIOS: Scenario[] = [
-  { id: 'scen_1', name: 'Cenário Conservador', participants: 30, ticketPrice: 297, extraCosts: 500, isSaved: true },
-  { id: 'scen_2', name: 'Cenário Meta', participants: 50, ticketPrice: 297, extraCosts: 1200, isSaved: true },
-  { id: 'scen_3', name: 'Cenário Otimista', participants: 80, ticketPrice: 347, extraCosts: 2000, isSaved: true },
+  {
+    id: "scen_1",
+    name: "Cenário Conservador",
+    participants: 30,
+    ticketPrice: 297,
+    extraCosts: 500,
+    isSaved: true
+  },
+  {
+    id: "scen_2",
+    name: "Cenário Meta",
+    participants: 50,
+    ticketPrice: 297,
+    extraCosts: 1200,
+    isSaved: true
+  },
+  {
+    id: "scen_3",
+    name: "Cenário Otimista",
+    participants: 80,
+    ticketPrice: 347,
+    extraCosts: 2000,
+    isSaved: true
+  }
 ];
 
 // Helper functions for LocalStorage management
