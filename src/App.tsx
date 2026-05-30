@@ -15,7 +15,6 @@ import {
   CheckCircle2,
   ListTodo,
   Sparkles,
-  RefreshCw,
   Phone,
   Play,
   Award,
@@ -591,34 +590,7 @@ export default function App() {
     return matchesStatus && matchesPriority;
   });
 
-  // --- Reset Database Call ---
-  const handleResetDB = () => {
-    if (confirm('Tem certeza de que deseja redefinir o banco de dados para os valores padrão de semente? Todas as modificações locais serão perdidas.')) {
-      db.resetDatabase();
-      const settings = db.getEventSettings();
-      const finSettings = db.getFinancialSettings();
-      setEventSettings(settings);
-      setFinancialSettings(finSettings);
-      setInvestments(db.getInvestments());
-      setParticipants(db.getParticipants());
-      setTasks(db.getTasks());
-      setChecklist(db.getChecklist());
-      setScenarios(db.getScenarios());
-      
-      // Reset temp states
-      setTempName(settings.name);
-      setTempDate(settings.date);
-      setTempTicketPrice(finSettings.ticketPriceDefault);
-      setTempTargetParticipants(finSettings.targetParticipants);
-      setTempLocation(settings.location);
 
-      // Adjust simulator
-      setSimParticipants(50);
-      setSimTicketPrice(297);
-      setSimExtraCosts(1200);
-      alert('Banco de dados redefinido com sucesso!');
-    }
-  };
 
   const handleSaveLaunchSettings = (e: React.FormEvent) => {
     e.preventDefault();
@@ -731,9 +703,6 @@ export default function App() {
           
           {/* Right: Quick actions */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-            <button className="btn-secondary" onClick={handleResetDB} title="Redefinir Dados Semente" style={{ padding: '6px 12px', fontSize: '0.75rem' }}>
-              <RefreshCw size={12} /> Redefinir Banco
-            </button>
             <div className="hide-mobile" style={{ textAlign: 'right' }}>
               <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>Responsáveis</div>
               <div style={{ fontSize: '0.75rem', fontWeight: 600 }}>Eduardo Both & Gabriel Müller</div>

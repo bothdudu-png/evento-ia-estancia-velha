@@ -319,6 +319,41 @@ const DEFAULT_SCENARIOS: Scenario[] = [
   }
 ];
 
+// Automatic Database Version Management
+const DB_VERSION_KEY = 'ai_db_version';
+const CURRENT_DB_VERSION = 'v2_estancia'; // increment this whenever you update the seed data
+
+const checkAndMigrateDB = () => {
+  if (typeof window !== 'undefined' && window.localStorage) {
+    const activeVersion = localStorage.getItem(DB_VERSION_KEY);
+    if (activeVersion !== CURRENT_DB_VERSION) {
+      // Clear old keys to allow DEFAULT seed data to populate
+      localStorage.removeItem(KEYS.EVENT_SETTINGS);
+      localStorage.removeItem(KEYS.FINANCIAL_SETTINGS);
+      localStorage.removeItem(KEYS.INVESTMENTS);
+      localStorage.removeItem(KEYS.PARTICIPANTS);
+      localStorage.removeItem(KEYS.PARTICIPANT_STATUS);
+      localStorage.removeItem(KEYS.TASKS);
+      localStorage.removeItem(KEYS.CHECKLISTS);
+      localStorage.removeItem(KEYS.SCENARIOS);
+      
+      // Seed the new data
+      localStorage.setItem(KEYS.EVENT_SETTINGS, JSON.stringify(DEFAULT_EVENT_SETTINGS));
+      localStorage.setItem(KEYS.FINANCIAL_SETTINGS, JSON.stringify(DEFAULT_FINANCIAL_SETTINGS));
+      localStorage.setItem(KEYS.INVESTMENTS, JSON.stringify(DEFAULT_INVESTMENTS));
+      localStorage.setItem(KEYS.PARTICIPANTS, JSON.stringify(DEFAULT_PARTICIPANTS));
+      localStorage.setItem(KEYS.PARTICIPANT_STATUS, JSON.stringify(DEFAULT_PARTICIPANT_STATUSES));
+      localStorage.setItem(KEYS.TASKS, JSON.stringify(DEFAULT_TASKS));
+      localStorage.setItem(KEYS.CHECKLISTS, JSON.stringify(DEFAULT_CHECKLIST));
+      localStorage.setItem(KEYS.SCENARIOS, JSON.stringify(DEFAULT_SCENARIOS));
+      
+      localStorage.setItem(DB_VERSION_KEY, CURRENT_DB_VERSION);
+    }
+  }
+};
+
+checkAndMigrateDB();
+
 // Helper functions for LocalStorage management
 export const db = {
   getEventSettings(): EventSettings {
