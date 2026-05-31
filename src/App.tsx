@@ -38,6 +38,7 @@ import {
 } from 'recharts';
 
 import { db } from './utils/db';
+import { animate, stagger } from 'animejs';
 import type {
   EventSettings,
   FinancialSettings,
@@ -217,6 +218,63 @@ export default function App() {
     const timer = setInterval(calculateTimeLeft, 1000);
     return () => clearInterval(timer);
   }, [eventSettings.date]);
+
+  // --- Anime.js Page & Stagger Transitions ---
+  useEffect(() => {
+    // 1. Transition the main tab container
+    animate('.tab-content-container', {
+      opacity: [0, 1],
+      translateY: [15, 0],
+      duration: 350,
+      ease: 'outQuad'
+    });
+
+    // 2. If transitioning to Dashboard, stagger indicators
+    if (activeTab === 'dashboard') {
+      animate('.indicator-card', {
+        scale: [0.92, 1],
+        opacity: [0, 1],
+        translateY: [25, 0],
+        delay: stagger(40, { start: 100 }),
+        duration: 800,
+        ease: 'outBack'
+      });
+    }
+
+    // 3. If transitioning to CRM, stagger cards in each column
+    if (activeTab === 'crm') {
+      animate('.kanban-card', {
+        scale: [0.95, 1],
+        opacity: [0, 1],
+        translateY: [15, 0],
+        delay: stagger(30, { start: 100 }),
+        duration: 600,
+        ease: 'outQuad'
+      });
+    }
+
+    // 4. If transitioning to Planning, stagger checklist items
+    if (activeTab === 'planejamento') {
+      animate('.checklist-item', {
+        opacity: [0, 1],
+        translateX: [-10, 0],
+        delay: stagger(25, { start: 100 }),
+        duration: 500,
+        ease: 'outQuad'
+      });
+    }
+
+    // 5. If transitioning to Timeline/Schedule, stagger timeline items
+    if (activeTab === 'programacao') {
+      animate('.timeline-item', {
+        opacity: [0, 1],
+        translateX: [-20, 0],
+        delay: stagger(40, { start: 100 }),
+        duration: 600,
+        ease: 'outBack'
+      });
+    }
+  }, [activeTab]);
 
   // --- Database Sync Helpers ---
   const updateInvestmentsState = (newInvestments: Investment[]) => {
@@ -785,10 +843,10 @@ export default function App() {
         </nav>
 
         {/* TAB CONTENTS */}
-        
-        {/* TAB 1: EXECUTIVE DASHBOARD */}
-        {activeTab === 'dashboard' && (
-          <div className="animate-fadeInUp" style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+        <div className="tab-content-container">
+          {/* TAB 1: EXECUTIVE DASHBOARD */}
+          {activeTab === 'dashboard' && (
+            <div className="animate-fadeInUp" style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
             
             {/* Real-time Indicators Grid (12 indicators) */}
             <section className="glass-panel" style={{ padding: '24px' }}>
@@ -1912,7 +1970,7 @@ export default function App() {
 
           </div>
         )}
-
+        </div>
       </main>
 
       {/* --- MODALS --- */}
