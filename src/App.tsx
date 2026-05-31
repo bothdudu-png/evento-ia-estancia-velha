@@ -699,8 +699,11 @@ export default function App() {
       <div className="ambient-glow-1"></div>
       <div className="ambient-glow-2"></div>
 
-      {/* STICKY HEADER & NAVBAR */}
-      <header style={{ borderBottom: '1px solid var(--border-color)', padding: '14px 0', background: 'rgba(11, 15, 36, 0.75)', backdropFilter: 'blur(12px)', position: 'sticky', top: 0, zIndex: 100 }}>
+      {/* STICKY HEADER & NAVBAR with Progressive Blur */}
+      <header style={{ borderBottom: '1px solid var(--border-color)', padding: '14px 0', background: 'rgba(6, 9, 30, 0.45)', position: 'sticky', top: 0, zIndex: 100 }}>
+        <div className="gradient-blur">
+          <div></div><div></div><div></div><div></div><div></div><div></div>
+        </div>
         <div style={{ maxWidth: '1280px', margin: '0 auto', padding: '0 20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px' }}>
           
           {/* Left: Brand logo & Title */}
@@ -785,7 +788,7 @@ export default function App() {
         
         {/* TAB 1: EXECUTIVE DASHBOARD */}
         {activeTab === 'dashboard' && (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+          <div className="animate-fadeInUp" style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
             
             {/* Real-time Indicators Grid (12 indicators) */}
             <section className="glass-panel" style={{ padding: '24px' }}>
@@ -801,21 +804,21 @@ export default function App() {
               <div className="indicators-grid">
                 
                 {/* 1. Participantes Meta */}
-                <div className="indicator-card accent-blue">
+                <div className="indicator-card accent-blue animate-fadeInUp stagger-1">
                   <div className="indicator-label">Participantes Meta</div>
                   <div className="indicator-value">{metrics.targetParticipants}</div>
                   <div className="indicator-sub">Almejado no planejamento</div>
                 </div>
 
                 {/* 2. Participantes Confirmados */}
-                <div className="indicator-card accent-blue">
+                <div className="indicator-card accent-blue animate-fadeInUp stagger-2">
                   <div className="indicator-label" style={{ color: 'var(--neon-blue)' }}>Confirmados</div>
                   <div className="indicator-value" style={{ color: 'var(--neon-blue)' }}>{metrics.confirmedCount}</div>
                   <div className="indicator-sub">Inscritos ou já confirmados</div>
                 </div>
 
                 {/* 3. Taxa de Ocupação */}
-                <div className="indicator-card accent-cyan">
+                <div className="indicator-card accent-cyan animate-fadeInUp stagger-3">
                   <div className="indicator-label" style={{ color: 'var(--neon-cyan)' }}>Taxa de Ocupação</div>
                   <div className="indicator-value" style={{ color: 'var(--neon-cyan)' }}>
                     {metrics.occupancyRate.toFixed(1)}%
@@ -828,28 +831,28 @@ export default function App() {
                 </div>
 
                 {/* 4. Receita Prevista */}
-                <div className="indicator-card accent-pink">
+                <div className="indicator-card accent-pink animate-fadeInUp stagger-4">
                   <div className="indicator-label" style={{ color: 'var(--neon-pink)' }}>Receita Projetada</div>
                   <div className="indicator-value" style={{ color: 'var(--neon-pink)' }}>R$ {metrics.expectedRevenue.toLocaleString('pt-BR')}</div>
                   <div className="indicator-sub">Confirmados × R$ {financialSettings.ticketPriceDefault}</div>
                 </div>
 
                 {/* 5. Receita Atual */}
-                <div className="indicator-card accent-emerald">
+                <div className="indicator-card accent-emerald animate-fadeInUp stagger-5">
                   <div className="indicator-label" style={{ color: '#34D399' }}>Receita Recebida</div>
                   <div className="indicator-value" style={{ color: '#34D399' }}>R$ {metrics.actualRevenue.toLocaleString('pt-BR')}</div>
                   <div className="indicator-sub">Comprovadamente paga</div>
                 </div>
 
                 {/* 6. Investimento Total */}
-                <div className="indicator-card accent-rose">
+                <div className="indicator-card accent-rose animate-fadeInUp stagger-6">
                   <div className="indicator-label" style={{ color: '#F87171' }}>Custo do Evento</div>
                   <div className="indicator-value" style={{ color: '#F87171' }}>R$ {metrics.totalInvestment.toLocaleString('pt-BR')}</div>
                   <div className="indicator-sub">Previstos e Pagos</div>
                 </div>
 
                 {/* 7. Lucro Projetado */}
-                <div className="indicator-card accent-purple">
+                <div className="indicator-card accent-purple animate-fadeInUp stagger-7">
                   <div className="indicator-label" style={{ color: 'var(--neon-purple)' }}>Lucro Projetado</div>
                   <div className="indicator-value" style={{ color: 'var(--neon-purple)' }}>
                     R$ {metrics.projectedProfit.toLocaleString('pt-BR')}
@@ -858,7 +861,7 @@ export default function App() {
                 </div>
 
                 {/* 8. Lucro Atual */}
-                <div className={`indicator-card ${metrics.actualProfit >= 0 ? 'accent-emerald' : 'accent-rose'}`}>
+                <div className={`indicator-card ${metrics.actualProfit >= 0 ? 'accent-emerald' : 'accent-rose'} animate-fadeInUp stagger-8`}>
                   <div className="indicator-label">Lucro Líquido Atual</div>
                   <div className="indicator-value" style={{ color: metrics.actualProfit >= 0 ? '#34D399' : '#F87171' }}>
                     R$ {metrics.actualProfit.toLocaleString('pt-BR')}
@@ -867,7 +870,7 @@ export default function App() {
                 </div>
 
                 {/* 9. ROI Projetado */}
-                <div className="indicator-card accent-amber">
+                <div className="indicator-card accent-amber animate-fadeInUp stagger-9">
                   <div className="indicator-label" style={{ color: '#FBBF24' }}>ROI Projetado</div>
                   <div className="indicator-value" style={{ color: '#FBBF24' }}>
                     {metrics.roi.toFixed(0)}%
@@ -876,14 +879,14 @@ export default function App() {
                 </div>
 
                 {/* 10. Ticket Médio */}
-                <div className="indicator-card accent-blue">
+                <div className="indicator-card accent-blue animate-fadeInUp stagger-10">
                   <div className="indicator-label">Ticket Padrão</div>
                   <div className="indicator-value">R$ {metrics.ticketMedio.toLocaleString('pt-BR')}</div>
                   <div className="indicator-sub">Preço base do lote atual</div>
                 </div>
 
                 {/* 11. Lucro por Participante */}
-                <div className="indicator-card accent-purple">
+                <div className="indicator-card accent-purple animate-fadeInUp stagger-11">
                   <div className="indicator-label">Lucro p/ Confirmado</div>
                   <div className="indicator-value">
                     R$ {metrics.profitPerParticipant.toFixed(0)}
@@ -892,7 +895,7 @@ export default function App() {
                 </div>
 
                 {/* 12. Ponto de Equilíbrio */}
-                <div className="indicator-card accent-rose">
+                <div className="indicator-card accent-rose animate-fadeInUp stagger-12">
                   <div className="indicator-label" style={{ color: '#F87171' }}>Breakeven</div>
                   <div className="indicator-value" style={{ color: '#F87171' }}>
                     {metrics.breakevenParticipants}
@@ -1031,7 +1034,7 @@ export default function App() {
 
         {/* TAB 2: SCENARIO SIMULATOR */}
         {activeTab === 'simulador' && (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+          <div className="animate-fadeInUp" style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
             
             {/* Top Description Alert */}
             <div className="glass-panel" style={{ borderLeft: '4px solid var(--neon-cyan)', background: 'rgba(0, 212, 255, 0.02)' }}>
@@ -1232,7 +1235,7 @@ export default function App() {
 
         {/* TAB 3: INVESTMENTS (CRUD) */}
         {activeTab === 'investimentos' && (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+          <div className="animate-fadeInUp" style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
             
             {/* Header Control row */}
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px' }}>
@@ -1386,7 +1389,7 @@ export default function App() {
 
         {/* TAB 4: CRM KANBAN BOARD */}
         {activeTab === 'crm' && (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+          <div className="animate-fadeInUp" style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
             
             {/* Control header row */}
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px' }}>
@@ -1565,7 +1568,7 @@ export default function App() {
 
         {/* TAB 5: PLANNING & CHECKLIST */}
         {activeTab === 'planejamento' && (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+          <div className="animate-fadeInUp" style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
             
             {/* Interactive Checklist and Tasks Grid */}
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))', gap: '24px' }}>
@@ -1717,7 +1720,7 @@ export default function App() {
 
         {/* TAB 6: PROGRAMAÇÃO E CONFIGURAÇÃO */}
         {activeTab === 'programacao' && (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+          <div className="animate-fadeInUp" style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
             
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(360px, 1fr))', gap: '24px' }}>
               
