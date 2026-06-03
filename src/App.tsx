@@ -131,6 +131,9 @@ export default function App() {
   const [draggedParticipantId, setDraggedParticipantId] = useState<string | null>(null);
   const [dragOverColumn, setDragOverColumn] = useState<string | null>(null);
 
+  // --- CRM Sub-view State ---
+  const [crmSubView, setCrmSubView] = useState<'kanban' | 'dashboard'>('kanban');
+
   // --- Temporary Launch Settings States ---
   const [tempName, setTempName] = useState('');
   const [tempDate, setTempDate] = useState('');
@@ -358,6 +361,162 @@ export default function App() {
       breakevenParticipants
     };
   }, [participants, investments, financialSettings]);
+
+  // --- Calculations for CRM Leads Dashboard ---
+  const crmMetrics = useMemo(() => {
+    const totalLeads = participants.length;
+    const contactedCount = participants.filter(p => p.status !== 'Lead').length;
+    const hotCount = participants.filter(p => p.status === 'Interessado').length;
+    const confirmedAndPaidCount = participants.filter(p => ['Confirmado', 'Pago', 'Participou'].includes(p.status)).length;
+    
+    const conversionRate = totalLeads > 0 ? (confirmedAndPaidCount / totalLeads) * 100 : 0;
+    
+    const ticketPrice = financialSettings.ticketPriceDefault;
+    
+    // Value in negotiation (Lead, Contatado, Interessado)
+    const pipelineValue = participants
+      .filter(p => ['Lead', 'Contatado', 'Interessado'].includes(p.status))
+      .length * ticketPrice;
+      
+    // Realized/Confirmed revenue from CRM
+    const realizedRevenue = confirmedAndPaidCount * ticketPrice;
+    
+    return {
+      totalLeads,
+      contactedCount,
+      hotCount,
+      confirmedAndPaidCount,
+      conversionRate,
+      pipelineValue,
+      realizedRevenue
+    };
+  }, [participants, financialSettings]);
+
+  const funnelData = useMemo(() => {
+    const exactCounts = {
+      Lead: participants.filter(p => p.status === 'Lead').length,
+      Contatado: participants.filter(p => p.status === 'Contatado').length,
+      Interessado: participants.filter(p => p.status === 'Interessado').length,
+      Confirmado: participants.filter(p => p.status === 'Confirmado').length,
+      Pago: participants.filter(p => p.status === 'Pago').length,
+      Participou: participants.filter(p => p.status === 'Participou').length,
+    };
+    
+    const participou = exactCounts.Participou;
+    const pago = exactCounts.Pago + participou;
+    const confirmado = exactCounts.Confirmado + pago;
+    const interessado = exactCounts.Interessado + confirmado;
+    const contatado = exactCounts.Contatado + interessado;
+    const lead = exactCounts.Lead + contatado;
+    
+    return [
+      { name: '1. Lead', quantidade: lead, atual: exactCounts.Lead, conversion: lead > 0 ? 100 : 0 },
+      { name: '2. Contatado', quantidade: contatado, atual: exactCounts.Contatado, conversion: lead > 0 ? (contatado / lead) * 100 : 0 },
+      { name: '3. Interessado', quantidade: interessado, atual: exactCounts.Interessado, conversion: contatado > 0 ? (interessado / contatado) * 100 : 0 },
+      { name: '4. Confirmado', quantidade: confirmado, atual: exactCounts.Confirmado, conversion: interessado > 0 ? (confirmado / interessado) * 100 : 0 },
+      { name: '5. Pago', quantidade: pago, atual: exactCounts.Pago, conversion: confirmado > 0 ? (pago / confirmado) * 100 : 0 },
+      { name: '6. Participou', quantidade: participou, atual: exactCounts.Participou, conversion: pago > 0 ? (participou / pago) * 100 : 0 },
+    ];
+  }, [participants]);
+
+  const leadsByCityData = useMemo(() => {
+    const cityMap: { [key: string]: number } = {};
+    participants.forEach(p => {
+      const city = p.city || 'Desconhecida';
+      cityMap[city] = (cityMap[city] || 0) + 1;
+    });
+    return Object.keys(cityMap)
+      .map(city => ({ name: city, Leads: cityMap[city] }))
+      .sort((a, b) => b.Leads - a.Leads)
+      .slice(0, 8);
+  }, [participants]);
+
+  const leadsByCompanyData = useMemo(() => {
+    const companyMap: { [key: string]: number } = {};
+    participants.forEach(p => {
+      if (p.company) {
+        companyMap[p.company] = (companyMap[p.company] || 0) + 1;
+      }
+    });
+    return Object.keys(companyMap)
+      .map(comp => ({ name: comp, Leads: companyMap[comp] }))
+      .sort((a, b) => b.Leads - a.Leads)
+      .slice(0, 5);
+  }, [participants]);
+
+  const leadsTrendData = useMemo(() => {
+    const dates: { [key: string]: number } = {};
+    participants.forEach(p => {
+      const dateStr = p.dateAdded || new Date().toISOString().split('T')[0];
+      dates[dateStr] = (dates[dateStr] || 0) + 1;
+    });
+    
+    const sortedDates = Object.keys(dates).sort();
+    let accumulated = 0;
+    return sortedDates.map(d => {
+      accumulated += dates[d];
+      const parts = d.split('-');
+      const formattedDate = parts.length === 3 ? `${parts[2]}/${parts[1]}` : d;
+      return {
+        date: formattedDate,
+        Leads: accumulated
+      };
+    });
+  }, [participants]);
+
+  const crmInsights = useMemo(() => {
+    const insights: string[] = [];
+    const total = participants.length;
+    const leadsNoContact = participants.filter(p => p.status === 'Lead').length;
+    const hotLeads = participants.filter(p => p.status === 'Interessado').length;
+    const target = financialSettings.targetParticipants;
+    const confirmedCount = participants.filter(p => ['Confirmado', 'Pago', 'Participou'].includes(p.status)).length;
+    const conversion = total > 0 ? (confirmedCount / total) : 0;
+    
+    if (leadsNoContact > 0) {
+      insights.push(`Você tem **${leadsNoContact} lead(s)** na etapa **Lead** sem contato inicial. Envie uma mensagem pelo WhatsApp para engajá-los!`);
+    } else {
+      insights.push(`Excelente! Todos os leads no seu funil já receberam contato inicial.`);
+    }
+    
+    if (hotLeads > 0) {
+      insights.push(`A coluna **Interessado** conta com **${hotLeads} lead(s)** quentes. Ofereça um desconto especial ou tire dúvidas finais para convertê-los.`);
+    }
+    
+    const missingConfirmations = target - confirmedCount;
+    if (missingConfirmations > 0) {
+      if (conversion > 0) {
+        const estimatedLeadsNeeded = Math.ceil(missingConfirmations / conversion);
+        insights.push(`Faltam **${missingConfirmations}** confirmados. Com sua conversão de **${(conversion * 100).toFixed(0)}%**, você precisará de mais **${estimatedLeadsNeeded} lead(s)** no funil.`);
+      } else {
+        insights.push(`Para alcançar sua meta de **${target}** confirmados, comece a mover os primeiros leads para Confirmado/Pago.`);
+      }
+    } else {
+      insights.push(`🎉 Parabéns! Você atingiu ou superou sua meta de **${target}** participantes confirmados no funil!`);
+    }
+    
+    const cityMap: { [key: string]: number } = {};
+    participants.forEach(p => {
+      const city = p.city || '';
+      if (city) cityMap[city] = (cityMap[city] || 0) + 1;
+    });
+    
+    let topCity = '';
+    let topCityCount = 0;
+    Object.keys(cityMap).forEach(c => {
+      if (cityMap[c] > topCityCount) {
+        topCityCount = cityMap[c];
+        topCity = c;
+      }
+    });
+    
+    if (topCity) {
+      const percentage = total > 0 ? ((topCityCount / total) * 100).toFixed(0) : '0';
+      insights.push(`**${topCity}** é a sua principal fonte de leads, representando **${percentage}%** do pipeline (**${topCityCount} leads**).`);
+    }
+    
+    return insights;
+  }, [participants, financialSettings]);
 
   // --- Investment CRUD Actions ---
   const handleAddInvestment = () => {
@@ -1454,8 +1613,44 @@ export default function App() {
               <div>
                 <h3 style={{ fontSize: '1.2rem', fontWeight: 700 }}>Funil de Interessados & Pipeline CRM</h3>
                 <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginTop: '2px' }}>
-                  Arraste e solte os cards entre as colunas para atualizar o status e recalcular as finanças automaticamente.
+                  {crmSubView === 'kanban' 
+                    ? 'Arraste e solte os cards entre as colunas para atualizar o status e recalcular as finanças automaticamente.' 
+                    : 'Acompanhe métricas, conversões de leads e insights de vendas em tempo real.'}
                 </p>
+              </div>
+
+              {/* Segmented sub-tab switch */}
+              <div style={{ display: 'flex', background: 'rgba(255, 255, 255, 0.03)', border: '1px solid var(--border-color)', borderRadius: '10px', padding: '4px' }}>
+                <button 
+                  className={`tab-btn ${crmSubView === 'kanban' ? 'active' : ''}`}
+                  onClick={() => setCrmSubView('kanban')}
+                  style={{ 
+                    padding: '8px 16px', 
+                    fontSize: '0.8rem', 
+                    minWidth: '120px', 
+                    border: 'none', 
+                    background: crmSubView === 'kanban' ? 'linear-gradient(135deg, rgba(30, 64, 175, 0.25) 0%, rgba(124, 58, 237, 0.25) 100%)' : 'transparent', 
+                    color: crmSubView === 'kanban' ? 'var(--neon-blue)' : 'var(--text-secondary)',
+                    borderRadius: '6px'
+                  }}
+                >
+                  Quadro Kanban
+                </button>
+                <button 
+                  className={`tab-btn ${crmSubView === 'dashboard' ? 'active' : ''}`}
+                  onClick={() => setCrmSubView('dashboard')}
+                  style={{ 
+                    padding: '8px 16px', 
+                    fontSize: '0.8rem', 
+                    minWidth: '140px', 
+                    border: 'none', 
+                    background: crmSubView === 'dashboard' ? 'linear-gradient(135deg, rgba(30, 64, 175, 0.25) 0%, rgba(124, 58, 237, 0.25) 100%)' : 'transparent', 
+                    color: crmSubView === 'dashboard' ? 'var(--neon-blue)' : 'var(--text-secondary)',
+                    borderRadius: '6px'
+                  }}
+                >
+                  Métricas & Dashboard
+                </button>
               </div>
 
               <button className="btn-primary" onClick={handleAddParticipant}>
@@ -1463,163 +1658,368 @@ export default function App() {
               </button>
             </div>
 
-            {/* Filter and Search Panel */}
-            <div className="glass-panel" style={{ padding: '16px', display: 'flex', gap: '12px', flexWrap: 'wrap', alignItems: 'center' }}>
-              
-              <div style={{ flex: 1, minWidth: '240px', position: 'relative' }}>
-                <Search size={16} style={{ position: 'absolute', left: '12px', top: '13px', color: 'var(--text-muted)' }} />
-                <input 
-                  type="text" 
-                  placeholder="Buscar por nome, empresa ou cargo..." 
-                  value={crmSearch}
-                  onChange={(e) => setCrmSearch(e.target.value)}
-                  className="glass-input" 
-                  style={{ paddingLeft: '36px' }}
-                />
-              </div>
+            {crmSubView === 'kanban' ? (
+              <>
+                {/* Filter and Search Panel */}
+                <div className="glass-panel" style={{ padding: '16px', display: 'flex', gap: '12px', flexWrap: 'wrap', alignItems: 'center' }}>
+                  
+                  <div style={{ flex: 1, minWidth: '240px', position: 'relative' }}>
+                    <Search size={16} style={{ position: 'absolute', left: '12px', top: '13px', color: 'var(--text-muted)' }} />
+                    <input 
+                      type="text" 
+                      placeholder="Buscar por nome, empresa ou cargo..." 
+                      value={crmSearch}
+                      onChange={(e) => setCrmSearch(e.target.value)}
+                      className="glass-input" 
+                      style={{ paddingLeft: '36px' }}
+                    />
+                  </div>
 
-              {/* City filter */}
-              <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                <Filter size={14} style={{ color: 'var(--text-muted)' }} />
-                <select 
-                  value={crmCityFilter}
-                  onChange={(e) => setCrmCityFilter(e.target.value)}
-                  className="glass-select" 
-                  style={{ width: '160px', padding: '8px' }}
-                >
-                  <option value="Todas">Todas Cidades</option>
-                  {crmCities.map(city => (
-                    <option key={city} value={city}>{city}</option>
-                  ))}
-                </select>
-              </div>
-            </div>
+                  {/* City filter */}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    <Filter size={14} style={{ color: 'var(--text-muted)' }} />
+                    <select 
+                      value={crmCityFilter}
+                      onChange={(e) => setCrmCityFilter(e.target.value)}
+                      className="glass-select" 
+                      style={{ width: '160px', padding: '8px' }}
+                    >
+                      <option value="Todas">Todas Cidades</option>
+                      {crmCities.map(city => (
+                        <option key={city} value={city}>{city}</option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
 
-            {/* Kanban Columns (Drag and Drop Container) */}
-            <div className="kanban-board">
-              
-              {statuses.map((col) => {
-                // Get participants belonging to this status column
-                const colParticipants = filteredParticipants.filter(p => p.status === col.status);
-                
-                return (
-                  <div 
-                    key={col.status}
-                    className={`kanban-column ${dragOverColumn === col.status ? 'dragover' : ''}`}
-                    onDragOver={(e) => handleDragOver(e, col.status)}
-                    onDragLeave={() => setDragOverColumn(null)}
-                    onDrop={(e) => handleDrop(e, col.status)}
-                  >
-                    <div className="kanban-column-header">
-                      <div className="kanban-column-title">
-                        <span style={{ 
-                          width: '10px', 
-                          height: '10px', 
-                          borderRadius: '50%', 
-                          backgroundColor: col.color,
-                          boxShadow: `0 0 8px ${col.color}`
-                        }}></span>
-                        {col.label}
+                {/* Kanban Columns (Drag and Drop Container) */}
+                <div className="kanban-board">
+                  
+                  {statuses.map((col) => {
+                    // Get participants belonging to this status column
+                    const colParticipants = filteredParticipants.filter(p => p.status === col.status);
+                    
+                    return (
+                      <div 
+                        key={col.status}
+                        className={`kanban-column ${dragOverColumn === col.status ? 'dragover' : ''}`}
+                        onDragOver={(e) => handleDragOver(e, col.status)}
+                        onDragLeave={() => setDragOverColumn(null)}
+                        onDrop={(e) => handleDrop(e, col.status)}
+                      >
+                        <div className="kanban-column-header">
+                          <div className="kanban-column-title">
+                            <span style={{ 
+                              width: '10px', 
+                              height: '10px', 
+                              borderRadius: '50%', 
+                              backgroundColor: col.color,
+                              boxShadow: `0 0 8px ${col.color}`
+                            }}></span>
+                            {col.label}
+                          </div>
+                          <span className="kanban-column-badge">{colParticipants.length}</span>
+                        </div>
+
+                        <div className="kanban-column-list">
+                          {colParticipants.length === 0 ? (
+                            <div style={{ 
+                              flex: 1, 
+                              border: '1px dashed rgba(255,255,255,0.04)', 
+                              borderRadius: '8px', 
+                              display: 'flex', 
+                              alignItems: 'center', 
+                              justifyContent: 'center', 
+                              color: 'var(--text-muted)', 
+                              fontSize: '0.75rem',
+                              textAlign: 'center',
+                              padding: '20px'
+                            }}>
+                              Arraste leads para esta coluna
+                            </div>
+                          ) : (
+                            colParticipants.map((p) => (
+                              <div 
+                                key={p.id}
+                                className={`kanban-card ${draggedParticipantId === p.id ? 'dragging' : ''}`}
+                                draggable
+                                onDragStart={() => handleDragStart(p.id)}
+                                onDragEnd={() => setDraggedParticipantId(null)}
+                              >
+                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '6px' }}>
+                                  <span style={{ fontSize: '0.85rem', fontWeight: 700, color: 'var(--text-primary)' }}>{p.name}</span>
+                                  
+                                  {/* Action tools */}
+                                  <div style={{ display: 'flex', gap: '4px' }}>
+                                    <button className="btn-icon" onClick={() => handleEditParticipant(p)} style={{ padding: '3px', border: 'none', background: 'transparent' }} title="Editar">
+                                      <Edit2 size={11} />
+                                    </button>
+                                    <button className="btn-icon" onClick={() => handleDeleteParticipant(p.id)} style={{ padding: '3px', border: 'none', background: 'transparent', color: '#F87171' }} title="Remover">
+                                      <Trash2 size={11} />
+                                    </button>
+                                  </div>
+                                </div>
+
+                                {/* Details */}
+                                {p.company && (
+                                  <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', marginBottom: '2px' }}>
+                                    💼 {p.company} {p.role ? `(${p.role})` : ''}
+                                  </div>
+                                )}
+
+                                <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '6px' }}>
+                                  <span>📍 {p.city}</span>
+                                  
+                                  {/* WhatsApp trigger */}
+                                  {p.whatsapp && (
+                                    <a 
+                                      href={`https://wa.me/55${p.whatsapp.replace(/\D/g, '')}?text=Olá ${encodeURIComponent(p.name)}, tudo bem? Aqui é o ${encodeURIComponent(eventSettings.partnerName)} do time do ${encodeURIComponent(eventSettings.name)}. Fiquei feliz com o seu interesse!`}
+                                      target="_blank" 
+                                      rel="noopener noreferrer"
+                                      style={{ 
+                                        display: 'inline-flex', 
+                                        alignItems: 'center', 
+                                        gap: '3px', 
+                                        color: '#34D399', 
+                                        textDecoration: 'none', 
+                                        fontWeight: 600, 
+                                        fontSize: '0.7rem' 
+                                      }}
+                                      title="Iniciar conversa no WhatsApp"
+                                      onClick={(e) => e.stopPropagation()} // Prevent trigger drag
+                                    >
+                                      <Phone size={10} /> {p.whatsapp}
+                                    </a>
+                                  )}
+                                </div>
+
+                                {p.observations && (
+                                  <div style={{ 
+                                    marginTop: '8px', 
+                                    padding: '6px', 
+                                    background: 'rgba(255,255,255,0.02)', 
+                                    borderRadius: '4px', 
+                                    fontSize: '0.7rem', 
+                                    color: 'var(--text-secondary)',
+                                    borderLeft: '2px solid rgba(255,255,255,0.1)',
+                                    wordBreak: 'break-word'
+                                  }}>
+                                    📝 {p.observations}
+                                  </div>
+                                )}
+
+                              </div>
+                            ))
+                          )}
+                        </div>
                       </div>
-                      <span className="kanban-column-badge">{colParticipants.length}</span>
-                    </div>
+                    );
+                  })}
 
-                    <div className="kanban-column-list">
-                      {colParticipants.length === 0 ? (
-                        <div style={{ 
-                          flex: 1, 
-                          border: '1px dashed rgba(255,255,255,0.04)', 
-                          borderRadius: '8px', 
-                          display: 'flex', 
-                          alignItems: 'center', 
-                          justifyContent: 'center', 
-                          color: 'var(--text-muted)', 
-                          fontSize: '0.75rem',
-                          textAlign: 'center',
-                          padding: '20px'
-                        }}>
-                          Arraste leads para esta coluna
+                </div>
+              </>
+            ) : (
+              /* DASHBOARD & ANALYTICS VIEW */
+              <div className="animate-fadeInUp" style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+                
+                {/* 1. Metric Cards Grid */}
+                <div className="indicators-grid">
+                  
+                  {/* Card 1: Total Leads */}
+                  <div className="indicator-card accent-blue">
+                    <div className="indicator-label">Total de Leads</div>
+                    <div className="indicator-value">{crmMetrics.totalLeads}</div>
+                    <div className="indicator-sub">Cadastrados no pipeline</div>
+                  </div>
+
+                  {/* Card 2: Contatados */}
+                  <div className="indicator-card accent-purple">
+                    <div className="indicator-label" style={{ color: 'var(--neon-purple)' }}>Contatados</div>
+                    <div className="indicator-value" style={{ color: 'var(--neon-purple)' }}>{crmMetrics.contactedCount}</div>
+                    <div className="indicator-sub">Com contato estabelecido</div>
+                  </div>
+
+                  {/* Card 3: Taxa de Conversão */}
+                  <div className="indicator-card accent-cyan">
+                    <div className="indicator-label" style={{ color: 'var(--neon-cyan)' }}>Taxa de Conversão</div>
+                    <div className="indicator-value" style={{ color: 'var(--neon-cyan)' }}>{crmMetrics.conversionRate.toFixed(1)}%</div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '0.75rem', marginTop: '4px' }}>
+                      <div style={{ flex: 1, height: '4px', background: 'rgba(255,255,255,0.08)', borderRadius: '2px', overflow: 'hidden' }}>
+                        <div style={{ width: `${Math.min(crmMetrics.conversionRate, 100)}%`, height: '100%', background: 'linear-gradient(90deg, var(--neon-cyan), var(--neon-blue))' }}></div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Card 4: Valor em Negociação */}
+                  <div className="indicator-card accent-pink">
+                    <div className="indicator-label" style={{ color: 'var(--neon-pink)' }}>Pipeline em Negociação</div>
+                    <div className="indicator-value" style={{ color: 'var(--neon-pink)' }}>R$ {crmMetrics.pipelineValue.toLocaleString('pt-BR')}</div>
+                    <div className="indicator-sub">Não confirmados × R$ {financialSettings.ticketPriceDefault}</div>
+                  </div>
+
+                  {/* Card 5: Receita Confirmada */}
+                  <div className="indicator-card accent-emerald">
+                    <div className="indicator-label" style={{ color: '#34D399' }}>Receita Confirmada</div>
+                    <div className="indicator-value" style={{ color: '#34D399' }}>R$ {crmMetrics.realizedRevenue.toLocaleString('pt-BR')}</div>
+                    <div className="indicator-sub">Faturamento gerado via CRM</div>
+                  </div>
+
+                </div>
+
+                {/* 2. Charts Grid */}
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(500px, 1fr))', gap: '24px' }}>
+                  
+                  {/* Chart 1: Funil de Vendas Horizontal */}
+                  <div className="glass-panel" style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                    <h4 style={{ fontSize: '0.95rem', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <Layers size={16} style={{ color: 'var(--neon-blue)' }} /> Funil de Conversão do CRM
+                    </h4>
+                    <div style={{ display: 'flex', width: '100%', gap: '20px', flexWrap: 'wrap' }}>
+                      <div style={{ flex: 1.5, height: 260 }}>
+                        <ResponsiveContainer>
+                          <BarChart data={funnelData} layout="vertical" margin={{ top: 10, right: 20, left: 10, bottom: 5 }}>
+                            <XAxis type="number" stroke="#9CA3AF" tick={{ fontSize: 11 }} hide />
+                            <YAxis dataKey="name" type="category" stroke="#9CA3AF" tick={{ fontSize: 11 }} width={90} />
+                            <ChartTooltip contentStyle={{ background: '#0b0f24', border: '1px solid rgba(255,255,255,0.1)', color: '#fff', borderRadius: '8px' }} />
+                            <Bar dataKey="quantidade" fill="url(#crmBluePurpleGrad)" radius={[0, 4, 4, 0]}>
+                              {funnelData.map((_entry, index) => (
+                                <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                              ))}
+                            </Bar>
+                            <defs>
+                              <linearGradient id="crmBluePurpleGrad" x1="0" y1="0" x2="1" y2="0">
+                                <stop offset="5%" stopColor="var(--neon-blue)" stopOpacity={0.85}/>
+                                <stop offset="95%" stopColor="var(--neon-purple)" stopOpacity={0.85}/>
+                              </linearGradient>
+                            </defs>
+                          </BarChart>
+                        </ResponsiveContainer>
+                      </div>
+                      
+                      {/* Step Conversion Details */}
+                      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '8px', justifyContent: 'center', minWidth: '180px' }}>
+                        {funnelData.map((step, idx) => (
+                          <div key={idx} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: '0.78rem', background: 'rgba(255,255,255,0.01)', border: '1px solid var(--border-color)', borderRadius: '6px', padding: '6px 10px' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                              <span style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: COLORS[idx % COLORS.length] }}></span>
+                              <span style={{ color: 'var(--text-secondary)' }}>{step.name.substring(3)}</span>
+                            </div>
+                            <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                              <strong style={{ color: '#fff' }}>{step.quantidade}</strong>
+                              <span style={{ color: 'var(--text-muted)', fontSize: '0.7rem' }}>({step.conversion.toFixed(0)}%)</span>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Chart 2: Leads por Cidade */}
+                  <div className="glass-panel">
+                    <h4 style={{ fontSize: '0.95rem', fontWeight: 600, marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <Users size={16} style={{ color: 'var(--neon-cyan)' }} /> Origem dos Leads por Cidade (Top Cidades)
+                    </h4>
+                    <div style={{ width: '100%', height: 260 }}>
+                      {leadsByCityData.length === 0 ? (
+                        <div style={{ height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-muted)' }}>
+                          Nenhum lead com cidade cadastrada
                         </div>
                       ) : (
-                        colParticipants.map((p) => (
-                          <div 
-                            key={p.id}
-                            className={`kanban-card ${draggedParticipantId === p.id ? 'dragging' : ''}`}
-                            draggable
-                            onDragStart={() => handleDragStart(p.id)}
-                            onDragEnd={() => setDraggedParticipantId(null)}
-                          >
-                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '6px' }}>
-                              <span style={{ fontSize: '0.85rem', fontWeight: 700, color: 'var(--text-primary)' }}>{p.name}</span>
-                              
-                              {/* Action tools */}
-                              <div style={{ display: 'flex', gap: '4px' }}>
-                                <button className="btn-icon" onClick={() => handleEditParticipant(p)} style={{ padding: '3px', border: 'none', background: 'transparent' }} title="Editar">
-                                  <Edit2 size={11} />
-                                </button>
-                                <button className="btn-icon" onClick={() => handleDeleteParticipant(p.id)} style={{ padding: '3px', border: 'none', background: 'transparent', color: '#F87171' }} title="Remover">
-                                  <Trash2 size={11} />
-                                </button>
-                              </div>
+                        <ResponsiveContainer>
+                          <BarChart data={leadsByCityData} margin={{ top: 10, right: 10, left: -20, bottom: 5 }}>
+                            <XAxis dataKey="name" stroke="#9CA3AF" tick={{ fontSize: 11 }} />
+                            <YAxis stroke="#9CA3AF" tick={{ fontSize: 11 }} allowDecimals={false} />
+                            <ChartTooltip contentStyle={{ background: '#0b0f24', border: '1px solid rgba(255,255,255,0.1)', color: '#fff', borderRadius: '8px' }} />
+                            <Bar dataKey="Leads" fill="url(#crmCyanGrad)" radius={[4, 4, 0, 0]}>
+                              {leadsByCityData.map((_entry, index) => (
+                                <Cell key={`cell-${index}`} fill={COLORS[(index + 2) % COLORS.length]} />
+                              ))}
+                            </Bar>
+                            <defs>
+                              <linearGradient id="crmCyanGrad" x1="0" y1="0" x2="0" y2="1">
+                                <stop offset="5%" stopColor="var(--neon-cyan)" stopOpacity={0.85}/>
+                                <stop offset="95%" stopColor="var(--electric-blue)" stopOpacity={0.2}/>
+                              </linearGradient>
+                            </defs>
+                          </BarChart>
+                        </ResponsiveContainer>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Chart 3: Curva de Entrada de Leads */}
+                  <div className="glass-panel">
+                    <h4 style={{ fontSize: '0.95rem', fontWeight: 600, marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <TrendingUp size={16} style={{ color: 'var(--neon-pink)' }} /> Crescimento e Entrada de Leads (Acumulado)
+                    </h4>
+                    <div style={{ width: '100%', height: 260 }}>
+                      {leadsTrendData.length === 0 ? (
+                        <div style={{ height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-muted)' }}>
+                          Nenhum lead cadastrado para gerar histórico
+                        </div>
+                      ) : (
+                        <ResponsiveContainer>
+                          <AreaChart data={leadsTrendData} margin={{ top: 10, right: 15, left: -20, bottom: 5 }}>
+                            <XAxis dataKey="date" stroke="#9CA3AF" tick={{ fontSize: 11 }} />
+                            <YAxis stroke="#9CA3AF" tick={{ fontSize: 11 }} allowDecimals={false} />
+                            <ChartTooltip contentStyle={{ background: '#0b0f24', border: '1px solid rgba(255,255,255,0.1)', color: '#fff', borderRadius: '8px' }} />
+                            <Area type="monotone" dataKey="Leads" stroke="var(--neon-pink)" fill="url(#crmAreaPink)" strokeWidth={2.5} />
+                            <defs>
+                              <linearGradient id="crmAreaPink" x1="0" y1="0" x2="0" y2="1">
+                                <stop offset="5%" stopColor="var(--neon-pink)" stopOpacity={0.3}/>
+                                <stop offset="95%" stopColor="var(--bg-primary)" stopOpacity={0}/>
+                              </linearGradient>
+                            </defs>
+                          </AreaChart>
+                        </ResponsiveContainer>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Chart 4: Principais Empresas Parceiras (B2B) */}
+                  <div className="glass-panel">
+                    <h4 style={{ fontSize: '0.95rem', fontWeight: 600, marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <Layers size={16} style={{ color: 'var(--neon-purple)' }} /> Empresas do Ecossistema com Mais Leads
+                    </h4>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', overflowY: 'auto', maxHeight: '260px' }}>
+                      {leadsByCompanyData.length === 0 ? (
+                        <div style={{ textAlign: 'center', padding: '40px', color: 'var(--text-muted)', fontSize: '0.9rem' }}>
+                          Nenhuma empresa cadastrada nos leads.
+                        </div>
+                      ) : (
+                        leadsByCompanyData.map((comp, idx) => (
+                          <div key={idx} style={{ background: 'rgba(255,255,255,0.015)', border: '1px solid var(--border-color)', borderRadius: '8px', padding: '12px', display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                              <span style={{ fontSize: '0.85rem', fontWeight: 600 }}>💼 {comp.name}</span>
+                              <span style={{ fontSize: '0.85rem', fontWeight: 700, color: 'var(--neon-blue)' }}>{comp.Leads} lead(s)</span>
                             </div>
-
-                            {/* Details */}
-                            {p.company && (
-                              <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', marginBottom: '2px' }}>
-                                💼 {p.company} {p.role ? `(${p.role})` : ''}
-                              </div>
-                            )}
-
-                            <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '6px' }}>
-                              <span>📍 {p.city}</span>
-                              
-                              {/* WhatsApp trigger */}
-                              {p.whatsapp && (
-                                <a 
-                                  href={`https://wa.me/55${p.whatsapp.replace(/\D/g, '')}?text=Olá ${encodeURIComponent(p.name)}, tudo bem? Aqui é o ${encodeURIComponent(eventSettings.partnerName)} do time do ${encodeURIComponent(eventSettings.name)}. Fiquei feliz com o seu interesse!`}
-                                  target="_blank" 
-                                  rel="noopener noreferrer"
-                                  style={{ 
-                                    display: 'inline-flex', 
-                                    alignItems: 'center', 
-                                    gap: '3px', 
-                                    color: '#34D399', 
-                                    textDecoration: 'none', 
-                                    fontWeight: 600, 
-                                    fontSize: '0.7rem' 
-                                  }}
-                                  title="Iniciar conversa no WhatsApp"
-                                  onClick={(e) => e.stopPropagation()} // Prevent trigger drag
-                                >
-                                  <Phone size={10} /> {p.whatsapp}
-                                </a>
-                              )}
+                            <div style={{ width: '100%', height: '4px', background: 'rgba(255,255,255,0.08)', borderRadius: '2px', overflow: 'hidden' }}>
+                              <div style={{ width: `${(comp.Leads / crmMetrics.totalLeads) * 100}%`, height: '100%', background: 'linear-gradient(90deg, var(--neon-blue), var(--neon-purple))' }}></div>
                             </div>
-
-                            {p.observations && (
-                              <div style={{ 
-                                marginTop: '8px', 
-                                padding: '6px', 
-                                background: 'rgba(255,255,255,0.02)', 
-                                borderRadius: '4px', 
-                                fontSize: '0.7rem', 
-                                color: 'var(--text-secondary)',
-                                borderLeft: '2px solid rgba(255,255,255,0.1)',
-                                wordBreak: 'break-word'
-                              }}>
-                                📝 {p.observations}
-                              </div>
-                            )}
-
                           </div>
                         ))
                       )}
                     </div>
                   </div>
-                );
-              })}
 
-            </div>
+                </div>
+
+                {/* 3. AI Smart Insights & Sales Recommendations */}
+                <div className="glass-panel" style={{ borderLeft: '4px solid var(--neon-purple)', background: 'rgba(124, 58, 237, 0.02)' }}>
+                  <h4 style={{ fontSize: '1rem', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '14px' }}>
+                    <Sparkles size={18} style={{ color: 'var(--neon-purple)' }} /> Insights Inteligentes & Ações Recomendadas
+                  </h4>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '16px' }}>
+                    {crmInsights.map((insight, idx) => (
+                      <div key={idx} style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid var(--border-color)', borderRadius: '8px', padding: '14px', fontSize: '0.85rem', lineHeight: '1.4', color: 'var(--text-secondary)' }}>
+                        <div dangerouslySetInnerHTML={{ __html: insight.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>') }} />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+              </div>
+            )}
 
           </div>
         )}
