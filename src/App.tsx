@@ -1209,6 +1209,7 @@ export default function App() {
     return (
       <MarketingLandingPage 
         inviteToken={inviteToken} 
+        confirmedCount={metrics.confirmedCount}
         onNavigateToAuth={() => {
           setIsMarketing(false);
           window.history.replaceState({}, document.title, window.location.pathname);
@@ -1436,15 +1437,16 @@ export default function App() {
           <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
             <div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
-                <h1 style={{ fontSize: '1.3rem', fontWeight: 800, letterSpacing: '-0.02em', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                  <span className="gradient-text-blue-purple">{parsedEventNameHeader.main}</span>
+                <h1 style={{ fontSize: '1.3rem', fontWeight: 800, letterSpacing: '-0.02em', display: 'flex', alignItems: 'center', gap: '2px' }}>
+                  <span style={{ color: 'var(--neon-cyan)', textShadow: '0 0 10px rgba(0, 242, 254, 0.2)' }}>AI</span>
+                  <span style={{ color: 'var(--neon-purple)', textShadow: '0 0 10px rgba(124, 58, 237, 0.2)' }}>EXPERIENCE</span>
                 </h1>
                 {parsedEventNameHeader.sub && (
-                  <span className="badge badge-previsto" style={{ background: 'rgba(0, 212, 255, 0.12)', color: 'var(--neon-blue)', fontSize: '0.65rem', border: '1px solid rgba(0, 212, 255, 0.2)' }}>
+                  <span className="badge" style={{ background: 'rgba(0, 242, 254, 0.04)', color: 'var(--neon-cyan)', fontSize: '0.7rem', border: '1px solid var(--neon-cyan)', borderRadius: '20px', padding: '2px 10px', fontWeight: 700 }}>
                     {parsedEventNameHeader.sub}
                   </span>
                 )}
-                <span className="badge hide-mobile" style={{ background: 'rgba(124, 58, 237, 0.12)', color: 'var(--neon-purple)', fontSize: '0.65rem' }}>
+                <span className="badge hide-mobile" style={{ background: 'rgba(124, 58, 237, 0.04)', color: 'var(--neon-purple)', fontSize: '0.7rem', border: '1px solid var(--neon-purple)', borderRadius: '20px', padding: '2px 10px', fontWeight: 700 }}>
                   {eventSettings.location.toUpperCase()}
                 </span>
               </div>

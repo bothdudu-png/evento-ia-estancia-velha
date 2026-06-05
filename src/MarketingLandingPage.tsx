@@ -31,11 +31,13 @@ const InstagramIcon = ({ size = 20, style = {} }: { size?: number; style?: React
 
 interface MarketingLandingPageProps {
   inviteToken: string | null;
+  confirmedCount?: number;
   onNavigateToAuth: () => void;
 }
 
 export const MarketingLandingPage: React.FC<MarketingLandingPageProps> = ({
   inviteToken,
+  confirmedCount = 0,
   onNavigateToAuth
 }) => {
   const [openFaq, setOpenFaq] = useState<number | null>(null);
@@ -216,82 +218,88 @@ Apenas para quem possui o convite exclusivo. Acesse o painel e confirme sua insc
             <Users size={20} style={{ color: 'var(--neon-cyan)' }} />
             <div>
               <div style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.4)', fontFamily: 'monospace' }}>VAGAS</div>
-              <div style={{ fontSize: '0.9rem', fontWeight: 700 }}>Altamente Limitadas</div>
+              <div style={{ fontSize: '0.9rem', fontWeight: 700, display: 'flex', flexDirection: 'column' }}>
+                <span>{confirmedCount} de 60 preenchidas</span>
+                <div style={{ width: '100px', height: '3px', background: 'rgba(255,255,255,0.1)', borderRadius: '2px', marginTop: '4px', overflow: 'hidden' }}>
+                  <div style={{ width: `${Math.min((confirmedCount / 60) * 100, 100)}%`, height: '100%', background: 'var(--neon-cyan)', boxShadow: '0 0 8px var(--neon-cyan)' }}></div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
       </section>
 
       {/* MAP & LOCATION SECTION (1º Print Requirement) */}
-      <section className="mkt-section" style={{ borderTop: '1px solid rgba(255, 255, 255, 0.05)' }}>
-        <div className="mkt-geo-grid">
-          <div>
+      <section className="mkt-section mkt-geo-section">
+        <div style={{ maxWidth: '1200px', margin: '0 auto', display: 'flex', alignItems: 'center', minHeight: '450px' }}>
+          <div style={{ position: 'relative', zIndex: 10, maxWidth: '550px' }}>
             <span className="mkt-section-label">[ 01 ] · GEO TRACE</span>
-            <h2 className="mkt-section-title" style={{ fontSize: '2.8rem', lineHeight: '1' }}>
+            <h2 className="mkt-section-title" style={{ fontSize: '3rem', lineHeight: '1.1', fontWeight: 900 }}>
               ROTA DE INOVAÇÃO.
             </h2>
-            <h2 className="builderz-outlined-text" style={{ fontSize: '2.8rem', lineHeight: '1', marginBottom: '24px' }}>
+            <h2 style={{ fontSize: '3rem', lineHeight: '1.1', fontWeight: 900, marginBottom: '24px', color: 'var(--neon-cyan)', textShadow: '0 0 20px rgba(0, 242, 254, 0.35)' }}>
               PRÓXIMA PARADA: RS.
             </h2>
-            <p style={{ color: '#9ca3af', fontSize: '0.95rem', lineHeight: '1.6', marginBottom: '24px' }}>
+            <p style={{ color: '#9ca3af', fontSize: '1rem', lineHeight: '1.6', marginBottom: '28px' }}>
               O AI Experience está cruzando regiões estratégicas de empreendedorismo de alta tecnologia. Trazemos a imersão diretamente para o ecossistema do Vale do Sinos, pousando estrategicamente em **Estância Velha**.
             </p>
-            <div style={{ background: 'rgba(0, 242, 254, 0.03)', borderLeft: '3px solid var(--neon-cyan)', padding: '16px', borderRadius: '0 8px 8px 0' }}>
-              <div style={{ fontWeight: 700, fontSize: '0.9rem', color: '#fff', marginBottom: '4px' }}>
+            <div style={{ background: 'rgba(255, 255, 255, 0.02)', backdropFilter: 'blur(8px)', borderLeft: '3px solid var(--neon-cyan)', padding: '20px', borderRadius: '0 12px 12px 0', border: '1px solid rgba(255, 255, 255, 0.05)', borderLeftWidth: '3px' }}>
+              <div style={{ fontWeight: 700, fontSize: '1rem', color: '#fff', marginBottom: '6px' }}>
                 Auditório Müller Centro Empresarial
               </div>
-              <div style={{ fontSize: '0.8rem', color: '#9ca3af', lineHeight: '1.4' }}>
-                Infraestrutura corporativa projetada para receber empreendedores de ponta, tomadas dedicadas e conectividade extrema.
+              <div style={{ fontSize: '0.85rem', color: '#9ca3af', lineHeight: '1.5' }}>
+                Infraestrutura corporativa de altíssimo nível projetada para receber empreendedores de ponta, com tomadas dedicadas e conectividade extrema.
               </div>
             </div>
           </div>
+        </div>
 
-          <div className="mkt-map-container">
-            {/* Brazil Map Stylized Vector (High Tech Grid Style) */}
-            <svg viewBox="0 0 500 500" style={{ width: '100%', height: 'auto', maxHeight: '380px' }}>
-              {/* Simplified Brazil Outline path */}
-              <path 
-                d="M 230 50 L 290 60 L 330 90 L 370 80 L 410 120 L 430 160 L 410 180 L 390 200 L 410 230 L 400 260 L 370 280 L 350 310 L 355 330 L 330 360 L 310 350 L 300 370 L 280 390 L 260 380 L 270 410 L 250 440 L 260 460 L 230 460 L 235 440 L 220 410 L 230 385 L 210 375 L 205 345 L 180 340 L 160 320 L 140 280 L 125 285 L 110 260 L 95 240 L 90 215 L 115 190 L 125 155 L 155 140 L 175 160 L 210 150 L 220 100 Z" 
-                fill="none" 
-                stroke="rgba(255,255,255,0.06)" 
-                strokeWidth="1.5"
-              />
-              <path 
-                d="M 230 50 L 290 60 L 330 90 L 370 80 L 410 120 L 430 160 L 410 180 L 390 200 L 410 230 L 400 260 L 370 280 L 350 310 L 355 330 L 330 360 L 310 350 L 300 370 L 280 390 L 260 380 L 270 410 L 250 440 Z" 
-                fill="none" 
-                stroke="var(--neon-cyan)" 
-                strokeWidth="2" 
-                strokeDasharray="6 4"
-                opacity="0.3"
-              />
+        {/* Absolute Background Map */}
+        <div className="mkt-geo-map-bg">
+          {/* Brazil Map Stylized Vector (High Tech Grid Style) */}
+          <svg viewBox="0 0 500 500" style={{ width: '100%', height: '100%' }}>
+            {/* Simplified Brazil Outline path */}
+            <path 
+              d="M 230 50 L 290 60 L 330 90 L 370 80 L 410 120 L 430 160 L 410 180 L 390 200 L 410 230 L 400 260 L 370 280 L 350 310 L 355 330 L 330 360 L 310 350 L 300 370 L 280 390 L 260 380 L 270 410 L 250 440 L 260 460 L 230 460 L 235 440 L 220 410 L 230 385 L 210 375 L 205 345 L 180 340 L 160 320 L 140 280 L 125 285 L 110 260 L 95 240 L 90 215 L 115 190 L 125 155 L 155 140 L 175 160 L 210 150 L 220 100 Z" 
+              fill="none" 
+              stroke="rgba(255,255,255,0.06)" 
+              strokeWidth="1.5"
+            />
+            <path 
+              d="M 230 50 L 290 60 L 330 90 L 370 80 L 410 120 L 430 160 L 410 180 L 390 200 L 410 230 L 400 260 L 370 280 L 350 310 L 355 330 L 330 360 L 310 350 L 300 370 L 280 390 L 260 380 L 270 410 L 250 440 Z" 
+              fill="none" 
+              stroke="var(--neon-cyan)" 
+              strokeWidth="2" 
+              strokeDasharray="6 4"
+              opacity="0.3"
+            />
+            
+            {/* Highlight Pins on Route */}
+            <circle cx="370" cy="280" r="4" fill="rgba(255,255,255,0.3)" /> {/* SP */}
+            <circle cx="330" cy="360" r="4" fill="rgba(255,255,255,0.3)" /> {/* Curitiba */}
+            <circle cx="300" cy="370" r="4" fill="rgba(255,255,255,0.3)" /> {/* Florianópolis */}
+            <circle cx="270" cy="410" r="4" fill="rgba(255,255,255,0.3)" /> {/* Porto Alegre */}
+
+            {/* ACTIVE TARGET: ESTÂNCIA VELHA (RS) */}
+            <g>
+              <circle cx="250" cy="440" r="14" fill="rgba(0, 242, 254, 0.15)" stroke="rgba(0, 242, 254, 0.3)" strokeWidth="1">
+                <animate attributeName="r" values="8;18;8" dur="2s" repeatCount="indefinite" />
+              </circle>
+              <circle cx="250" cy="440" r="5" fill="var(--neon-cyan)" />
+              <path d="M 250 440 L 170 420" stroke="var(--neon-cyan)" strokeWidth="1" opacity="0.6" strokeDasharray="3 2" />
               
-              {/* Highlight Pins on Route */}
-              <circle cx="370" cy="280" r="4" fill="rgba(255,255,255,0.3)" /> {/* SP */}
-              <circle cx="330" cy="360" r="4" fill="rgba(255,255,255,0.3)" /> {/* Curitiba */}
-              <circle cx="300" cy="370" r="4" fill="rgba(255,255,255,0.3)" /> {/* Florianópolis */}
-              <circle cx="270" cy="410" r="4" fill="rgba(255,255,255,0.3)" /> {/* Porto Alegre */}
+              {/* Text Pointer */}
+              <rect x="70" y="390" width="105" height="40" rx="6" fill="#050508" stroke="var(--neon-cyan)" strokeWidth="1" />
+              <text x="122" y="408" fill="#fff" fontSize="9" fontWeight="bold" textAnchor="middle" fontFamily="monospace">Estância Velha</text>
+              <text x="122" y="422" fill="var(--neon-cyan)" fontSize="8" textAnchor="middle" fontFamily="monospace">15 DE AGOSTO</text>
+            </g>
 
-              {/* ACTIVE TARGET: ESTÂNCIA VELHA (RS) */}
-              <g>
-                <circle cx="250" cy="440" r="14" fill="rgba(0, 242, 254, 0.15)" stroke="rgba(0, 242, 254, 0.3)" strokeWidth="1">
-                  <animate attributeName="r" values="8;18;8" dur="2s" repeatCount="indefinite" />
-                </circle>
-                <circle cx="250" cy="440" r="5" fill="var(--neon-cyan)" />
-                <path d="M 250 440 L 170 420" stroke="var(--neon-cyan)" strokeWidth="1" opacity="0.6" strokeDasharray="3 2" />
-                
-                {/* Text Pointer */}
-                <rect x="70" y="390" width="105" height="40" rx="6" fill="#06091e" stroke="var(--neon-cyan)" strokeWidth="1" />
-                <text x="122" y="408" fill="#fff" fontSize="9" fontWeight="bold" textAnchor="middle" fontFamily="monospace">Estância Velha</text>
-                <text x="122" y="422" fill="var(--neon-cyan)" fontSize="8" textAnchor="middle" fontFamily="monospace">15 DE AGOSTO</text>
-              </g>
-
-              {/* Grid dots overlay */}
-              <pattern id="grid-dots" width="20" height="20" patternUnits="userSpaceOnUse">
-                <circle cx="2" cy="2" r="1" fill="rgba(255, 255, 255, 0.03)" />
-              </pattern>
-              <rect width="100%" height="100%" fill="url(#grid-dots)" pointerEvents="none" />
-            </svg>
-          </div>
+            {/* Grid dots overlay */}
+            <pattern id="grid-dots" width="20" height="20" patternUnits="userSpaceOnUse">
+              <circle cx="2" cy="2" r="1" fill="rgba(255, 255, 255, 0.03)" />
+            </pattern>
+            <rect width="100%" height="100%" fill="url(#grid-dots)" pointerEvents="none" />
+          </svg>
         </div>
       </section>
 
