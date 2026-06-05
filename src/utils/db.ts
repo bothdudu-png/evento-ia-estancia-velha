@@ -543,6 +543,41 @@ export const db = {
         supabase.from('scenarios').select('*')
       ]);
 
+      if (evtRes.data && evtRes.data.length === 0) {
+        console.log('Database tables are empty. Seeding defaults to Supabase...');
+        try {
+          await Promise.all([
+            supabase.from('event_settings').upsert(mapEventSettings.toDb(DEFAULT_EVENT_SETTINGS)),
+            supabase.from('financial_settings').upsert(mapFinancialSettings.toDb(DEFAULT_FINANCIAL_SETTINGS)),
+            supabase.from('investments').upsert(DEFAULT_INVESTMENTS.map(mapInvestment.toDb)),
+            supabase.from('participants').upsert(DEFAULT_PARTICIPANTS.map(mapParticipant.toDb)),
+            supabase.from('tasks').upsert(DEFAULT_TASKS.map(mapTask.toDb)),
+            supabase.from('checklists').upsert(DEFAULT_CHECKLIST.map(mapChecklistItem.toDb)),
+            supabase.from('scenarios').upsert(DEFAULT_SCENARIOS.map(mapScenario.toDb))
+          ]);
+        } catch (seedErr) {
+          console.error('Error seeding database defaults:', seedErr);
+        }
+        
+        localStorage.setItem(KEYS.EVENT_SETTINGS, JSON.stringify(DEFAULT_EVENT_SETTINGS));
+        localStorage.setItem(KEYS.FINANCIAL_SETTINGS, JSON.stringify(DEFAULT_FINANCIAL_SETTINGS));
+        localStorage.setItem(KEYS.INVESTMENTS, JSON.stringify(DEFAULT_INVESTMENTS));
+        localStorage.setItem(KEYS.PARTICIPANTS, JSON.stringify(DEFAULT_PARTICIPANTS));
+        localStorage.setItem(KEYS.TASKS, JSON.stringify(DEFAULT_TASKS));
+        localStorage.setItem(KEYS.CHECKLISTS, JSON.stringify(DEFAULT_CHECKLIST));
+        localStorage.setItem(KEYS.SCENARIOS, JSON.stringify(DEFAULT_SCENARIOS));
+
+        return {
+          eventSettings: DEFAULT_EVENT_SETTINGS,
+          financialSettings: DEFAULT_FINANCIAL_SETTINGS,
+          investments: DEFAULT_INVESTMENTS,
+          participants: DEFAULT_PARTICIPANTS,
+          tasks: DEFAULT_TASKS,
+          checklists: DEFAULT_CHECKLIST,
+          scenarios: DEFAULT_SCENARIOS
+        };
+      }
+
       const data: any = {};
       
       if (evtRes.data && evtRes.data.length > 0) {

@@ -87,7 +87,7 @@ export default function App() {
   const [checkingInvite, setCheckingInvite] = useState(false);
 
   // --- User & Invite Management States (Admin) ---
-  const [usersList, setUsersList] = useState<{ id: string; email: string; role: string; created_at: string }[]>([]);
+  const [usersList, setUsersList] = useState<{ id: string; email: string; role: string; name?: string; created_at: string }[]>([]);
   const [invitesList, setInvitesList] = useState<{ id: string; email: string; token: string; used: boolean; created_at: string }[]>([]);
   const [newInviteEmail, setNewInviteEmail] = useState('');
   const [loadingUsersTab, setLoadingUsersTab] = useState(false);
@@ -1458,7 +1458,7 @@ export default function App() {
             <div style={{ textAlign: 'right' }} className="hide-mobile">
               <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>Conectado como</div>
               <div style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--neon-cyan)' }}>
-                {profile?.email || session?.user?.email}
+                {profile?.name || (profile?.email === 'eduardo@esquadriasmoradadosol.com.br' || session?.user?.email === 'eduardo@esquadriasmoradadosol.com.br' ? 'Eduardo Both' : (profile?.email || session?.user?.email))}
               </div>
             </div>
             <button 
@@ -3037,6 +3037,7 @@ export default function App() {
                     ) : (
                       usersList.map((u) => (
                         <tr key={u.id}>
+                          <td>{u.name || (u.email === 'eduardo@esquadriasmoradadosol.com.br' ? 'Eduardo Both' : '-')}</td>
                           <td style={{ fontWeight: 600 }}>{u.email}</td>
                           <td>
                             <span className={`badge ${u.role === 'admin' ? 'badge-pago' : 'badge-previsto'}`}>
