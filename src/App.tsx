@@ -2844,53 +2844,34 @@ export default function App() {
               </div>
 
               {/* Event Timeline / Schedule Section */}
-              <div className="builderz-timeline-container">
-                {/* Header Section */}
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '20px', borderBottom: '1px solid rgba(255, 255, 255, 0.05)', paddingBottom: '20px', marginBottom: '8px' }}>
-                  <div>
-                    <div style={{ fontFamily: 'monospace', color: '#10B981', fontSize: '0.8rem', textTransform: 'uppercase', marginBottom: '8px', letterSpacing: '0.1em' }}>
-                      [ 8H ] · THE DAY
-                    </div>
-                    <h2 className="builderz-main-title">
-                      8 HORAS.
-                    </h2>
-                    <h2 className="builderz-main-title builderz-outlined-text">
-                      SEM TEORIA MORTA.
-                    </h2>
-                  </div>
-                  <div style={{ maxWidth: '280px', textAlign: 'right', fontFamily: 'monospace', color: 'rgba(255, 255, 255, 0.4)', fontSize: '0.8rem', lineHeight: '1.4' }} className="hide-mobile">
-                    8 horas de imersão. O horário de início varia por cidade – a sequência é a mesma.
-                  </div>
-                </div>
+              <div className="glass-panel" style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                <h3 style={{ fontSize: '1.1rem', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <Clock size={18} style={{ color: 'var(--neon-purple)' }} /> Cronograma & Linha do Tempo Visual
+                </h3>
+                <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
+                  Abaixo está o roteiro estruturado do dia, contendo os 11 blocos da imersão (total de 8 horas de conteúdo prático).
+                </p>
 
-                {/* Timeline List */}
-                <div className="builderz-timeline">
+                <div className="timeline">
                   {[
-                    { duration: '30min', title: 'Check-in', desc: 'Café, kit do builder, setup da máquina e ice-breaker.' },
-                    { duration: '20min', title: 'IA First', desc: 'Como a IA virou o motor da evolução do software.' },
-                    { duration: '20min', title: 'A Era do Selfware', desc: 'DIY com IA: ao invés de contratar serviços, construa sob medida. Scripts e automações que otimizam o seu dia.' },
-                    { duration: '20min', title: 'IA Criadora de Apps', desc: 'Panorama das plataformas que constroem apps por IA.' },
-                    { duration: '40min', title: 'Design é Tudo', desc: 'Design System, skills e dicas para interfaces que vendem.' },
-                    { duration: '20min', title: 'O Método', desc: 'LLM, Guide, Janela de Contexto, Discovery Driven.' },
-                    { duration: '30min', title: 'Intervalo', desc: 'Café, networking, respira.' },
-                    { duration: '1h', title: 'Live Build I — UI & Telas', desc: 'Do brief à interface funcional, gerada ao vivo.' },
-                    { duration: '1h', title: 'Live Build II — Banco & Lógica', desc: 'RLS, auth, integrações. Sem mistério.' },
-                    { duration: '2h', title: 'Hands-on: Seu App', desc: 'Bancada, mentoria 1:1, você constrói o seu.' },
-                    { duration: '1h', title: 'After', desc: 'Comunidade, conexões e a tour continua.' }
+                    { time: '30min', title: 'Check-in', desc: 'Café, kit do builder, setup da máquina e ice-breaker.' },
+                    { time: '20min', title: 'IA First', desc: 'Como a IA virou o motor da evolução do software.' },
+                    { time: '20min', title: 'A Era do Selfware', desc: 'DIY com IA: ao invés de contratar serviços, construa sob medida. Scripts e automações que otimizam o seu dia.' },
+                    { time: '20min', title: 'IA Criadora de Apps', desc: 'Panorama das plataformas que constroem apps por IA.' },
+                    { time: '40min', title: 'Design é Tudo', desc: 'Design System, skills e dicas para interfaces que vendem.' },
+                    { time: '20min', title: 'O Método', desc: 'LLM, Guide, Janela de Contexto, Discovery Driven.' },
+                    { time: '30min', title: 'Intervalo', desc: 'Café, networking, respira.' },
+                    { time: '1h', title: 'Live Build I — UI & Telas', desc: 'Do brief à interface funcional, gerada ao vivo.' },
+                    { time: '1h', title: 'Live Build II — Banco & Lógica', desc: 'RLS, auth, integrações. Sem mistério.' },
+                    { time: '2h', title: 'Hands-on: Seu App', desc: 'Bancada, mentoria 1:1, você constrói o seu.' },
+                    { time: '1h', title: 'After', desc: 'Comunidade, conexões e a tour continua.' }
                   ].map((item, idx) => (
-                    <div className="builderz-timeline-item" key={idx}>
-                      <div className="builderz-timeline-duration">{item.duration}</div>
-                      <div className="builderz-timeline-content">
-                        <h4 className="builderz-timeline-title">{item.title}</h4>
-                        <p className="builderz-timeline-desc">{item.desc}</p>
-                      </div>
+                    <div className="timeline-item" key={idx}>
+                      <div className="timeline-time">{item.time}</div>
+                      <div className="timeline-title">{item.title}</div>
+                      <p style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', lineHeight: '1.3' }}>{item.desc}</p>
                     </div>
                   ))}
-                </div>
-
-                {/* Footer stats */}
-                <div className="builderz-timeline-footer">
-                  [ Σ 8H · 11 BLOCOS ]
                 </div>
               </div>
 
