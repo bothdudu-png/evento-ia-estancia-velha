@@ -155,8 +155,8 @@ Apenas para quem possui o convite exclusivo. Acesse o painel e confirme sua insc
               style={{
                 padding: '8px 16px',
                 fontSize: '0.8rem',
-                background: 'linear-gradient(135deg, var(--neon-cyan) 0%, var(--neon-blue) 100%)',
-                boxShadow: '0 4px 14px rgba(0, 242, 254, 0.2)'
+                background: 'linear-gradient(135deg, var(--neon-purple) 0%, var(--electric-blue) 100%)',
+                boxShadow: '0 4px 14px rgba(124, 58, 237, 0.3)'
               }}
             >
               Garantir Minha Vaga <ArrowRight size={14} />
@@ -183,8 +183,8 @@ Apenas para quem possui o convite exclusivo. Acesse o painel e confirme sua insc
             style={{
               padding: '14px 28px',
               fontSize: '1rem',
-              background: 'linear-gradient(135deg, var(--neon-cyan) 0%, var(--neon-blue) 100%)',
-              boxShadow: '0 6px 20px rgba(0, 242, 254, 0.3)'
+              background: 'linear-gradient(135deg, var(--neon-purple) 0%, var(--electric-blue) 100%)',
+              boxShadow: '0 6px 20px rgba(124, 58, 237, 0.45)'
             }}
           >
             Inscrever-se com Token <ArrowRight size={16} />

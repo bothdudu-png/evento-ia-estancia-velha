@@ -1091,36 +1091,41 @@ h1, h2, h3, h4, h5, h6 {
 
 .mkt-h1 {
   font-family: 'Space Grotesk', sans-serif;
-  font-size: 4rem;
+  font-size: 3.8rem;
   font-weight: 800;
   line-height: 1.1;
   letter-spacing: -0.02em;
-  margin: 0 0 12px;
-  background: linear-gradient(135deg, #ffffff 40%, rgba(255,255,255,0.7) 100%);
+  margin: 0 0 8px;
+  background: linear-gradient(135deg, #ffffff 60%, rgba(255,255,255,0.7) 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
+  text-transform: uppercase;
 }
 
 .mkt-h1-accent {
-  font-family: 'Outfit', sans-serif;
-  font-size: 5.5rem; /* Much larger and more prominent! */
-  font-weight: 900;
-  line-height: 0.95;
-  letter-spacing: -0.02em;
-  margin: 0 0 24px;
-  color: var(--neon-cyan) !important;
-  -webkit-text-fill-color: var(--neon-cyan) !important;
-  background: none !important;
-  text-shadow: 0 0 30px rgba(0, 242, 254, 0.55), 0 0 60px rgba(0, 242, 254, 0.25);
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 3.5rem; /* Balanced, refined and elegant */
+  font-weight: 500;  /* Sophisticated medium weight */
+  line-height: 1.1;
+  letter-spacing: 0.22em; /* Luxurious tracking */
+  margin: 0 0 32px;
+  background: linear-gradient(135deg, #ffffff 10%, #a78bfa 60%, var(--neon-purple) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-shadow: 0 0 25px rgba(124, 58, 237, 0.35);
   text-transform: uppercase;
+  padding-left: 0.22em; /* offsets the letter-spacing on the right for perfect centering */
 }
 
 @media (max-width: 768px) {
   .mkt-h1 {
-    font-size: 2.8rem;
+    font-size: 2.6rem;
   }
   .mkt-h1-accent {
-    font-size: 3.8rem;
+    font-size: 2.2rem;
+    letter-spacing: 0.15em;
+    padding-left: 0.15em;
+    margin-bottom: 24px;
   }
 }
 
