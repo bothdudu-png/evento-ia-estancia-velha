@@ -139,7 +139,7 @@ Apenas para quem possui o convite exclusivo. Acesse o painel e confirme sua insc
         <div style={{ maxWidth: '1200px', width: '100%', margin: '0 auto', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <div style={{ fontWeight: 800, fontSize: '1.2rem', letterSpacing: '-0.02em', display: 'flex', alignItems: 'center', gap: '8px' }}>
             <span style={{ color: '#fff' }}>AI</span>
-            <span style={{ color: '#10B981', border: '1px solid rgba(16, 185, 129, 0.3)', padding: '2px 8px', borderRadius: '4px', fontSize: '0.75rem', fontFamily: 'monospace' }}>EXPERIENCE</span>
+            <span style={{ color: 'var(--neon-cyan)', border: '1px solid rgba(0, 242, 254, 0.3)', padding: '2px 8px', borderRadius: '4px', fontSize: '0.75rem', fontFamily: 'monospace' }}>EXPERIENCE</span>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
             {inviteToken && (
@@ -153,8 +153,8 @@ Apenas para quem possui o convite exclusivo. Acesse o painel e confirme sua insc
               style={{
                 padding: '8px 16px',
                 fontSize: '0.8rem',
-                background: 'linear-gradient(135deg, #10B981 0%, #059669 100%)',
-                boxShadow: '0 4px 14px rgba(16, 185, 129, 0.2)'
+                background: 'linear-gradient(135deg, var(--neon-cyan) 0%, var(--neon-blue) 100%)',
+                boxShadow: '0 4px 14px rgba(0, 242, 254, 0.2)'
               }}
             >
               Garantir Minha Vaga <ArrowRight size={14} />
@@ -181,8 +181,8 @@ Apenas para quem possui o convite exclusivo. Acesse o painel e confirme sua insc
             style={{
               padding: '14px 28px',
               fontSize: '1rem',
-              background: 'linear-gradient(135deg, #10B981 0%, #059669 100%)',
-              boxShadow: '0 6px 20px rgba(16, 185, 129, 0.3)'
+              background: 'linear-gradient(135deg, var(--neon-cyan) 0%, var(--neon-blue) 100%)',
+              boxShadow: '0 6px 20px rgba(0, 242, 254, 0.3)'
             }}
           >
             Inscrever-se com Token <ArrowRight size={16} />
@@ -199,21 +199,21 @@ Apenas para quem possui o convite exclusivo. Acesse o painel e confirme sua insc
         {/* Small details */}
         <div style={{ display: 'flex', gap: '40px', marginTop: '60px', flexWrap: 'wrap', justifyContent: 'center', opacity: 0.8 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px', textAlign: 'left' }}>
-            <Clock size={20} style={{ color: '#10B981' }} />
+            <Clock size={20} style={{ color: 'var(--neon-cyan)' }} />
             <div>
               <div style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.4)', fontFamily: 'monospace' }}>DATA</div>
               <div style={{ fontSize: '0.9rem', fontWeight: 700 }}>15 de Agosto</div>
             </div>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px', textAlign: 'left' }}>
-            <MapPin size={20} style={{ color: '#10B981' }} />
+            <MapPin size={20} style={{ color: 'var(--neon-cyan)' }} />
             <div>
               <div style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.4)', fontFamily: 'monospace' }}>LOCAL</div>
               <div style={{ fontSize: '0.9rem', fontWeight: 700 }}>Auditório Müller</div>
             </div>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px', textAlign: 'left' }}>
-            <Users size={20} style={{ color: '#10B981' }} />
+            <Users size={20} style={{ color: 'var(--neon-cyan)' }} />
             <div>
               <div style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.4)', fontFamily: 'monospace' }}>VAGAS</div>
               <div style={{ fontSize: '0.9rem', fontWeight: 700 }}>Altamente Limitadas</div>
@@ -236,7 +236,7 @@ Apenas para quem possui o convite exclusivo. Acesse o painel e confirme sua insc
             <p style={{ color: '#9ca3af', fontSize: '0.95rem', lineHeight: '1.6', marginBottom: '24px' }}>
               O AI Experience está cruzando regiões estratégicas de empreendedorismo de alta tecnologia. Trazemos a imersão diretamente para o ecossistema do Vale do Sinos, pousando estrategicamente em **Estância Velha**.
             </p>
-            <div style={{ background: 'rgba(16, 185, 129, 0.03)', borderLeft: '3px solid #10B981', padding: '16px', borderRadius: '0 8px 8px 0' }}>
+            <div style={{ background: 'rgba(0, 242, 254, 0.03)', borderLeft: '3px solid var(--neon-cyan)', padding: '16px', borderRadius: '0 8px 8px 0' }}>
               <div style={{ fontWeight: 700, fontSize: '0.9rem', color: '#fff', marginBottom: '4px' }}>
                 Auditório Müller Centro Empresarial
               </div>
@@ -259,7 +259,7 @@ Apenas para quem possui o convite exclusivo. Acesse o painel e confirme sua insc
               <path 
                 d="M 230 50 L 290 60 L 330 90 L 370 80 L 410 120 L 430 160 L 410 180 L 390 200 L 410 230 L 400 260 L 370 280 L 350 310 L 355 330 L 330 360 L 310 350 L 300 370 L 280 390 L 260 380 L 270 410 L 250 440 Z" 
                 fill="none" 
-                stroke="#10B981" 
+                stroke="var(--neon-cyan)" 
                 strokeWidth="2" 
                 strokeDasharray="6 4"
                 opacity="0.3"
@@ -273,16 +273,16 @@ Apenas para quem possui o convite exclusivo. Acesse o painel e confirme sua insc
 
               {/* ACTIVE TARGET: ESTÂNCIA VELHA (RS) */}
               <g>
-                <circle cx="250" cy="440" r="14" fill="rgba(16, 185, 129, 0.15)" stroke="rgba(16, 185, 129, 0.3)" strokeWidth="1">
+                <circle cx="250" cy="440" r="14" fill="rgba(0, 242, 254, 0.15)" stroke="rgba(0, 242, 254, 0.3)" strokeWidth="1">
                   <animate attributeName="r" values="8;18;8" dur="2s" repeatCount="indefinite" />
                 </circle>
-                <circle cx="250" cy="440" r="5" fill="#10B981" />
-                <path d="M 250 440 L 170 420" stroke="#10B981" strokeWidth="1" opacity="0.6" strokeDasharray="3 2" />
+                <circle cx="250" cy="440" r="5" fill="var(--neon-cyan)" />
+                <path d="M 250 440 L 170 420" stroke="var(--neon-cyan)" strokeWidth="1" opacity="0.6" strokeDasharray="3 2" />
                 
                 {/* Text Pointer */}
-                <rect x="70" y="390" width="105" height="40" rx="6" fill="#06091e" stroke="#10B981" strokeWidth="1" />
+                <rect x="70" y="390" width="105" height="40" rx="6" fill="#06091e" stroke="var(--neon-cyan)" strokeWidth="1" />
                 <text x="122" y="408" fill="#fff" fontSize="9" fontWeight="bold" textAnchor="middle" fontFamily="monospace">Estância Velha</text>
-                <text x="122" y="422" fill="#10B981" fontSize="8" textAnchor="middle" fontFamily="monospace">15 DE AGOSTO</text>
+                <text x="122" y="422" fill="var(--neon-cyan)" fontSize="8" textAnchor="middle" fontFamily="monospace">15 DE AGOSTO</text>
               </g>
 
               {/* Grid dots overlay */}
@@ -350,8 +350,8 @@ Apenas para quem possui o convite exclusivo. Acesse o painel e confirme sua insc
               </div>
             </div>
 
-            <div style={{ background: 'rgba(5, 8, 22, 0.4)', border: '1px solid rgba(16, 185, 129, 0.15)', borderRadius: '12px', padding: '24px', position: 'relative' }}>
-              <div style={{ color: '#10B981', fontFamily: 'monospace', fontSize: '0.7rem', textTransform: 'uppercase', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '4px' }}>
+            <div style={{ background: 'rgba(5, 8, 22, 0.4)', border: '1px solid rgba(124, 58, 237, 0.25)', borderRadius: '12px', padding: '24px', position: 'relative' }}>
+              <div style={{ color: 'var(--neon-purple)', fontFamily: 'monospace', fontSize: '0.7rem', textTransform: 'uppercase', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '4px' }}>
                 <Sparkles size={12} /> QUOTE DO MENTOR
               </div>
               <p style={{ color: '#f3f4f6', fontSize: '0.9rem', fontStyle: 'italic', lineHeight: '1.5', margin: 0, fontFamily: 'monospace' }}>
@@ -374,9 +374,9 @@ Apenas para quem possui o convite exclusivo. Acesse o painel e confirme sua insc
 
         <div className="mkt-steps-grid">
           <div className="mkt-step-card">
-            <img src="/event_auditorium.png" alt="Check-in no Auditório Müller" className="mkt-step-img" style={{ filter: 'hue-rotate(280deg) brightness(0.8)' }} />
+            <img src="/event_auditorium.png" alt="Check-in no Auditório Müller" className="mkt-step-img" style={{ filter: 'hue-rotate(180deg) brightness(0.8)' }} />
             <div className="mkt-step-info">
-              <span className="mkt-step-label">STEP 01</span>
+              <span className="mkt-step-label" style={{ color: 'var(--neon-cyan)' }}>STEP 01</span>
               <h3 className="mkt-step-title">CHECK-IN</h3>
               <p className="mkt-step-desc">
                 Bancada montada, kit do builder na mão, conexão dedicada e o café pronto para dar a partida nas atividades do dia.
@@ -384,10 +384,10 @@ Apenas para quem possui o convite exclusivo. Acesse o painel e confirme sua insc
             </div>
           </div>
 
-          <div className="mkt-step-card" style={{ border: '1px solid rgba(16, 185, 129, 0.2)', boxShadow: '0 0 20px rgba(16, 185, 129, 0.05)' }}>
-            <img src="/event_auditorium.png" alt="Live Build ao Vivo" className="mkt-step-img" style={{ filter: 'hue-rotate(90deg) brightness(0.8)' }} />
+          <div className="mkt-step-card" style={{ border: '1px solid rgba(124, 58, 237, 0.2)', boxShadow: '0 0 20px rgba(124, 58, 237, 0.05)' }}>
+            <img src="/event_auditorium.png" alt="Live Build ao Vivo" className="mkt-step-img" style={{ filter: 'hue-rotate(270deg) brightness(0.8)' }} />
             <div className="mkt-step-info">
-              <span className="mkt-step-label" style={{ color: '#10B981' }}>STEP 02</span>
+              <span className="mkt-step-label" style={{ color: 'var(--neon-purple)' }}>STEP 02</span>
               <h3 className="mkt-step-title">LIVE BUILD</h3>
               <p className="mkt-step-desc">
                 Thiago Diaz programa um aplicativo real ao vivo no telão, expondo as integrações de banco de dados e lógica com IA.
@@ -395,10 +395,10 @@ Apenas para quem possui o convite exclusivo. Acesse o painel e confirme sua insc
             </div>
           </div>
 
-          <div className="mkt-step-card">
-            <img src="/event_auditorium.png" alt="Instant Deploy de Apps" className="mkt-step-img" style={{ filter: 'hue-rotate(200deg) brightness(0.8)' }} />
+          <div className="mkt-step-card" style={{ border: '1px solid rgba(236, 72, 153, 0.2)', boxShadow: '0 0 20px rgba(236, 72, 153, 0.05)' }}>
+            <img src="/event_auditorium.png" alt="Instant Deploy de Apps" className="mkt-step-img" style={{ filter: 'hue-rotate(320deg) brightness(0.8)' }} />
             <div className="mkt-step-info">
-              <span className="mkt-step-label">STEP 03</span>
+              <span className="mkt-step-label" style={{ color: 'var(--neon-pink)' }}>STEP 03</span>
               <h3 className="mkt-step-title">DEPLOY</h3>
               <p className="mkt-step-desc">
                 Projetos individuais publicados online com link de acesso funcional. Comunidade de novos builders formada.
@@ -414,7 +414,7 @@ Apenas para quem possui o convite exclusivo. Acesse o painel e confirme sua insc
         <div className="builderz-timeline-container" style={{ background: 'transparent !important', border: 'none', padding: 0, boxShadow: 'none' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '20px', borderBottom: '1px solid rgba(255, 255, 255, 0.05)', paddingBottom: '20px', marginBottom: '8px' }}>
             <div>
-              <div style={{ fontFamily: 'monospace', color: '#10B981', fontSize: '0.8rem', textTransform: 'uppercase', marginBottom: '8px', letterSpacing: '0.1em' }}>
+              <div style={{ fontFamily: 'monospace', color: 'var(--neon-cyan)', fontSize: '0.8rem', textTransform: 'uppercase', marginBottom: '8px', letterSpacing: '0.1em' }}>
                 [ 04 ] · CRONOGRAMA
               </div>
               <h2 className="builderz-main-title">8 HORAS.</h2>
@@ -467,7 +467,7 @@ Apenas para quem possui o convite exclusivo. Acesse o painel e confirme sua insc
 
         <div className="mkt-people-grid">
           {/* MENTOR THIAGO DIAZ */}
-          <div className="mkt-person-card" style={{ border: '1px solid rgba(16, 185, 129, 0.25)' }}>
+          <div className="mkt-person-card" style={{ border: '1px solid rgba(0, 242, 254, 0.25)' }}>
             <div className="mkt-person-header">
               <div className="mkt-person-avatar">TD</div>
               <div className="mkt-person-meta">
@@ -511,7 +511,7 @@ Apenas para quem possui o convite exclusivo. Acesse o painel e confirme sua insc
         <div className="mkt-audience-grid">
           <div className="mkt-audience-card">
             <h3 className="mkt-audience-title">
-              <span style={{ color: '#10B981' }}>//</span> Iniciantes
+              <span style={{ color: 'var(--neon-cyan)' }}>//</span> Iniciantes
             </h3>
             <p className="mkt-audience-desc">
               Curiosos que possuem uma grande ideia de projeto ou produto, mas que não têm conhecimento em programação.
@@ -519,7 +519,7 @@ Apenas para quem possui o convite exclusivo. Acesse o painel e confirme sua insc
           </div>
           <div className="mkt-audience-card">
             <h3 className="mkt-audience-title">
-              <span style={{ color: '#10B981' }}>//</span> Vibecoders
+              <span style={{ color: 'var(--neon-cyan)' }}>//</span> Vibecoders
             </h3>
             <p className="mkt-audience-desc">
               Criadores e curiosos que já tiveram contato prévio com IA e desejam dominar o stack técnico para criar produtos completos.
@@ -527,7 +527,7 @@ Apenas para quem possui o convite exclusivo. Acesse o painel e confirme sua insc
           </div>
           <div className="mkt-audience-card">
             <h3 className="mkt-audience-title">
-              <span style={{ color: '#10B981' }}>//</span> Devs
+              <span style={{ color: 'var(--neon-cyan)' }}>//</span> Devs
             </h3>
             <p className="mkt-audience-desc">
               Programadores profissionais que buscam triplicar a sua velocidade de trabalho em até 10x utilizando ferramentas de IA.
@@ -535,7 +535,7 @@ Apenas para quem possui o convite exclusivo. Acesse o painel e confirme sua insc
           </div>
           <div className="mkt-audience-card">
             <h3 className="mkt-audience-title">
-              <span style={{ color: '#10B981' }}>//</span> Designers
+              <span style={{ color: 'var(--neon-cyan)' }}>//</span> Designers
             </h3>
             <p className="mkt-audience-desc">
               Profissionais visuais que transformam pixels em layouts no Figma e querem aprender a criar aplicativos interativos reais.
@@ -543,7 +543,7 @@ Apenas para quem possui o convite exclusivo. Acesse o painel e confirme sua insc
           </div>
           <div className="mkt-audience-card">
             <h3 className="mkt-audience-title">
-              <span style={{ color: '#10B981' }}>//</span> Empresários do Futuro
+              <span style={{ color: 'var(--neon-cyan)' }}>//</span> Empresários do Futuro
             </h3>
             <p className="mkt-audience-desc">
               Líderes de negócios que desejam desenhar e implementar automações, CRMs e fluxos operacionais próprios na empresa.
@@ -580,7 +580,7 @@ Apenas para quem possui o convite exclusivo. Acesse o painel e confirme sua insc
       <section className="mkt-section" style={{ borderTop: '1px solid rgba(255, 255, 255, 0.05)' }}>
         <div className="mkt-designer-section">
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px' }}>
-            <InstagramIcon size={28} style={{ color: '#10B981' }} />
+            <InstagramIcon size={28} style={{ color: 'var(--neon-purple)' }} />
             <div>
               <span className="mkt-section-label" style={{ margin: 0 }}>ÁREA CRIATIVA</span>
               <h3 style={{ fontSize: '1.5rem', fontWeight: 800, margin: 0, color: '#fff' }}>
