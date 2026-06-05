@@ -49,10 +49,12 @@ import type {
   ChecklistItem,
   Scenario
 } from './utils/db';
+import { supabase } from './integrations/supabase/client';
+import type { Session } from '@supabase/supabase-js';
 
 export default function App() {
   // --- States ---
-  const [activeTab, setActiveTab] = useState<'dashboard' | 'simulador' | 'investimentos' | 'crm' | 'planejamento' | 'programacao'>('dashboard');
+  const [activeTab, setActiveTab] = useState<'dashboard' | 'simulador' | 'investimentos' | 'crm' | 'planejamento' | 'programacao' | 'usuarios'>('dashboard');
   
   const [eventSettings, setEventSettings] = useState<EventSettings>(db.getEventSettings());
   const [financialSettings, setFinancialSettings] = useState<FinancialSettings>(db.getFinancialSettings());
@@ -62,6 +64,33 @@ export default function App() {
   const [checklist, setChecklist] = useState<ChecklistItem[]>(db.getChecklist());
   const [scenarios, setScenarios] = useState<Scenario[]>(db.getScenarios());
   const statuses: ParticipantStatus[] = db.getParticipantStatuses();
+
+  // --- Auth & Session States ---
+  const [session, setSession] = useState<Session | null>(null);
+  const [profile, setProfile] = useState<{ email: string; role: 'admin' | 'user'; name?: string } | null>(null);
+  const [loadingProfile, setLoadingProfile] = useState(true);
+
+  // --- Auth Form States ---
+  const [loginEmail, setLoginEmail] = useState('');
+  const [loginPassword, setLoginPassword] = useState('');
+  const [signUpEmail, setSignUpEmail] = useState('');
+  const [signUpName, setSignUpName] = useState('');
+  const [signUpPassword, setSignUpPassword] = useState('');
+  const [signUpConfirmPassword, setSignUpConfirmPassword] = useState('');
+  const [authLoading, setAuthLoading] = useState(false);
+  const [errorMsg, setErrorMsg] = useState('');
+
+  // --- Invite Checking States ---
+  const [inviteToken, setInviteToken] = useState<string | null>(null);
+  const [inviteEmail, setInviteEmail] = useState<string>('');
+  const [inviteValid, setInviteValid] = useState<boolean | null>(null);
+  const [checkingInvite, setCheckingInvite] = useState(false);
+
+  // --- User & Invite Management States (Admin) ---
+  const [usersList, setUsersList] = useState<{ id: string; email: string; role: string; created_at: string }[]>([]);
+  const [invitesList, setInvitesList] = useState<{ id: string; email: string; token: string; used: boolean; created_at: string }[]>([]);
+  const [newInviteEmail, setNewInviteEmail] = useState('');
+  const [loadingUsersTab, setLoadingUsersTab] = useState(false);
 
   // --- Countdown State ---
   const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0, isOver: false });
@@ -173,29 +202,286 @@ export default function App() {
     setTempTicketPrice(finSettings.ticketPriceDefault);
     setTempTargetParticipants(finSettings.targetParticipants);
     setTempLocation(settings.location);
+  }, []);
 
-    // 2. Fetch fresh cloud data from Supabase asynchronously (Real-time Cloud Sync)
-    db.fetchAllFromCloud().then((cloudData) => {
-      if (cloudData) {
-        if (cloudData.eventSettings) {
-          setEventSettings(cloudData.eventSettings);
-          setTempName(cloudData.eventSettings.name);
-          setTempDate(cloudData.eventSettings.date);
-          setTempLocation(cloudData.eventSettings.location);
-        }
-        if (cloudData.financialSettings) {
-          setFinancialSettings(cloudData.financialSettings);
-          setTempTicketPrice(cloudData.financialSettings.ticketPriceDefault);
-          setTempTargetParticipants(cloudData.financialSettings.targetParticipants);
-        }
-        if (cloudData.investments) setInvestments(cloudData.investments);
-        if (cloudData.participants) setParticipants(cloudData.participants);
-        if (cloudData.tasks) setTasks(cloudData.tasks);
-        if (cloudData.checklists) setChecklist(cloudData.checklists);
-        if (cloudData.scenarios) setScenarios(cloudData.scenarios);
+  // --- Auth State and Invite Verification ---
+  useEffect(() => {
+    // Check invite token in URL
+    const params = new URLSearchParams(window.location.search);
+    const token = params.get('invite');
+    if (token) {
+      setInviteToken(token);
+      setCheckingInvite(true);
+      if (supabase) {
+        supabase
+          .from('invites')
+          .select('email, used')
+          .eq('token', token)
+          .eq('used', false)
+          .single()
+          .then(({ data }) => {
+            setCheckingInvite(false);
+            if (data && !data.used) {
+              setInviteEmail(data.email || '');
+              setInviteValid(true);
+            } else {
+              setInviteValid(false);
+            }
+          });
+      } else {
+        setCheckingInvite(false);
+        setInviteValid(false);
+      }
+    }
+
+    if (!supabase) {
+      setLoadingProfile(false);
+      return;
+    }
+
+    // Get current session
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session);
+      if (session?.user) {
+        fetchUserProfile(session.user.id);
+      } else {
+        setLoadingProfile(false);
       }
     });
+
+    // Listen for auth changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, newSession) => {
+      setSession(newSession);
+      if (newSession?.user) {
+        fetchUserProfile(newSession.user.id);
+      } else {
+        setProfile(null);
+        setLoadingProfile(false);
+      }
+    });
+
+    return () => subscription.unsubscribe();
   }, []);
+
+  const fetchUserProfile = async (userId: string) => {
+    if (!supabase) return;
+    try {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('email, role, name')
+        .eq('id', userId)
+        .single();
+      if (error) throw error;
+      setProfile(data as any);
+    } catch (err) {
+      console.error('Error fetching user profile:', err);
+    } finally {
+      setLoadingProfile(false);
+    }
+  };
+
+  // Sync from Cloud only when authenticated session is active
+  useEffect(() => {
+    if (session) {
+      db.fetchAllFromCloud().then((cloudData) => {
+        if (cloudData) {
+          if (cloudData.eventSettings) {
+            setEventSettings(cloudData.eventSettings);
+            setTempName(cloudData.eventSettings.name);
+            setTempDate(cloudData.eventSettings.date);
+            setTempLocation(cloudData.eventSettings.location);
+          }
+          if (cloudData.financialSettings) {
+            setFinancialSettings(cloudData.financialSettings);
+            setTempTicketPrice(cloudData.financialSettings.ticketPriceDefault);
+            setTempTargetParticipants(cloudData.financialSettings.targetParticipants);
+          }
+          if (cloudData.investments) setInvestments(cloudData.investments);
+          if (cloudData.participants) setParticipants(cloudData.participants);
+          if (cloudData.tasks) setTasks(cloudData.tasks);
+          if (cloudData.checklists) setChecklist(cloudData.checklists);
+          if (cloudData.scenarios) setScenarios(cloudData.scenarios);
+        }
+      });
+    }
+  }, [session]);
+
+  // Fetch users and invites for admin console
+  const fetchUsersAndInvites = async () => {
+    if (!supabase || profile?.role !== 'admin') return;
+    setLoadingUsersTab(true);
+    try {
+      const [usersRes, invitesRes] = await Promise.all([
+        supabase.from('profiles').select('*').order('created_at', { ascending: true }),
+        supabase.from('invites').select('*').order('created_at', { ascending: false })
+      ]);
+      if (usersRes.data) setUsersList(usersRes.data);
+      if (invitesRes.data) setInvitesList(invitesRes.data);
+    } catch (err) {
+      console.error('Error fetching users and invites:', err);
+    } finally {
+      setLoadingUsersTab(false);
+    }
+  };
+
+  useEffect(() => {
+    if (activeTab === 'usuarios' && profile?.role === 'admin') {
+      fetchUsersAndInvites();
+    }
+  }, [activeTab, profile]);
+
+  const handleCreateInvite = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newInviteEmail.trim() || !supabase) return;
+    try {
+      const token = typeof crypto.randomUUID === 'function' 
+        ? crypto.randomUUID() 
+        : Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+
+      const { error } = await supabase.from('invites').insert({
+        email: newInviteEmail.trim().toLowerCase(),
+        token,
+        created_by: session?.user?.id
+      });
+      if (error) throw error;
+      setNewInviteEmail('');
+      alert('Convite por e-mail gerado com sucesso!');
+      fetchUsersAndInvites();
+    } catch (err: any) {
+      alert('Erro ao gerar convite: ' + err.message);
+    }
+  };
+
+  const handleRotateGeneralInvite = async () => {
+    if (!supabase) return;
+    if (confirm('Tem certeza que deseja rotacionar o link geral? O link anterior deixará de funcionar imediatamente para novos cadastros.')) {
+      try {
+        // 1. Invalida convites gerais anteriores (onde email is null) marcando-os como used = true
+        await supabase
+          .from('invites')
+          .update({ used: true })
+          .is('email', null)
+          .eq('used', false);
+          
+        // 2. Cria o novo convite geral
+        const token = typeof crypto.randomUUID === 'function' 
+          ? crypto.randomUUID() 
+          : Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+          
+        const { error } = await supabase.from('invites').insert({
+          token,
+          created_by: session?.user?.id
+          // email é omitido, então fica nulo
+        });
+        
+        if (error) throw error;
+        alert('Link geral renovado com sucesso! O novo link já está ativo.');
+        fetchUsersAndInvites();
+      } catch (err: any) {
+        alert('Erro ao renovar link geral: ' + err.message);
+      }
+    }
+  };
+
+  const handleDeleteUser = async (userId: string) => {
+    if (!supabase) return;
+    if (confirm('Tem certeza que deseja excluir permanentemente o acesso deste usuário? Ele não poderá mais fazer login.')) {
+      try {
+        const { error } = await supabase.rpc('delete_user', { user_id: userId });
+        if (error) throw error;
+        alert('Usuário excluído com sucesso.');
+        fetchUsersAndInvites();
+      } catch (err: any) {
+        alert('Erro ao excluir usuário: ' + err.message);
+      }
+    }
+  };
+
+  const handleLoginSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!supabase || !loginEmail.trim() || !loginPassword) return;
+    setAuthLoading(true);
+    setErrorMsg('');
+    try {
+      const { error } = await supabase.auth.signInWithPassword({
+        email: loginEmail.trim().toLowerCase(),
+        password: loginPassword,
+      });
+
+      if (error) {
+        // Auto-cadastro do administrador no primeiro acesso
+        if (loginEmail.trim().toLowerCase() === 'eduardo@esquadriasmoradadosol.com.br' && error.message.includes('Invalid login credentials')) {
+          const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
+            email: loginEmail.trim().toLowerCase(),
+            password: loginPassword,
+          });
+          if (signUpError) throw signUpError;
+          
+          if (signUpData.session) {
+            setSession(signUpData.session);
+            alert('Conta de Administrador criada e conectada com sucesso!');
+          } else {
+            alert('Conta de Administrador registrada! Por favor, verifique seu e-mail (caso a confirmação esteja ativa no painel do Supabase) ou tente fazer login.');
+          }
+          return;
+        }
+        throw error;
+      }
+    } catch (err: any) {
+      setErrorMsg(err.message || 'Erro ao fazer login. Verifique suas credenciais.');
+    } finally {
+      setAuthLoading(false);
+    }
+  };
+
+  const handleSignUpSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!supabase || !inviteToken) return;
+    const emailToRegister = (inviteEmail || signUpEmail).trim().toLowerCase();
+    if (!emailToRegister) {
+      setErrorMsg('Por favor, informe seu e-mail.');
+      return;
+    }
+    if (!signUpName.trim()) {
+      setErrorMsg('Por favor, informe seu nome.');
+      return;
+    }
+    if (signUpPassword !== signUpConfirmPassword) {
+      setErrorMsg('As senhas não coincidem.');
+      return;
+    }
+    if (signUpPassword.length < 6) {
+      setErrorMsg('A senha deve conter no mínimo 6 caracteres.');
+      return;
+    }
+    setAuthLoading(true);
+    setErrorMsg('');
+    try {
+      const { error } = await supabase.auth.signUp({
+        email: emailToRegister,
+        password: signUpPassword,
+        options: {
+          data: {
+            invite_token: inviteToken,
+            name: signUpName.trim()
+          }
+        }
+      });
+      if (error) throw error;
+      
+      alert('Cadastro concluído com sucesso!');
+      // Limpar parâmetros da URL
+      window.history.replaceState({}, document.title, window.location.pathname);
+      setInviteToken(null);
+      setInviteValid(null);
+      setSignUpEmail('');
+      setSignUpName('');
+    } catch (err: any) {
+      setErrorMsg(err.message || 'Erro ao criar conta. Verifique o link de convite.');
+    } finally {
+      setAuthLoading(false);
+    }
+  };
 
   // --- Countdown Effect ---
   useEffect(() => {
@@ -910,6 +1196,208 @@ export default function App() {
     return { main: name, sub: "" };
   }, [eventSettings.name]);
 
+  // Se estiver carregando o perfil do usuário, mostrar um carregador premium
+  if (loadingProfile) {
+    return (
+      <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', backgroundColor: '#06091e', color: '#fff', position: 'relative' }}>
+        <style>{`
+          @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+          }
+        `}</style>
+        <div className="ambient-glow-1"></div>
+        <div className="ambient-glow-2"></div>
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '16px', zIndex: 10, margin: 'auto' }}>
+          <div style={{ width: '40px', height: '40px', border: '3px solid rgba(0, 212, 255, 0.1)', borderTopColor: 'var(--neon-cyan)', borderRadius: '50%', animation: 'spin 1s linear infinite' }}></div>
+          <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)', fontWeight: 600, letterSpacing: '0.05em' }}>VERIFICANDO CONEXÃO SEGURA...</span>
+        </div>
+      </div>
+    );
+  }
+
+  // Se o usuário não estiver conectado, mostrar tela de Login/Cadastro
+  if (!session) {
+    return (
+      <div style={{ minHeight: '100vh', position: 'relative', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px', backgroundColor: '#06091e' }}>
+        <style>{`
+          @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+          }
+        `}</style>
+        <div className="ambient-glow-1"></div>
+        <div className="ambient-glow-2"></div>
+
+        <div className="glass-panel" style={{ width: '100%', maxWidth: '440px', padding: '40px 30px', zIndex: 10, display: 'flex', flexDirection: 'column', gap: '24px', boxShadow: '0 20px 40px rgba(0,0,0,0.5), inset 0 0 1px rgba(255,255,255,0.1)' }}>
+          <div style={{ textAlign: 'center' }}>
+            <h1 style={{ fontSize: '1.5rem', fontWeight: 800, letterSpacing: '-0.02em', margin: 0 }}>
+              <span className="gradient-text-blue-purple">AI EXPERIENCE</span>
+            </h1>
+            <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginTop: '6px' }}>
+              Painel Executivo • Acesso Restrito
+            </p>
+          </div>
+
+          {errorMsg && (
+            <div style={{ background: 'rgba(239, 68, 68, 0.1)', border: '1px solid rgba(239, 68, 68, 0.2)', color: '#F87171', borderRadius: '8px', padding: '12px', fontSize: '0.8rem', display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <AlertCircle size={16} style={{ flexShrink: 0 }} />
+              <div>{errorMsg}</div>
+            </div>
+          )}
+
+          {checkingInvite ? (
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px', padding: '20px 0', margin: 'auto' }}>
+              <div style={{ width: '24px', height: '24px', border: '2px solid rgba(0, 212, 255, 0.1)', borderTopColor: 'var(--neon-cyan)', borderRadius: '50%', animation: 'spin 1s linear infinite' }}></div>
+              <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Validando link de convite...</span>
+            </div>
+          ) : inviteToken && inviteValid === false ? (
+            /* Convite inválido ou expirado */
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', textAlign: 'center' }}>
+              <div style={{ background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.2)', borderRadius: '10px', padding: '20px', display: 'flex', flexDirection: 'column', gap: '10px', alignItems: 'center' }}>
+                <AlertCircle size={32} style={{ color: '#F87171' }} />
+                <h3 style={{ fontSize: '0.95rem', fontWeight: 700, color: 'var(--text-primary)' }}>Convite Inválido ou Já Utilizado</h3>
+                <p style={{ fontSize: '0.78rem', color: 'var(--text-secondary)', lineHeight: '1.4' }}>
+                  Este link de convite expirou, foi desativado ou já foi utilizado para cadastrar uma conta.
+                </p>
+              </div>
+              <button 
+                className="btn-secondary" 
+                style={{ width: '100%', justifyContent: 'center' }}
+                onClick={() => {
+                  window.history.replaceState({}, document.title, window.location.pathname);
+                  setInviteToken(null);
+                  setInviteValid(null);
+                }}
+              >
+                Voltar para o Login
+              </button>
+            </div>
+          ) : inviteToken && inviteValid === true ? (
+            /* Formulário de Cadastro (Signup) com convite validado */
+            <form onSubmit={handleSignUpSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+              <div style={{ background: 'rgba(52, 211, 153, 0.08)', border: '1px solid rgba(52, 211, 153, 0.2)', borderRadius: '8px', padding: '10px 12px', fontSize: '0.78rem', color: '#34D399', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <CheckCircle2 size={16} style={{ flexShrink: 0 }} />
+                <div>Convite validado! Crie sua senha de acesso.</div>
+              </div>
+
+              <div>
+                <label style={{ display: 'block', fontSize: '0.8rem', color: 'var(--text-secondary)', marginBottom: '6px' }}>Seu Nome:</label>
+                <input 
+                  type="text" 
+                  value={signUpName} 
+                  onChange={(e) => setSignUpName(e.target.value)}
+                  className="glass-input" 
+                  placeholder="Nome Completo"
+                  required
+                />
+              </div>
+
+              <div>
+                <label style={{ display: 'block', fontSize: '0.8rem', color: 'var(--text-secondary)', marginBottom: '6px' }}>E-mail:</label>
+                {inviteEmail ? (
+                  <input 
+                    type="email" 
+                    value={inviteEmail} 
+                    disabled 
+                    className="glass-input" 
+                    style={{ background: 'rgba(255,255,255,0.02)', color: 'var(--text-muted)', cursor: 'not-allowed' }}
+                  />
+                ) : (
+                  <input 
+                    type="email" 
+                    value={signUpEmail} 
+                    onChange={(e) => setSignUpEmail(e.target.value)}
+                    className="glass-input" 
+                    placeholder="exemplo@email.com"
+                    required
+                  />
+                )}
+              </div>
+
+              <div>
+                <label style={{ display: 'block', fontSize: '0.8rem', color: 'var(--text-secondary)', marginBottom: '6px' }}>Senha:</label>
+                <input 
+                  type="password" 
+                  value={signUpPassword} 
+                  onChange={(e) => setSignUpPassword(e.target.value)}
+                  className="glass-input" 
+                  placeholder="Defina uma senha"
+                  required
+                />
+              </div>
+
+              <div>
+                <label style={{ display: 'block', fontSize: '0.8rem', color: 'var(--text-secondary)', marginBottom: '6px' }}>Confirmar Senha:</label>
+                <input 
+                  type="password" 
+                  value={signUpConfirmPassword} 
+                  onChange={(e) => setSignUpConfirmPassword(e.target.value)}
+                  className="glass-input" 
+                  placeholder="Confirme a senha"
+                  required
+                />
+              </div>
+
+              <button type="submit" className="btn-primary" style={{ width: '100%', justifyContent: 'center', marginTop: '8px' }} disabled={authLoading}>
+                {authLoading ? 'Criando conta...' : 'Registrar e Acessar'}
+              </button>
+
+              <div style={{ textAlign: 'center', marginTop: '6px' }}>
+                <button 
+                  type="button"
+                  onClick={() => {
+                    window.history.replaceState({}, document.title, window.location.pathname);
+                    setInviteToken(null);
+                    setInviteValid(null);
+                  }}
+                  style={{ background: 'none', border: 'none', color: 'var(--text-muted)', fontSize: '0.75rem', textDecoration: 'underline', cursor: 'pointer' }}
+                >
+                  Cancelar e voltar para o Login
+                </button>
+              </div>
+            </form>
+          ) : (
+            /* Formulário de Login padrão */
+            <form onSubmit={handleLoginSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+              <div>
+                <label style={{ display: 'block', fontSize: '0.8rem', color: 'var(--text-secondary)', marginBottom: '6px' }}>E-mail:</label>
+                <input 
+                  type="email" 
+                  placeholder="exemplo@email.com" 
+                  value={loginEmail}
+                  onChange={(e) => setLoginEmail(e.target.value)}
+                  className="glass-input"
+                  required
+                />
+              </div>
+
+              <div>
+                <label style={{ display: 'block', fontSize: '0.8rem', color: 'var(--text-secondary)', marginBottom: '6px' }}>Senha:</label>
+                <input 
+                  type="password" 
+                  placeholder="Digite sua senha" 
+                  value={loginPassword}
+                  onChange={(e) => setLoginPassword(e.target.value)}
+                  className="glass-input"
+                  required
+                />
+              </div>
+
+              <button type="submit" className="btn-primary" style={{ width: '100%', justifyContent: 'center', marginTop: '8px' }} disabled={authLoading}>
+                {authLoading ? 'Verificando...' : 'Entrar'}
+              </button>
+
+              <div style={{ textAlign: 'center', fontSize: '0.72rem', color: 'var(--text-muted)', lineHeight: '1.4', marginTop: '10px' }}>
+                * Novos acessos exigem convite. O cadastro de novos usuários é restrito à liberação por link do administrador.
+              </div>
+            </form>
+          )}
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div style={{ minHeight: '100vh', position: 'relative', overflow: 'hidden', paddingBottom: '40px' }}>
       {/* Background Glows */}
@@ -965,12 +1453,29 @@ export default function App() {
             </div>
           </div>
           
-          {/* Right: Quick actions */}
+          {/* Right: Quick actions (Logout and connected info) */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-            <div className="hide-mobile" style={{ textAlign: 'right' }}>
-              <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>Responsáveis</div>
-              <div style={{ fontSize: '0.75rem', fontWeight: 600 }}>Eduardo Both & Gabriel Müller</div>
+            <div style={{ textAlign: 'right' }} className="hide-mobile">
+              <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>Conectado como</div>
+              <div style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--neon-cyan)' }}>
+                {profile?.email || session?.user?.email}
+              </div>
             </div>
+            <button 
+              onClick={() => supabase?.auth.signOut()} 
+              className="btn-secondary" 
+              style={{ 
+                padding: '6px 12px', 
+                fontSize: '0.75rem', 
+                border: '1px solid rgba(236,72,153,0.3)', 
+                color: 'var(--neon-pink)',
+                borderRadius: '6px',
+                cursor: 'pointer',
+                background: 'rgba(236,72,153,0.05)'
+              }}
+            >
+              Sair
+            </button>
           </div>
 
         </div>
@@ -987,7 +1492,8 @@ export default function App() {
               { id: 'investimentos', label: 'Gestão de Investimentos', icon: <DollarSign size={16} /> },
               { id: 'crm', label: 'CRM Kanban de Leads', icon: <Users size={16} /> },
               { id: 'planejamento', label: 'Tarefas & Checklist', icon: <ListTodo size={16} /> },
-              { id: 'programacao', label: 'Programação & Ajustes', icon: <Clock size={16} /> }
+              { id: 'programacao', label: 'Programação & Ajustes', icon: <Clock size={16} /> },
+              ...(profile?.role === 'admin' ? [{ id: 'usuarios', label: 'Usuários & Convites', icon: <Settings size={16} /> }] : [])
             ].map(tab => (
               <button
                 key={tab.id}
@@ -2368,6 +2874,197 @@ export default function App() {
 
             </div>
 
+          </div>
+        )}
+
+        {/* TAB 7: USER & INVITE MANAGEMENT (ADMIN ONLY) */}
+        {activeTab === 'usuarios' && profile?.role === 'admin' && (
+          <div className="animate-fadeInUp" style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <div>
+                <h3 style={{ fontSize: '1.2rem', fontWeight: 700 }}>Controle de Usuários e Convites</h3>
+                <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginTop: '2px' }}>
+                  Gere links de convite para novos membros e gerencie as contas ativas do painel.
+                </p>
+              </div>
+            </div>
+
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(350px, 1fr))', gap: '24px' }}>
+              {/* Box 1: Link Geral de Acesso */}
+              <div className="glass-panel" style={{ display: 'flex', flexDirection: 'column', gap: '16px', gridColumn: 'span 2' }}>
+                <h4 style={{ fontSize: '1rem', fontWeight: 600, borderBottom: '1px solid var(--border-color)', paddingBottom: '10px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <Sparkles size={16} style={{ color: 'var(--neon-cyan)' }} /> Link Geral de Cadastro (Sem e-mail pré-definido)
+                </h4>
+                <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
+                  Use este link para enviar a qualquer convidado. Você pode renovar este link a qualquer momento; ao fazer isso, o link antigo deixará de funcionar imediatamente.
+                </p>
+                {(() => {
+                  const generalInvite = invitesList.find(inv => !inv.used && !inv.email);
+                  if (generalInvite) {
+                    const link = `${window.location.origin}${window.location.pathname}?invite=${generalInvite.token}`;
+                    return (
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                        <div style={{ display: 'flex', gap: '6px' }}>
+                          <input 
+                            type="text" 
+                            value={link} 
+                            readOnly 
+                            className="glass-input" 
+                            style={{ fontSize: '0.75rem', padding: '10px', flex: 1 }}
+                            onClick={(e) => (e.target as HTMLInputElement).select()}
+                          />
+                          <button 
+                            className="btn-primary" 
+                            onClick={() => {
+                              navigator.clipboard.writeText(link);
+                              alert('Link de convite geral copiado!');
+                            }}
+                          >
+                            Copiar Link
+                          </button>
+                        </div>
+                        <button 
+                          className="btn-secondary" 
+                          style={{ borderColor: 'rgba(236,72,153,0.3)', color: 'var(--neon-pink)', alignSelf: 'flex-start', fontSize: '0.75rem', padding: '6px 12px' }}
+                          onClick={handleRotateGeneralInvite}
+                        >
+                          🔄 Renovar / Rotacionar Link (Invalida o atual)
+                        </button>
+                      </div>
+                    );
+                  } else {
+                    return (
+                      <div>
+                        <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginRight: '12px' }}>Nenhum link geral ativo no momento.</span>
+                        <button className="btn-primary" onClick={handleRotateGeneralInvite}>Gerar Novo Link Geral</button>
+                      </div>
+                    );
+                  }
+                })()}
+              </div>
+
+              {/* Box 2: Gerar Convite por E-mail */}
+              <div className="glass-panel" style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                <h4 style={{ fontSize: '1rem', fontWeight: 600, borderBottom: '1px solid var(--border-color)', paddingBottom: '10px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <Plus size={16} style={{ color: 'var(--neon-cyan)' }} /> Convite Nominal por E-mail
+                </h4>
+                <form onSubmit={handleCreateInvite} style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                  <div>
+                    <label style={{ display: 'block', fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: '6px' }}>
+                      E-mail do Convidado:
+                    </label>
+                    <input 
+                      type="email" 
+                      placeholder="exemplo@email.com" 
+                      value={newInviteEmail}
+                      onChange={(e) => setNewInviteEmail(e.target.value)}
+                      className="glass-input"
+                      required
+                    />
+                  </div>
+                  <button type="submit" className="btn-primary" style={{ width: '100%', justifyContent: 'center' }}>
+                    Criar Convite Nominal
+                  </button>
+                </form>
+              </div>
+
+              {/* Box 3: Convites Nominais Ativos */}
+              <div className="glass-panel" style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                <h4 style={{ fontSize: '1rem', fontWeight: 600, borderBottom: '1px solid var(--border-color)', paddingBottom: '10px' }}>
+                  Convites Nominais Ativos
+                </h4>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', maxHeight: '250px', overflowY: 'auto', paddingRight: '4px' }}>
+                  {invitesList.filter(inv => !inv.used && inv.email).length === 0 ? (
+                    <div style={{ color: 'var(--text-muted)', fontSize: '0.85rem', textAlign: 'center', padding: '20px' }}>
+                      Nenhum convite nominal pendente.
+                    </div>
+                  ) : (
+                    invitesList.filter(inv => !inv.used && inv.email).map((inv) => {
+                      const link = `${window.location.origin}${window.location.pathname}?invite=${inv.token}`;
+                      return (
+                        <div key={inv.id} style={{ background: 'rgba(255,255,255,0.01)', border: '1px solid var(--border-color)', borderRadius: '8px', padding: '10px', display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                            <span style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-primary)' }}>{inv.email}</span>
+                            <span className="badge badge-previsto" style={{ fontSize: '0.6rem' }}>Pendente</span>
+                          </div>
+                          <div style={{ display: 'flex', gap: '6px' }}>
+                            <input 
+                              type="text" 
+                              value={link} 
+                              readOnly 
+                              className="glass-input" 
+                              style={{ fontSize: '0.7rem', padding: '6px', height: 'auto', flex: 1 }} 
+                              onClick={(e) => (e.target as HTMLInputElement).select()}
+                            />
+                            <button 
+                              className="btn-secondary" 
+                              style={{ fontSize: '0.7rem', padding: '0 10px' }} 
+                              onClick={() => {
+                                navigator.clipboard.writeText(link);
+                                alert('Link copiado!');
+                              }}
+                            >
+                              Copiar
+                            </button>
+                          </div>
+                        </div>
+                      );
+                    })
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {/* Tabela de Usuários */}
+            <div className="glass-panel" style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+              <h4 style={{ fontSize: '1rem', fontWeight: 600 }}>Usuários com Acesso</h4>
+              <div className="premium-table-wrapper">
+                <table className="premium-table">
+                  <thead>
+                    <tr>
+                      <th>Nome</th>
+                      <th>E-mail</th>
+                      <th>Perfil</th>
+                      <th>Data de Criação</th>
+                      <th style={{ textAlign: 'right' }}>Ações</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {loadingUsersTab ? (
+                      <tr>
+                        <td colSpan={5} style={{ textAlign: 'center', color: 'var(--text-muted)' }}>Carregando...</td>
+                      </tr>
+                    ) : (
+                      usersList.map((u) => (
+                        <tr key={u.id}>
+                          <td style={{ fontWeight: 600 }}>{u.email}</td>
+                          <td>
+                            <span className={`badge ${u.role === 'admin' ? 'badge-pago' : 'badge-previsto'}`}>
+                              {u.role === 'admin' ? 'Administrador' : 'Membro'}
+                            </span>
+                          </td>
+                          <td>{new Date(u.created_at).toLocaleDateString('pt-BR')}</td>
+                          <td style={{ textAlign: 'right' }}>
+                            {u.email !== 'eduardo@esquadriasmoradadosol.com.br' && u.email !== session?.user?.email ? (
+                              <button 
+                                className="btn-icon" 
+                                style={{ color: '#F87171' }} 
+                                onClick={() => handleDeleteUser(u.id)}
+                                title="Excluir Acesso"
+                              >
+                                <Trash2 size={14} />
+                              </button>
+                            ) : (
+                              <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>-</span>
+                            )}
+                          </td>
+                        </tr>
+                      ))
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </div>
           </div>
         )}
         </div>
