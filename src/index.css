@@ -857,3 +857,121 @@ h1, h2, h3, h4, h5, h6 {
     display: none !important;
   }
 }
+
+/* GoBuilderz Timeline Custom Styles */
+.builderz-timeline-container {
+  background: rgba(3, 7, 18, 0.6) !important; /* Very deep dark translucent black */
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 16px;
+  padding: 40px;
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(20px);
+}
+
+.builderz-outlined-text {
+  color: transparent !important;
+  -webkit-text-stroke: 1.5px #10B981;
+  text-stroke: 1.5px #10B981;
+}
+
+.builderz-main-title {
+  font-size: 3.5rem;
+  font-weight: 900;
+  line-height: 0.95;
+  color: #FFFFFF;
+  margin: 0;
+  letter-spacing: -0.03em;
+}
+
+@media (max-width: 768px) {
+  .builderz-main-title {
+    font-size: 2.2rem;
+  }
+  .builderz-timeline-container {
+    padding: 24px;
+  }
+}
+
+.builderz-timeline {
+  position: relative;
+  padding-left: 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  margin-top: 16px;
+}
+
+.builderz-timeline::before {
+  content: "";
+  position: absolute;
+  left: 5px;
+  top: 10px;
+  bottom: 25px;
+  width: 2px;
+  background: #10B981;
+}
+
+.builderz-timeline-item {
+  position: relative;
+  display: grid;
+  grid-template-columns: 80px 1fr;
+  gap: 16px;
+  padding-bottom: 28px;
+  align-items: start;
+}
+
+.builderz-timeline-item::before {
+  content: "";
+  position: absolute;
+  left: -31px;
+  top: 6px;
+  width: 8px;
+  height: 8px;
+  background: #10B981;
+  border-radius: 0%; /* Square dot as in print */
+  box-shadow: 0 0 10px #10B981;
+}
+
+.builderz-timeline-duration {
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #10B981;
+  letter-spacing: -0.05em;
+  line-height: 1.2;
+}
+
+.builderz-timeline-content {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.builderz-timeline-title {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #ffffff;
+  margin: 0;
+  line-height: 1.2;
+}
+
+.builderz-timeline-desc {
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.6);
+  margin: 0;
+  line-height: 1.4;
+  font-family: 'Courier New', Courier, monospace;
+}
+
+.builderz-timeline-footer {
+  font-family: 'Courier New', Courier, monospace;
+  color: rgba(255, 255, 255, 0.4);
+  font-size: 0.8rem;
+  letter-spacing: 0.1em;
+  padding-left: 5px;
+  margin-top: 10px;
+  text-transform: uppercase;
+}
