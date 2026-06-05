@@ -18,7 +18,8 @@ import {
   Phone,
   Play,
   Award,
-  BookOpen
+  BookOpen,
+  ExternalLink
 } from 'lucide-react';
 import {
   ResponsiveContainer,
@@ -51,6 +52,7 @@ import type {
 } from './utils/db';
 import { supabase } from './integrations/supabase/client';
 import type { Session } from '@supabase/supabase-js';
+import { MarketingLandingPage } from './MarketingLandingPage';
 
 export default function App() {
   // --- States ---
@@ -69,6 +71,12 @@ export default function App() {
   const [session, setSession] = useState<Session | null>(null);
   const [profile, setProfile] = useState<{ email: string; role: 'admin' | 'user'; name?: string } | null>(null);
   const [loadingProfile, setLoadingProfile] = useState(true);
+
+  // --- Marketing Landing Page State ---
+  const [isMarketing, setIsMarketing] = useState(() => {
+    const params = new URLSearchParams(window.location.search);
+    return params.get('page') === 'marketing' || window.location.pathname === '/marketing';
+  });
 
   // --- Auth Form States ---
   const [loginEmail, setLoginEmail] = useState('');
@@ -1196,6 +1204,19 @@ export default function App() {
     return { main: name, sub: "" };
   }, [eventSettings.name]);
 
+  // Renderizar a Landing Page de Marketing caso a rota ou parâmetro esteja ativo
+  if (isMarketing) {
+    return (
+      <MarketingLandingPage 
+        inviteToken={inviteToken} 
+        onNavigateToAuth={() => {
+          setIsMarketing(false);
+          window.history.replaceState({}, document.title, window.location.pathname);
+        }} 
+      />
+    );
+  }
+
   // Se estiver carregando o perfil do usuário, mostrar um carregador premium
   if (loadingProfile) {
     return (
@@ -1461,6 +1482,27 @@ export default function App() {
                 {profile?.name || (profile?.email === 'eduardo@esquadriasmoradadosol.com.br' || session?.user?.email === 'eduardo@esquadriasmoradadosol.com.br' ? 'Eduardo Both' : (profile?.email || session?.user?.email))}
               </div>
             </div>
+            <a 
+              href="?page=marketing" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="btn-secondary" 
+              style={{ 
+                padding: '6px 12px', 
+                fontSize: '0.75rem', 
+                border: '1px solid rgba(16, 185, 129, 0.3)', 
+                color: '#10B981',
+                borderRadius: '6px',
+                cursor: 'pointer',
+                background: 'rgba(16, 185, 129, 0.05)',
+                textDecoration: 'none',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '6px'
+              }}
+            >
+              <ExternalLink size={12} /> Ver Landing Page
+            </a>
             <button 
               onClick={() => supabase?.auth.signOut()} 
               className="btn-secondary" 
