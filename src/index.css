@@ -1836,7 +1836,7 @@ h1, h2, h3, h4, h5, h6 {
   flex-direction: column;
   align-items: center;
   text-align: center;
-  gap: 20px; /* Generous gap completely prevents accent overlap */
+  gap: 8px; /* Tighter gap for maximum visual impact, while avoiding overlap */
   margin-bottom: 32px;
 }
 
@@ -1845,16 +1845,16 @@ h1, h2, h3, h4, h5, h6 {
   flex-direction: column;
   align-items: flex-start;
   text-align: left;
-  gap: 16px;
+  gap: 6px;
   margin-bottom: 24px;
 }
 
 .mkt-title-line {
   font-family: 'Space Grotesk', sans-serif;
-  font-size: 3.8rem; /* Reduced for high-end elegance, not "estourado" */
+  font-size: 4.5rem; /* Eye-catching and bold, but elegant */
   font-weight: 700;
-  line-height: 1.15;
-  letter-spacing: -0.01em;
+  line-height: 0.95; /* Tighter leading for clean cohesion */
+  letter-spacing: -0.02em; /* Sleek modern tracking */
   text-transform: uppercase;
   margin: 0;
   padding: 0;
@@ -1862,14 +1862,19 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .mkt-title-solid {
-  color: #ffffff;
+  background: linear-gradient(135deg, #ffffff 65%, #d8b4fe 100%); /* Elegant white-purple metallic sheen */
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-shadow: 0 0 30px rgba(255, 255, 255, 0.1);
 }
 
 .mkt-title-outlined {
   color: transparent !important;
-  -webkit-text-stroke: 1.5px var(--neon-purple);
-  text-stroke: 1.5px var(--neon-purple);
-  text-shadow: 0 0 12px rgba(124, 58, 237, 0.35); /* Elegant neon glow */
+  -webkit-text-stroke: 1.8px #c084fc; /* Brighter purple for better contrast and high definition */
+  text-stroke: 1.8px #c084fc;
+  text-shadow: 
+    0 0 10px rgba(192, 132, 252, 0.5),
+    0 0 25px rgba(124, 58, 237, 0.35); /* Vibrant glowing neon outline */
 }
 
 .mkt-title-accent {
@@ -1879,33 +1884,33 @@ h1, h2, h3, h4, h5, h6 {
 
 @media (max-width: 992px) {
   .mkt-title-line {
-    font-size: 3.0rem;
+    font-size: 3.6rem;
   }
   .mkt-title-stack {
-    gap: 16px;
+    gap: 6px;
   }
 }
 
 @media (max-width: 768px) {
   .mkt-title-line {
-    font-size: 2.4rem;
+    font-size: 2.8rem;
   }
   .mkt-title-stack {
-    gap: 12px;
+    gap: 6px;
   }
   .mkt-title-outlined {
-    -webkit-text-stroke: 1px var(--neon-purple);
-    text-stroke: 1px var(--neon-purple);
-    text-shadow: 0 0 8px rgba(124, 58, 237, 0.25);
+    -webkit-text-stroke: 1.2px #c084fc;
+    text-stroke: 1.2px #c084fc;
+    text-shadow: 0 0 8px rgba(192, 132, 252, 0.4);
   }
 }
 
 @media (max-width: 480px) {
   .mkt-title-line {
-    font-size: 1.8rem;
+    font-size: 2.0rem;
   }
   .mkt-title-stack {
-    gap: 8px;
+    gap: 4px;
   }
 }
 
