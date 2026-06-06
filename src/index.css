@@ -1830,14 +1830,14 @@ h1, h2, h3, h4, h5, h6 {
   }
 }
 
-/* Color & Typography Style Guide - stacked headers using Outfit */
+/* Color & Typography Style Guide - stacked headers using Plus Jakarta Sans */
 .mkt-title-stack {
   display: flex;
   flex-direction: column;
   align-items: center;
   text-align: center;
-  gap: 0;
-  margin-bottom: 24px;
+  gap: 16px; /* physical gap prevents accent overlap */
+  margin-bottom: 32px;
 }
 
 .mkt-title-stack-left {
@@ -1845,16 +1845,16 @@ h1, h2, h3, h4, h5, h6 {
   flex-direction: column;
   align-items: flex-start;
   text-align: left;
-  gap: 0;
+  gap: 12px;
   margin-bottom: 24px;
 }
 
 .mkt-title-line {
   font-family: 'Plus Jakarta Sans', 'Space Grotesk', sans-serif;
-  font-size: 5.6rem;
+  font-size: 3.8rem; /* reduced from 5.6rem for high-end elegance */
   font-weight: 800;
-  line-height: 1.0;
-  letter-spacing: -0.03em;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
   text-transform: uppercase;
   margin: 0;
   padding: 0;
@@ -1872,62 +1872,48 @@ h1, h2, h3, h4, h5, h6 {
      1.5px -1.5px 0 var(--neon-purple),
     -1.5px  1.5px 0 var(--neon-purple),
      1.5px  1.5px 0 var(--neon-purple),
-     0 0 20px rgba(124, 58, 237, 0.35);
+     0 0 10px rgba(124, 58, 237, 0.3);
 }
 
 .mkt-title-accent {
-  color: #ffffff;
-  text-shadow:
-    0 0 5px rgba(255, 255, 255, 0.85),
-    0 0 12px var(--neon-purple),
-    0 0 22px var(--neon-purple),
-    0 0 45px var(--neon-purple),
-    0 0 80px rgba(124, 58, 237, 0.5);
-  animation: neon-pulse 1.8s infinite alternate ease-in-out;
-}
-
-@keyframes neon-pulse {
-  from {
-    text-shadow:
-      0 0 4px rgba(255, 255, 255, 0.8),
-      0 0 10px var(--neon-purple),
-      0 0 18px var(--neon-purple),
-      0 0 38px var(--neon-purple),
-      0 0 60px rgba(124, 58, 237, 0.4);
-  }
-  to {
-    text-shadow:
-      0 0 6px rgba(255, 255, 255, 0.9),
-      0 0 15px var(--neon-purple),
-      0 0 25px var(--neon-purple),
-      0 0 50px var(--neon-purple),
-      0 0 90px rgba(124, 58, 237, 0.6);
-  }
+  color: #030712 !important; /* Clean purple outline style */
+  text-shadow: 
+    -1.5px -1.5px 0 var(--neon-purple),  
+     1.5px -1.5px 0 var(--neon-purple),
+    -1.5px  1.5px 0 var(--neon-purple),
+     1.5px  1.5px 0 var(--neon-purple),
+     0 0 12px rgba(124, 58, 237, 0.35); /* Subtle, elegant glow */
 }
 
 @media (max-width: 992px) {
   .mkt-title-line {
-    font-size: 4.2rem;
+    font-size: 3.2rem;
+  }
+  .mkt-title-stack {
+    gap: 12px;
   }
 }
 
 @media (max-width: 768px) {
   .mkt-title-line {
-    font-size: 3rem;
+    font-size: 2.5rem;
   }
-  .mkt-title-outlined {
+  .mkt-title-stack {
+    gap: 8px;
+  }
+  .mkt-title-accent, .mkt-title-outlined {
     text-shadow: 
       -1px -1px 0 var(--neon-purple),  
        1px -1px 0 var(--neon-purple),
       -1px  1px 0 var(--neon-purple),
        1px  1px 0 var(--neon-purple),
-       0 0 15px rgba(124, 58, 237, 0.3);
+       0 0 8px rgba(124, 58, 237, 0.25);
   }
 }
 
 @media (max-width: 480px) {
   .mkt-title-line {
-    font-size: 2.2rem;
+    font-size: 2rem;
   }
 }
 
