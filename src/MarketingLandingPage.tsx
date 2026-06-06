@@ -170,11 +170,8 @@ Apenas para quem possui o convite exclusivo. Acesse o painel e confirme sua insc
         <div className="mkt-badge-host">
           Eduardo Both & Gabriel Müller Apresentam
         </div>
-        <div className="mkt-title-stack" style={{ marginBottom: '32px' }}>
-          <h1 className="mkt-title-line mkt-title-solid">AI EXPERIENCE</h1>
-          <h1 className="mkt-title-line mkt-title-outlined">ESTÂNCIA</h1>
-          <h1 className="mkt-title-line mkt-title-accent">VELHA.</h1>
-        </div>
+        <h1 className="mkt-h1">AI EXPERIENCE</h1>
+        <h1 className="mkt-h1-accent">ESTÂNCIA VELHA</h1>
         <p className="mkt-subtitle">
           Construa sistemas, aplicativos e automações corporativas reais ao vivo, usando inteligência artificial. Sem teoria morta, 100% hands-on.
         </p>
@@ -237,10 +234,12 @@ Apenas para quem possui o convite exclusivo. Acesse o painel e confirme sua insc
         <div style={{ maxWidth: '1200px', margin: '0 auto', display: 'flex', alignItems: 'center', minHeight: '450px' }}>
           <div style={{ position: 'relative', zIndex: 10, maxWidth: '550px' }}>
             <span className="mkt-section-label">[ 01 ] · GEO TRACE</span>
-            <div className="mkt-title-stack-left" style={{ marginBottom: '24px' }}>
-              <h2 className="mkt-section-title-line mkt-title-solid">ROTA DE INOVAÇÃO.</h2>
-              <h2 className="mkt-section-title-line mkt-title-outlined">ESTÂNCIA VELHA.</h2>
-            </div>
+            <h2 className="mkt-section-title" style={{ fontSize: '3rem', lineHeight: '1.1', fontWeight: 900 }}>
+              ROTA DE INOVAÇÃO.
+            </h2>
+            <h2 style={{ fontSize: '3rem', lineHeight: '1.1', fontWeight: 900, marginBottom: '24px', color: 'var(--neon-cyan)', textShadow: '0 0 20px rgba(0, 242, 254, 0.35)' }}>
+              PRÓXIMA PARADA: RS.
+            </h2>
             <p style={{ color: '#9ca3af', fontSize: '1rem', lineHeight: '1.6', marginBottom: '28px' }}>
               O AI Experience está cruzando regiões estratégicas de empreendedorismo de alta tecnologia. Trazemos a imersão diretamente para o ecossistema do Vale do Sinos, pousando estrategicamente em **Estância Velha**.
             </p>
@@ -277,10 +276,7 @@ Apenas para quem possui o convite exclusivo. Acesse o painel e confirme sua insc
       <section className="mkt-section" style={{ borderTop: '1px solid rgba(255, 255, 255, 0.05)' }}>
         <span className="mkt-section-label" style={{ textAlign: 'center' }}>[ 02 ] · THE METHOD</span>
         <div className="mkt-section-header" style={{ marginBottom: '60px' }}>
-          <div className="mkt-title-stack" style={{ marginBottom: '16px' }}>
-            <h2 className="mkt-section-title-line mkt-title-solid">O MÉTODO</h2>
-            <h2 className="mkt-section-title-line mkt-title-outlined">GUIDE.</h2>
-          </div>
+          <h2 className="mkt-section-title">O MÉTODO GUIDE</h2>
           <p style={{ color: '#9ca3af', maxWidth: '600px', margin: '12px auto 0', fontSize: '0.95rem' }}>
             A gente largou o ensino tradicional. No palco, do zero ao deploy, expondo todos os atalhos do stack mais rápido do mercado. Você sai com seu app no ar - não com uma apostila.
           </p>
@@ -347,10 +343,7 @@ Apenas para quem possui o convite exclusivo. Acesse o painel e confirme sua insc
       <section className="mkt-section" style={{ borderTop: '1px solid rgba(255, 255, 255, 0.05)' }}>
         <span className="mkt-section-label" style={{ textAlign: 'center' }}>[ 03 ] · A EXPERIÊNCIA</span>
         <div className="mkt-section-header" style={{ marginBottom: '48px' }}>
-          <div className="mkt-title-stack" style={{ marginBottom: '16px' }}>
-            <h2 className="mkt-section-title-line mkt-title-solid">UM DIA DE</h2>
-            <h2 className="mkt-section-title-line mkt-title-outlined">EVENTO.</h2>
-          </div>
+          <h2 className="mkt-section-title">UM DIA DE EVENTO</h2>
           <p style={{ color: '#9ca3af', maxWidth: '600px', margin: '12px auto 0', fontSize: '0.95rem' }}>
             A atmosfera de uma bancada de desenvolvimento com foco em entrega real.
           </p>
@@ -492,10 +485,7 @@ Apenas para quem possui o convite exclusivo. Acesse o painel e confirme sua insc
       <section className="mkt-section" style={{ borderTop: '1px solid rgba(255, 255, 255, 0.05)' }}>
         <span className="mkt-section-label" style={{ textAlign: 'center' }}>[ 06 ] · REALIZAÇÃO LOCAL</span>
         <div className="mkt-section-header" style={{ marginBottom: '60px' }}>
-          <div className="mkt-title-stack" style={{ marginBottom: '16px' }}>
-            <h2 className="mkt-section-title-line mkt-title-solid">REALIZAÇÃO</h2>
-            <h2 className="mkt-section-title-line mkt-title-outlined">LOCAL.</h2>
-          </div>
+          <h2 className="mkt-section-title">HOSTS E ORGANIZAÇÃO</h2>
           <p style={{ color: '#9ca3af', maxWidth: '600px', margin: '12px auto 0', fontSize: '0.95rem' }}>
             Conheça quem está organizando a edição regional em Estância Velha e promovendo a inovação local.
           </p>
@@ -524,10 +514,7 @@ Apenas para quem possui o convite exclusivo. Acesse o painel e confirme sua insc
       <section className="mkt-section" style={{ borderTop: '1px solid rgba(255, 255, 255, 0.05)' }}>
         <span className="mkt-section-label" style={{ textAlign: 'center' }}>[ 07 ] · COMPATIBILIDADE</span>
         <div className="mkt-section-header" style={{ marginBottom: '60px' }}>
-          <div className="mkt-title-stack" style={{ marginBottom: '16px' }}>
-            <h2 className="mkt-section-title-line mkt-title-solid">PARA QUEM É</h2>
-            <h2 className="mkt-section-title-line mkt-title-outlined">A IMERSÃO?</h2>
-          </div>
+          <h2 className="mkt-section-title">PARA QUEM É A IMERSÃO?</h2>
           <p style={{ color: '#9ca3af', maxWidth: '600px', margin: '12px auto 0', fontSize: '0.95rem' }}>
             A comunidade é voltada para quem constrói e coloca projetos no ar, independentemente da sua formação.
           </p>
@@ -581,10 +568,7 @@ Apenas para quem possui o convite exclusivo. Acesse o painel e confirme sua insc
       <section className="mkt-section" style={{ borderTop: '1px solid rgba(255, 255, 255, 0.05)' }}>
         <span className="mkt-section-label" style={{ textAlign: 'center' }}>[ 08 ] · DÚVIDAS FREQUENTES</span>
         <div className="mkt-section-header" style={{ marginBottom: '60px' }}>
-          <div className="mkt-title-stack" style={{ marginBottom: '16px' }}>
-            <h2 className="mkt-section-title-line mkt-title-solid">FAQ DO</h2>
-            <h2 className="mkt-section-title-line mkt-title-outlined">EVENTO.</h2>
-          </div>
+          <h2 className="mkt-section-title">FAQ DO EVENTO</h2>
         </div>
 
         <div className="mkt-faq-list">
@@ -607,14 +591,13 @@ Apenas para quem possui o convite exclusivo. Acesse o painel e confirme sua insc
       {/* DESIGNERS CORNER (Aba para designer com ideias de posts) */}
       <section className="mkt-section" style={{ borderTop: '1px solid rgba(255, 255, 255, 0.05)' }}>
         <div className="mkt-designer-section">
-          <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '20px' }}>
-            <InstagramIcon size={32} style={{ color: 'var(--neon-purple)' }} />
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px' }}>
+            <InstagramIcon size={28} style={{ color: 'var(--neon-purple)' }} />
             <div>
               <span className="mkt-section-label" style={{ margin: 0 }}>[ 09 ] · ÁREA CRIATIVA</span>
-              <div className="mkt-title-stack-left" style={{ marginBottom: 0 }}>
-                <h3 className="mkt-section-title-line mkt-title-solid" style={{ fontSize: '2.4rem' }}>ÁREA</h3>
-                <h3 className="mkt-section-title-line mkt-title-outlined" style={{ fontSize: '2.4rem' }}>CRIATIVA.</h3>
-              </div>
+              <h3 style={{ fontSize: '1.5rem', fontWeight: 800, margin: 0, color: '#fff' }}>
+                Marketing de Afiliados & Designers
+              </h3>
             </div>
           </div>
           <p style={{ color: '#9ca3af', fontSize: '0.9rem', lineHeight: '1.5', margin: 0, maxWidth: '700px' }}>
