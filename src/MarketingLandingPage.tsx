@@ -167,18 +167,18 @@ Apenas para quem possui o convite exclusivo. Acesse o painel e confirme sua insc
 
       {/* HERO SECTION */}
       <section className="mkt-hero">
-        <div className="mkt-badge-host">
+        <div className="mkt-badge-host mkt-animate delay-1">
           Eduardo Both & Gabriel Müller Apresentam
         </div>
-        <div className="mkt-title-stack" style={{ marginBottom: '32px' }}>
+        <div className="mkt-title-stack mkt-animate delay-2" style={{ marginBottom: '32px' }}>
           <h1 className="mkt-title-line mkt-title-solid">AI EXPERIENCE</h1>
           <h1 className="mkt-title-line mkt-title-outlined">ESTÂNCIA VELHA</h1>
         </div>
-        <p className="mkt-subtitle">
+        <p className="mkt-subtitle mkt-animate delay-3">
           Construa sistemas, aplicativos e automações corporativas reais ao vivo, usando inteligência artificial. Sem teoria morta, 100% hands-on.
         </p>
         
-        <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap', justifyContent: 'center' }}>
+        <div className="mkt-animate delay-4" style={{ display: 'flex', gap: '16px', flexWrap: 'wrap', justifyContent: 'center' }}>
           <button
             onClick={handleActionClick}
             className="btn-primary"
@@ -201,7 +201,7 @@ Apenas para quem possui o convite exclusivo. Acesse o painel e confirme sua insc
         </div>
 
         {/* Small details */}
-        <div style={{ display: 'flex', gap: '40px', marginTop: '60px', flexWrap: 'wrap', justifyContent: 'center', opacity: 0.8 }}>
+        <div className="mkt-animate delay-5" style={{ display: 'flex', gap: '40px', marginTop: '60px', flexWrap: 'wrap', justifyContent: 'center', opacity: 0.8 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px', textAlign: 'left' }}>
             <Clock size={20} style={{ color: 'var(--neon-cyan)' }} />
             <div>
