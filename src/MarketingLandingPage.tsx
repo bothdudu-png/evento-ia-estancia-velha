@@ -255,51 +255,20 @@ Apenas para quem possui o convite exclusivo. Acesse o painel e confirme sua insc
         </div>
 
         {/* Absolute Background Map */}
-        <div className="mkt-geo-map-bg">
-          {/* Brazil Map Stylized Vector (High Tech Grid Style) */}
-          <svg viewBox="0 0 500 500" style={{ width: '100%', height: '100%' }}>
-            {/* Simplified Brazil Outline path */}
-            <path 
-              d="M 230 50 L 290 60 L 330 90 L 370 80 L 410 120 L 430 160 L 410 180 L 390 200 L 410 230 L 400 260 L 370 280 L 350 310 L 355 330 L 330 360 L 310 350 L 300 370 L 280 390 L 260 380 L 270 410 L 250 440 L 260 460 L 230 460 L 235 440 L 220 410 L 230 385 L 210 375 L 205 345 L 180 340 L 160 320 L 140 280 L 125 285 L 110 260 L 95 240 L 90 215 L 115 190 L 125 155 L 155 140 L 175 160 L 210 150 L 220 100 Z" 
-              fill="none" 
-              stroke="rgba(255,255,255,0.06)" 
-              strokeWidth="1.5"
-            />
-            <path 
-              d="M 230 50 L 290 60 L 330 90 L 370 80 L 410 120 L 430 160 L 410 180 L 390 200 L 410 230 L 400 260 L 370 280 L 350 310 L 355 330 L 330 360 L 310 350 L 300 370 L 280 390 L 260 380 L 270 410 L 250 440 Z" 
-              fill="none" 
-              stroke="var(--neon-cyan)" 
-              strokeWidth="2" 
-              strokeDasharray="6 4"
-              opacity="0.3"
-            />
-            
-            {/* Highlight Pins on Route */}
-            <circle cx="370" cy="280" r="4" fill="rgba(255,255,255,0.3)" /> {/* SP */}
-            <circle cx="330" cy="360" r="4" fill="rgba(255,255,255,0.3)" /> {/* Curitiba */}
-            <circle cx="300" cy="370" r="4" fill="rgba(255,255,255,0.3)" /> {/* Florianópolis */}
-            <circle cx="270" cy="410" r="4" fill="rgba(255,255,255,0.3)" /> {/* Porto Alegre */}
-
-            {/* ACTIVE TARGET: ESTÂNCIA VELHA (RS) */}
-            <g>
-              <circle cx="250" cy="440" r="14" fill="rgba(0, 242, 254, 0.15)" stroke="rgba(0, 242, 254, 0.3)" strokeWidth="1">
-                <animate attributeName="r" values="8;18;8" dur="2s" repeatCount="indefinite" />
-              </circle>
-              <circle cx="250" cy="440" r="5" fill="var(--neon-cyan)" />
-              <path d="M 250 440 L 170 420" stroke="var(--neon-cyan)" strokeWidth="1" opacity="0.6" strokeDasharray="3 2" />
-              
-              {/* Text Pointer */}
-              <rect x="70" y="390" width="105" height="40" rx="6" fill="#050508" stroke="var(--neon-cyan)" strokeWidth="1" />
-              <text x="122" y="408" fill="#fff" fontSize="9" fontWeight="bold" textAnchor="middle" fontFamily="monospace">Estância Velha</text>
-              <text x="122" y="422" fill="var(--neon-cyan)" fontSize="8" textAnchor="middle" fontFamily="monospace">15 DE AGOSTO</text>
-            </g>
-
-            {/* Grid dots overlay */}
-            <pattern id="grid-dots" width="20" height="20" patternUnits="userSpaceOnUse">
-              <circle cx="2" cy="2" r="1" fill="rgba(255, 255, 255, 0.03)" />
-            </pattern>
-            <rect width="100%" height="100%" fill="url(#grid-dots)" pointerEvents="none" />
-          </svg>
+        <div className="mkt-geo-map-bg" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+          <img 
+            src="/tech_map.png" 
+            alt="Mapa Rota de Inovação RS" 
+            style={{ 
+              width: '100%', 
+              height: '100%', 
+              objectFit: 'cover', 
+              borderRadius: '24px',
+              opacity: 0.75,
+              mixBlendMode: 'screen',
+              filter: 'brightness(0.95) contrast(1.15) saturate(1.1)' 
+            }} 
+          />
         </div>
       </section>
 
@@ -463,44 +432,79 @@ Apenas para quem possui o convite exclusivo. Acesse o painel e confirme sua insc
         </div>
       </section>
 
-      {/* SPEAKERS & ORGANIZERS */}
+      {/* MENTOR DEDICADO - THIAGO DIAZ */}
+      <section className="mkt-section" style={{ borderTop: '1px solid rgba(255, 255, 255, 0.05)', padding: '100px 20px', position: 'relative' }}>
+        <div className="mkt-mentor-layout">
+          {/* Left Column: Portrait */}
+          <div className="mkt-mentor-photo-wrapper">
+            <div className="mkt-mentor-tag">MENTOR_01</div>
+            <img src="/thiago_diaz.png" alt="Thiago Diaz" className="mkt-mentor-photo" />
+          </div>
+
+          {/* Right Column: Info & Stats */}
+          <div className="mkt-mentor-info">
+            <span className="mkt-section-label" style={{ color: 'var(--neon-purple)' }}>[ 05 ] · QUEM TE GUIA</span>
+            <h2 className="mkt-mentor-name-primary">THIAGO</h2>
+            <h2 className="mkt-mentor-name-secondary">DIAZ.</h2>
+            
+            <p className="mkt-mentor-lead-text">
+              Founder da Builderz. Já guiou milhares de builders do "tenho uma ideia" para o "está no ar". Engenheiro por formação, criador por ofício. Vai estar em todas as 6 paradas — sem stand-in.
+            </p>
+
+            <div className="mkt-mentor-stats-grid">
+              <div className="mkt-mentor-stat-item">
+                <span className="mkt-mentor-stat-label">LIVES</span>
+                <span className="mkt-mentor-stat-value">85+</span>
+              </div>
+              <div className="mkt-mentor-stat-item">
+                <span className="mkt-mentor-stat-label">BUILDERS</span>
+                <span className="mkt-mentor-stat-value">12k</span>
+              </div>
+              <div className="mkt-mentor-stat-item">
+                <span className="mkt-mentor-stat-label">APPS LANÇADOS</span>
+                <span className="mkt-mentor-stat-value">230+</span>
+              </div>
+              <div className="mkt-mentor-stat-item">
+                <span className="mkt-mentor-stat-label">PAÍSES</span>
+                <span className="mkt-mentor-stat-value">07</span>
+              </div>
+              <div className="mkt-mentor-stat-item">
+                <span className="mkt-mentor-stat-label">ANOS NO JOGO</span>
+                <span className="mkt-mentor-stat-value">11</span>
+              </div>
+              <div className="mkt-mentor-stat-item">
+                <span className="mkt-mentor-stat-label">CAFÉS/DIA</span>
+                <span className="mkt-mentor-stat-value">∞</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ORGANIZADORES LOCAIS */}
       <section className="mkt-section" style={{ borderTop: '1px solid rgba(255, 255, 255, 0.05)' }}>
-        <span className="mkt-section-label" style={{ textAlign: 'center' }}>[ 05 ] · QUEM ESTÁ NO PALCO E BASTIDORES</span>
+        <span className="mkt-section-label" style={{ textAlign: 'center' }}>[ 06 ] · REALIZAÇÃO LOCAL</span>
         <div className="mkt-section-header" style={{ marginBottom: '60px' }}>
-          <h2 className="mkt-section-title">MENTOR E REALIZAÇÃO</h2>
+          <h2 className="mkt-section-title">HOSTS E ORGANIZAÇÃO</h2>
           <p style={{ color: '#9ca3af', maxWidth: '600px', margin: '12px auto 0', fontSize: '0.95rem' }}>
-            Conheça quem trará todo o ecossistema prático de desenvolvimento e quem está organizando a edição local.
+            Conheça quem está organizando a edição regional em Estância Velha e promovendo a inovação local.
           </p>
         </div>
 
-        <div className="mkt-people-grid">
-          {/* MENTOR THIAGO DIAZ */}
-          <div className="mkt-person-card" style={{ border: '1px solid rgba(0, 242, 254, 0.25)' }}>
+        <div style={{ maxWidth: '800px', margin: '0 auto' }}>
+          {/* ORGANIZERS CARD */}
+          <div className="mkt-person-card" style={{ border: '1px solid rgba(124, 58, 237, 0.2)' }}>
             <div className="mkt-person-header">
-              <div className="mkt-person-avatar">TD</div>
-              <div className="mkt-person-meta">
-                <h3 className="mkt-person-name">Thiago Diaz</h3>
-                <span className="mkt-person-title">Palestrante & Mentor</span>
-              </div>
-            </div>
-            <p className="mkt-person-bio">
-              Fundador da **Builderz** e mentor em desenvolvimento ágil acelerado por Inteligência Artificial. Engenheiro por formação e criador de softwares por ofício, atua capacitando centenas de criadores ("builders") no Brasil. É o desenvolvedor do **Método Guide**, focado em acelerar o processo criativo e de programação hands-on para colocar produtos e apps em produção sem fricção.
-            </p>
-          </div>
-
-          {/* ORGANIZERS */}
-          <div className="mkt-person-card">
-            <div className="mkt-person-header">
-              <div className="mkt-person-avatar" style={{ background: 'linear-gradient(135deg, var(--neon-cyan) 0%, var(--electric-blue) 100%)' }}>EB</div>
+              <div className="mkt-person-avatar" style={{ background: 'linear-gradient(135deg, var(--neon-purple) 0%, var(--neon-pink) 100%)' }}>EB</div>
               <div className="mkt-person-meta">
                 <h3 className="mkt-person-name">Eduardo Both & Gabriel Müller</h3>
-                <span className="mkt-person-title">Idealizadores & Hosts Locais</span>
+                <span className="mkt-person-title" style={{ color: 'var(--neon-purple)' }}>Idealizadores & Hosts Locais</span>
               </div>
             </div>
-            <p className="mkt-person-bio">
-              Empresários e líderes de tecnologia atuantes no ecossistema de Estância Velha e região do Vale do Sinos. São os promotores oficiais e anfitriões responsáveis por trazer o formato prático da Builderz para o público regional. 
+            <p className="mkt-person-bio" style={{ marginTop: '16px' }}>
+              Empresários e líderes de tecnologia atuantes no ecossistema de Estância Velha e região do Vale do Sinos. São os promotores oficiais e anfitriões responsáveis por trazer o formato prático da Builderz para o público regional.
               <br /><br />
-              Seu foco é criar pontes entre a inovação tecnológica da IA e as oportunidades de mercado locais, proporcionando um ambiente propício para conexões corporativas de alto escalão, aprendizado prático e novos negócios regionais.
+              Seu foco é criar pontes entre a inovação tecnológica da IA e as oportunidades de mercado locais, proporcionando um ambiente propício para conexões corporativas de alto nível, aprendizado prático e novos negócios no Vale do Sinos.
             </p>
           </div>
         </div>
@@ -508,7 +512,7 @@ Apenas para quem possui o convite exclusivo. Acesse o painel e confirme sua insc
 
       {/* AUDIENCE / TARGET (Para quem é) */}
       <section className="mkt-section" style={{ borderTop: '1px solid rgba(255, 255, 255, 0.05)' }}>
-        <span className="mkt-section-label" style={{ textAlign: 'center' }}>[ 06 ] · COMPATIBILIDADE</span>
+        <span className="mkt-section-label" style={{ textAlign: 'center' }}>[ 07 ] · COMPATIBILIDADE</span>
         <div className="mkt-section-header" style={{ marginBottom: '60px' }}>
           <h2 className="mkt-section-title">PARA QUEM É A IMERSÃO?</h2>
           <p style={{ color: '#9ca3af', maxWidth: '600px', margin: '12px auto 0', fontSize: '0.95rem' }}>
@@ -519,7 +523,7 @@ Apenas para quem possui o convite exclusivo. Acesse o painel e confirme sua insc
         <div className="mkt-audience-grid">
           <div className="mkt-audience-card">
             <h3 className="mkt-audience-title">
-              <span style={{ color: 'var(--neon-cyan)' }}>//</span> Iniciantes
+              <span style={{ color: 'var(--neon-purple)' }}>//</span> Iniciantes
             </h3>
             <p className="mkt-audience-desc">
               Curiosos que possuem uma grande ideia de projeto ou produto, mas que não têm conhecimento em programação.
@@ -527,7 +531,7 @@ Apenas para quem possui o convite exclusivo. Acesse o painel e confirme sua insc
           </div>
           <div className="mkt-audience-card">
             <h3 className="mkt-audience-title">
-              <span style={{ color: 'var(--neon-cyan)' }}>//</span> Vibecoders
+              <span style={{ color: 'var(--neon-purple)' }}>//</span> Vibecoders
             </h3>
             <p className="mkt-audience-desc">
               Criadores e curiosos que já tiveram contato prévio com IA e desejam dominar o stack técnico para criar produtos completos.
@@ -535,7 +539,7 @@ Apenas para quem possui o convite exclusivo. Acesse o painel e confirme sua insc
           </div>
           <div className="mkt-audience-card">
             <h3 className="mkt-audience-title">
-              <span style={{ color: 'var(--neon-cyan)' }}>//</span> Devs
+              <span style={{ color: 'var(--neon-purple)' }}>//</span> Devs
             </h3>
             <p className="mkt-audience-desc">
               Programadores profissionais que buscam triplicar a sua velocidade de trabalho em até 10x utilizando ferramentas de IA.
@@ -543,7 +547,7 @@ Apenas para quem possui o convite exclusivo. Acesse o painel e confirme sua insc
           </div>
           <div className="mkt-audience-card">
             <h3 className="mkt-audience-title">
-              <span style={{ color: 'var(--neon-cyan)' }}>//</span> Designers
+              <span style={{ color: 'var(--neon-purple)' }}>//</span> Designers
             </h3>
             <p className="mkt-audience-desc">
               Profissionais visuais que transformam pixels em layouts no Figma e querem aprender a criar aplicativos interativos reais.
@@ -551,7 +555,7 @@ Apenas para quem possui o convite exclusivo. Acesse o painel e confirme sua insc
           </div>
           <div className="mkt-audience-card">
             <h3 className="mkt-audience-title">
-              <span style={{ color: 'var(--neon-cyan)' }}>//</span> Empresários do Futuro
+              <span style={{ color: 'var(--neon-purple)' }}>//</span> Empresários do Futuro
             </h3>
             <p className="mkt-audience-desc">
               Líderes de negócios que desejam desenhar e implementar automações, CRMs e fluxos operacionais próprios na empresa.
@@ -562,7 +566,7 @@ Apenas para quem possui o convite exclusivo. Acesse o painel e confirme sua insc
 
       {/* FAQ SECTION */}
       <section className="mkt-section" style={{ borderTop: '1px solid rgba(255, 255, 255, 0.05)' }}>
-        <span className="mkt-section-label" style={{ textAlign: 'center' }}>[ 07 ] · DÚVIDAS FREQUENTES</span>
+        <span className="mkt-section-label" style={{ textAlign: 'center' }}>[ 08 ] · DÚVIDAS FREQUENTES</span>
         <div className="mkt-section-header" style={{ marginBottom: '60px' }}>
           <h2 className="mkt-section-title">FAQ DO EVENTO</h2>
         </div>
@@ -590,7 +594,7 @@ Apenas para quem possui o convite exclusivo. Acesse o painel e confirme sua insc
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px' }}>
             <InstagramIcon size={28} style={{ color: 'var(--neon-purple)' }} />
             <div>
-              <span className="mkt-section-label" style={{ margin: 0 }}>ÁREA CRIATIVA</span>
+              <span className="mkt-section-label" style={{ margin: 0 }}>[ 09 ] · ÁREA CRIATIVA</span>
               <h3 style={{ fontSize: '1.5rem', fontWeight: 800, margin: 0, color: '#fff' }}>
                 Marketing de Afiliados & Designers
               </h3>
