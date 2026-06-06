@@ -172,8 +172,7 @@ Apenas para quem possui o convite exclusivo. Acesse o painel e confirme sua insc
         </div>
         <div className="mkt-title-stack" style={{ marginBottom: '32px' }}>
           <h1 className="mkt-title-line mkt-title-solid">AI EXPERIENCE</h1>
-          <h1 className="mkt-title-line mkt-title-outlined">ESTÂNCIA</h1>
-          <h1 className="mkt-title-line mkt-title-accent">VELHA.</h1>
+          <h1 className="mkt-title-line mkt-title-accent">ESTÂNCIA VELHA</h1>
         </div>
         <p className="mkt-subtitle">
           Construa sistemas, aplicativos e automações corporativas reais ao vivo, usando inteligência artificial. Sem teoria morta, 100% hands-on.
