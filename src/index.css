@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@700;800;900&family=Space+Grotesk:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap');
 
 :root {
   --bg-primary: #050508;
@@ -17,7 +17,7 @@
   --text-secondary: #D1D5DB;
   --text-muted: #9CA3AF;
   
-  --font-title: 'Space Grotesk', sans-serif;
+  --font-title: 'Outfit', 'Space Grotesk', sans-serif;
   --font-body: 'Plus Jakarta Sans', 'Inter', sans-serif;
   
   --shadow-neon: 0 0 25px rgba(0, 242, 254, 0.25);
@@ -1164,7 +1164,6 @@ h1, h2, h3, h4, h5, h6 {
   color: #ffffff;
   letter-spacing: -0.02em;
   margin: 0;
-  text-wrap: balance;
 }
 
 /* Geo Section Redesign - Map floating in background */
@@ -1624,7 +1623,6 @@ h1, h2, h3, h4, h5, h6 {
   letter-spacing: -0.02em;
   margin: 0;
   color: #ffffff;
-  text-wrap: balance;
 }
 
 .builderz-outlined-text {
@@ -1827,112 +1825,5 @@ h1, h2, h3, h4, h5, h6 {
     grid-template-columns: 1fr;
     gap: 40px;
     max-width: 600px;
-  }
-}
-
-/* Color & Typography Style Guide - stacked headers using Space Grotesk */
-.mkt-title-stack {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  text-align: center;
-  gap: 24px; /* Generous gap prevents accent overlap completely */
-  margin-bottom: 32px;
-}
-
-.mkt-title-stack-left {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  text-align: left;
-  gap: 16px;
-  margin-bottom: 24px;
-}
-
-.mkt-title-line {
-  font-family: 'Space Grotesk', sans-serif;
-  font-size: 3.2rem; /* Reduced for sleek, professional elegance */
-  font-weight: 700;
-  line-height: 1.1;
-  letter-spacing: -0.02em;
-  text-transform: uppercase;
-  margin: 0;
-  padding: 0;
-  text-wrap: balance;
-}
-
-.mkt-title-solid {
-  color: #ffffff;
-}
-
-.mkt-title-outlined {
-  color: transparent !important;
-  -webkit-text-stroke: 1.5px var(--neon-purple);
-  text-stroke: 1.5px var(--neon-purple);
-  text-shadow: 0 0 8px rgba(124, 58, 237, 0.2);
-}
-
-.mkt-title-accent {
-  color: transparent !important;
-  -webkit-text-stroke: 1.5px var(--neon-purple);
-  text-stroke: 1.5px var(--neon-purple);
-  text-shadow: 0 0 8px rgba(124, 58, 237, 0.2);
-}
-
-@media (max-width: 992px) {
-  .mkt-title-line {
-    font-size: 2.8rem;
-  }
-  .mkt-title-stack {
-    gap: 16px;
-  }
-}
-
-@media (max-width: 768px) {
-  .mkt-title-line {
-    font-size: 2.2rem;
-  }
-  .mkt-title-stack {
-    gap: 12px;
-  }
-  .mkt-title-accent, .mkt-title-outlined {
-    -webkit-text-stroke: 1px var(--neon-purple);
-    text-stroke: 1px var(--neon-purple);
-    text-shadow: 0 0 5px rgba(124, 58, 237, 0.15);
-  }
-}
-
-@media (max-width: 480px) {
-  .mkt-title-line {
-    font-size: 1.8rem;
-  }
-  .mkt-title-stack {
-    gap: 8px;
-  }
-}
-
-/* Accessibility & Easing Overrides from interaction-design.md & web-interface-guidelines.md */
-:root {
-  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
-  --spring: cubic-bezier(0.34, 1.56, 0.64, 1);
-  --transition-btn: transform 0.12s var(--ease-out), background-color 0.12s var(--ease-out), box-shadow 0.12s var(--ease-out), border-color 0.12s var(--ease-out);
-}
-
-.btn-primary, .btn-secondary, .btn-danger, .btn-icon {
-  transition: var(--transition-btn) !important;
-}
-
-/* Reduced Motion Override */
-@media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
-    scroll-behavior: auto !important;
-  }
-  .mkt-title-accent {
-    animation: none !important;
   }
 }
