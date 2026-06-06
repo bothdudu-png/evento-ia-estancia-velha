@@ -1830,14 +1830,14 @@ h1, h2, h3, h4, h5, h6 {
   }
 }
 
-/* Color & Typography Style Guide - stacked headers using Outfit */
+/* Color & Typography Style Guide - stacked headers using Space Grotesk */
 .mkt-title-stack {
   display: flex;
   flex-direction: column;
   align-items: center;
   text-align: center;
-  gap: 0;
-  margin-bottom: 24px;
+  gap: 20px; /* Generous gap completely prevents accent overlap */
+  margin-bottom: 32px;
 }
 
 .mkt-title-stack-left {
@@ -1845,16 +1845,16 @@ h1, h2, h3, h4, h5, h6 {
   flex-direction: column;
   align-items: flex-start;
   text-align: left;
-  gap: 0;
+  gap: 16px;
   margin-bottom: 24px;
 }
 
 .mkt-title-line {
-  font-family: 'Plus Jakarta Sans', 'Space Grotesk', sans-serif;
-  font-size: 5.6rem;
-  font-weight: 800;
-  line-height: 0.82;
-  letter-spacing: -0.03em;
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 3.8rem; /* Reduced for high-end elegance, not "estourado" */
+  font-weight: 700;
+  line-height: 1.15;
+  letter-spacing: -0.01em;
   text-transform: uppercase;
   margin: 0;
   padding: 0;
@@ -1866,43 +1866,46 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .mkt-title-outlined {
-  color: #030712 !important; /* Matches background perfectly */
-  text-shadow: 
-    -1.5px -1.5px 0 var(--neon-purple),  
-     1.5px -1.5px 0 var(--neon-purple),
-    -1.5px  1.5px 0 var(--neon-purple),
-     1.5px  1.5px 0 var(--neon-purple),
-     0 0 20px rgba(124, 58, 237, 0.35);
+  color: transparent !important;
+  -webkit-text-stroke: 1.5px var(--neon-purple);
+  text-stroke: 1.5px var(--neon-purple);
+  text-shadow: 0 0 12px rgba(124, 58, 237, 0.35); /* Elegant neon glow */
 }
 
 .mkt-title-accent {
   color: var(--neon-purple);
-  text-shadow: 0 0 20px rgba(124, 58, 237, 0.35);
+  text-shadow: 0 0 12px rgba(124, 58, 237, 0.35);
 }
 
 @media (max-width: 992px) {
   .mkt-title-line {
-    font-size: 4.2rem;
+    font-size: 3.0rem;
+  }
+  .mkt-title-stack {
+    gap: 16px;
   }
 }
 
 @media (max-width: 768px) {
   .mkt-title-line {
-    font-size: 3rem;
+    font-size: 2.4rem;
+  }
+  .mkt-title-stack {
+    gap: 12px;
   }
   .mkt-title-outlined {
-    text-shadow: 
-      -1px -1px 0 var(--neon-purple),  
-       1px -1px 0 var(--neon-purple),
-      -1px  1px 0 var(--neon-purple),
-       1px  1px 0 var(--neon-purple),
-       0 0 15px rgba(124, 58, 237, 0.3);
+    -webkit-text-stroke: 1px var(--neon-purple);
+    text-stroke: 1px var(--neon-purple);
+    text-shadow: 0 0 8px rgba(124, 58, 237, 0.25);
   }
 }
 
 @media (max-width: 480px) {
   .mkt-title-line {
-    font-size: 2.2rem;
+    font-size: 1.8rem;
+  }
+  .mkt-title-stack {
+    gap: 8px;
   }
 }
 
