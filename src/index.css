@@ -1853,7 +1853,7 @@ h1, h2, h3, h4, h5, h6 {
   font-family: 'Plus Jakarta Sans', 'Space Grotesk', sans-serif;
   font-size: 5.6rem;
   font-weight: 800;
-  line-height: 0.82;
+  line-height: 1.0;
   letter-spacing: -0.03em;
   text-transform: uppercase;
   margin: 0;
@@ -1876,8 +1876,33 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .mkt-title-accent {
-  color: var(--neon-purple);
-  text-shadow: 0 0 20px rgba(124, 58, 237, 0.35);
+  color: #ffffff;
+  text-shadow:
+    0 0 5px rgba(255, 255, 255, 0.85),
+    0 0 12px var(--neon-purple),
+    0 0 22px var(--neon-purple),
+    0 0 45px var(--neon-purple),
+    0 0 80px rgba(124, 58, 237, 0.5);
+  animation: neon-pulse 1.8s infinite alternate ease-in-out;
+}
+
+@keyframes neon-pulse {
+  from {
+    text-shadow:
+      0 0 4px rgba(255, 255, 255, 0.8),
+      0 0 10px var(--neon-purple),
+      0 0 18px var(--neon-purple),
+      0 0 38px var(--neon-purple),
+      0 0 60px rgba(124, 58, 237, 0.4);
+  }
+  to {
+    text-shadow:
+      0 0 6px rgba(255, 255, 255, 0.9),
+      0 0 15px var(--neon-purple),
+      0 0 25px var(--neon-purple),
+      0 0 50px var(--neon-purple),
+      0 0 90px rgba(124, 58, 237, 0.6);
+  }
 }
 
 @media (max-width: 992px) {
@@ -1926,5 +1951,8 @@ h1, h2, h3, h4, h5, h6 {
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
+  }
+  .mkt-title-accent {
+    animation: none !important;
   }
 }
