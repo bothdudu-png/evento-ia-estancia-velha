@@ -141,12 +141,12 @@ Apenas para quem possui o convite exclusivo. Acesse o painel e confirme sua insc
         <div style={{ maxWidth: '1200px', width: '100%', margin: '0 auto', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <div style={{ fontWeight: 800, fontSize: '1.2rem', letterSpacing: '-0.02em', display: 'flex', alignItems: 'center', gap: '8px' }}>
             <span style={{ color: '#fff' }}>AI</span>
-            <span style={{ color: 'var(--neon-cyan)', border: '1px solid rgba(0, 242, 254, 0.3)', padding: '2px 8px', borderRadius: '4px', fontSize: '0.75rem', fontFamily: 'monospace' }}>EXPERIENCE</span>
+            <span style={{ color: '#a78bfa', border: '1px solid rgba(167, 139, 250, 0.3)', padding: '2px 8px', borderRadius: '4px', fontSize: '0.75rem', fontFamily: 'monospace' }}>EXPERIENCE</span>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
             {inviteToken && (
               <span className="hide-mobile" style={{ fontSize: '0.75rem', color: 'rgba(255, 255, 255, 0.5)', fontFamily: 'monospace' }}>
-                Convite Ativo: {inviteToken.substring(0, 8)}...
+                Convite Ativo: {inviteToken.substring(0, 8)}…
               </span>
             )}
             <button
@@ -170,8 +170,11 @@ Apenas para quem possui o convite exclusivo. Acesse o painel e confirme sua insc
         <div className="mkt-badge-host">
           Eduardo Both & Gabriel Müller Apresentam
         </div>
-        <h1 className="mkt-h1">AI EXPERIENCE</h1>
-        <h1 className="mkt-h1-accent">ESTÂNCIA VELHA</h1>
+        <div className="mkt-title-stack" style={{ marginBottom: '32px' }}>
+          <h1 className="mkt-title-line mkt-title-solid">AI EXPERIENCE</h1>
+          <h1 className="mkt-title-line mkt-title-outlined">ESTÂNCIA</h1>
+          <h1 className="mkt-title-line mkt-title-accent">VELHA.</h1>
+        </div>
         <p className="mkt-subtitle">
           Construa sistemas, aplicativos e automações corporativas reais ao vivo, usando inteligência artificial. Sem teoria morta, 100% hands-on.
         </p>
