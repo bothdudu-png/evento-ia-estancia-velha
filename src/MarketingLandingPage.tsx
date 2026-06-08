@@ -416,7 +416,7 @@ Apenas para quem possui o convite exclusivo. Acesse o painel e confirme sua insc
               { duration: '1h', title: 'Live Build I — UI & Telas', desc: 'Do brief à interface funcional, gerada ao vivo.' },
               { duration: '1h', title: 'Live Build II — Banco & Lógica', desc: 'RLS, auth, integrações. Sem mistério.' },
               { duration: '2h', title: 'Hands-on: Seu App', desc: 'Bancada, mentoria 1:1, você constrói o seu.' },
-              { duration: '1h', title: 'After', desc: 'Comunidade, conexões e a tour continua.' }
+              { duration: '1h', title: 'After', desc: 'Comunidade, conexões e encerramento do evento.' }
             ].map((item, idx) => (
               <div className="builderz-timeline-item" key={idx} style={{ paddingBottom: '32px' }}>
                 <div className="builderz-timeline-duration">{item.duration}</div>
@@ -450,7 +450,7 @@ Apenas para quem possui o convite exclusivo. Acesse o painel e confirme sua insc
             <h2 className="mkt-mentor-name-secondary">DIAZ.</h2>
             
             <p className="mkt-mentor-lead-text">
-              Founder da Builderz. Já guiou milhares de builders do "tenho uma ideia" para o "está no ar". Engenheiro por formação, criador por ofício. Vai estar em todas as 6 paradas — sem stand-in.
+              Founder da Builderz. Já guiou milhares de builders do "tenho uma ideia" para o "está no ar". Engenheiro por formação, criador por ofício. Estará conduzindo presencialmente toda a imersão em Estância Velha — sem stand-in.
             </p>
 
             <div className="mkt-mentor-stats-grid">

@@ -53,6 +53,7 @@ import type {
 import { supabase } from './integrations/supabase/client';
 import type { Session } from '@supabase/supabase-js';
 import { MarketingLandingPage } from './MarketingLandingPage';
+import { MarketingLandingPage2 } from './MarketingLandingPage2';
 
 export default function App() {
   // --- States ---
@@ -73,9 +74,18 @@ export default function App() {
   const [loadingProfile, setLoadingProfile] = useState(true);
 
   // --- Marketing Landing Page State ---
-  const [isMarketing, setIsMarketing] = useState(() => {
+  const [marketingVersion, setMarketingVersion] = useState<'v1' | 'v2' | null>(() => {
     const params = new URLSearchParams(window.location.search);
-    return params.get('page') === 'marketing' || window.location.pathname === '/marketing';
+    const page = params.get('page');
+    const path = window.location.pathname;
+    
+    if (page === 'admin' || path === '/admin') {
+      return null; // Show admin panel
+    }
+    if (page === 'marketing1' || path === '/marketing1') {
+      return 'v1'; // Legacy one in background
+    }
+    return 'v2'; // Marketing V2 is the default public view!
   });
 
   // --- Auth Form States ---
@@ -1205,14 +1215,27 @@ export default function App() {
   }, [eventSettings.name]);
 
   // Renderizar a Landing Page de Marketing caso a rota ou parâmetro esteja ativo
-  if (isMarketing) {
+  if (marketingVersion === 'v2') {
+    return (
+      <MarketingLandingPage2 
+        inviteToken={inviteToken} 
+        confirmedCount={metrics.confirmedCount}
+        onNavigateToAuth={() => {
+          setMarketingVersion(null);
+          window.history.pushState({}, document.title, '?page=admin');
+        }} 
+      />
+    );
+  }
+
+  if (marketingVersion === 'v1') {
     return (
       <MarketingLandingPage 
         inviteToken={inviteToken} 
         confirmedCount={metrics.confirmedCount}
         onNavigateToAuth={() => {
-          setIsMarketing(false);
-          window.history.replaceState({}, document.title, window.location.pathname);
+          setMarketingVersion(null);
+          window.history.pushState({}, document.title, '?page=admin');
         }} 
       />
     );
