@@ -223,11 +223,10 @@
 .mkt2-hero {
   position: relative;
   z-index: 10;
-  min-height: 100svh;
   display: flex;
   align-items: center;
-  padding: 80px 0 40px;
-  overflow-x: clip; /* clip horizontal only — never clip vertical content */
+  padding: 64px 0 32px;
+  overflow: visible; /* container handles horizontal clip */
 }
 
 /* Inner grid container — same max-width as header */
@@ -325,7 +324,7 @@
   line-height: 0.88;
   letter-spacing: -0.045em;
   text-transform: uppercase;
-  margin: 0 0 32px;
+  margin: 0 0 24px;
   display: flex;
   flex-direction: column;
 }
@@ -337,7 +336,7 @@
   height: clamp(30px, 5.5vw, 88px);
 }
 
-/* Last block (COM + brand): allows 2-line wrap */
+/* Last block (brand name): auto height */
 .mkt2-title-block--last {
   height: auto;
   overflow: visible;
@@ -410,7 +409,7 @@
   color: var(--muted-fg-b);
   line-height: 1.65;
   max-width: 46ch;
-  margin-bottom: 40px;
+  margin-bottom: 28px;
   font-weight: 400;
 }
 
@@ -418,13 +417,13 @@
   display: flex;
   gap: 16px;
   flex-wrap: wrap;
-  margin-bottom: 48px;
+  margin-bottom: 32px;
 }
 
-/* 3D Graphic Column — absolute fill matching gobuilderz lg:col-span-4 */
+/* 3D Graphic Column */
 .mkt2-hero-graphic {
   position: relative;
-  min-height: 500px;
+  min-height: 380px;
   align-self: stretch;
 }
 
