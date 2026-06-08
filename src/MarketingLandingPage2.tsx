@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef, useCallback } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import {
   Clock,
@@ -45,14 +45,38 @@ export const MarketingLandingPage2: React.FC<MarketingLandingPage2Props> = ({
   ], []);
 
   const [currentSlideIndex, setCurrentSlideIndex] = useState(0);
+  const heroRef = useRef<HTMLElement>(null);
+  const isHeroVisible = useRef(true); // tracks visibility without re-render
+  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
-  useEffect(() => {
-    const interval = setInterval(() => {
+  // Start/stop slide cycling based on hero visibility
+  const startCycling = useCallback(() => {
+    if (intervalRef.current) clearInterval(intervalRef.current);
+    intervalRef.current = setInterval(() => {
       if (typeof document !== 'undefined' && document.visibilityState === 'hidden') return;
+      if (!isHeroVisible.current) return; // paused when hero is off-screen
       setCurrentSlideIndex(prev => (prev + 1) % slides.length);
     }, 3600);
-    return () => clearInterval(interval);
   }, [slides.length]);
+
+  // Intersection Observer — pause when hero leaves viewport
+  useEffect(() => {
+    const hero = heroRef.current;
+    if (!hero) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        isHeroVisible.current = entry.isIntersecting;
+      },
+      { threshold: 0.1 } // pauses when less than 10% of hero is visible
+    );
+    observer.observe(hero);
+    return () => observer.disconnect();
+  }, []);
+
+  useEffect(() => {
+    startCycling();
+    return () => { if (intervalRef.current) clearInterval(intervalRef.current); };
+  }, [startCycling]);
 
   const currentSlide = slides[currentSlideIndex];
 
@@ -171,7 +195,15 @@ export const MarketingLandingPage2: React.FC<MarketingLandingPage2Props> = ({
       {/* FIXED HEADER */}
       <header className="mkt2-header" style={{ borderBottomColor: `${currentSlide.color}15` }}>
         <div className="mkt2-header-wrap">
-          <div className="mkt2-logo">
+          <button
+            className="mkt2-logo"
+            onClick={() => {
+              const hero = document.getElementById('hero');
+              if (hero) hero.scrollIntoView({ behavior: 'smooth' });
+              else window.scrollTo({ top: 0, behavior: 'smooth' });
+            }}
+            aria-label="Voltar ao topo"
+          >
             AI EXPERIENCE
             <span 
               className="mkt2-logo-sub"
@@ -179,7 +211,7 @@ export const MarketingLandingPage2: React.FC<MarketingLandingPage2Props> = ({
             >
               ESTÂNCIA VELHA
             </span>
-          </div>
+          </button>
           <nav className="mkt2-nav">
             <a href="#metodo" className="mkt2-nav-link">Método</a>
             <a href="#roi" className="mkt2-nav-link">Calculadora</a>
@@ -200,7 +232,7 @@ export const MarketingLandingPage2: React.FC<MarketingLandingPage2Props> = ({
       </header>
 
       {/* HERO SECTION */}
-      <section className="mkt2-hero">
+      <section id="hero" className="mkt2-hero" ref={heroRef}>
         <div className="mkt2-hero-inner">
           <div className="mkt2-hero-info">
             <div className="mkt2-badge-host">

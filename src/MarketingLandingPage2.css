@@ -108,7 +108,14 @@
   align-items: center;
 }
 
+
 .mkt2-logo {
+  /* button reset */
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  /* visual */
   font-weight: 900;
   font-size: 1.25rem;
   letter-spacing: -0.03em;
@@ -116,7 +123,15 @@
   display: flex;
   align-items: center;
   gap: 8px;
+  opacity: 1;
+  transition: opacity 0.2s ease;
+  font-family: 'Inter Tight', system-ui, sans-serif;
 }
+
+.mkt2-logo:hover {
+  opacity: 0.8;
+}
+
 
 .mkt2-logo-sub {
   color: var(--brand-b);
