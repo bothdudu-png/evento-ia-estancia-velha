@@ -78,6 +78,15 @@ export const MarketingLandingPage2: React.FC<MarketingLandingPage2Props> = ({
     return () => { if (intervalRef.current) clearInterval(intervalRef.current); };
   }, [startCycling]);
 
+  // ── ZOOM: faz o 100% do browser ter a mesma proporção do antigo 80% ──
+  useEffect(() => {
+    const html = document.documentElement;
+    html.style.zoom = '0.8';
+    return () => {
+      html.style.zoom = '';
+    };
+  }, []);
+
   const currentSlide = slides[currentSlideIndex];
 
   useEffect(() => {
