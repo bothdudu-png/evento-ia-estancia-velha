@@ -54,6 +54,7 @@ import { supabase } from './integrations/supabase/client';
 import type { Session } from '@supabase/supabase-js';
 import { MarketingLandingPage } from './MarketingLandingPage';
 import { MarketingLandingPage2 } from './MarketingLandingPage2';
+import { CheckoutPage } from './CheckoutPage';
 
 export default function App() {
   // --- States ---
@@ -74,11 +75,14 @@ export default function App() {
   const [loadingProfile, setLoadingProfile] = useState(true);
 
   // --- Marketing Landing Page State ---
-  const [marketingVersion, setMarketingVersion] = useState<'v1' | 'v2' | null>(() => {
+  const [marketingVersion, setMarketingVersion] = useState<'v1' | 'v2' | 'checkout' | null>(() => {
     const params = new URLSearchParams(window.location.search);
     const page = params.get('page');
     const path = window.location.pathname;
     
+    if (page === 'checkout' || page === 'cadastro' || path === '/checkout' || path === '/cadastro') {
+      return 'checkout'; // Checkout and Registration view
+    }
     if (page === 'marketing' || page === 'landing' || page === 'v2' || path === '/marketing' || path === '/landing') {
       return 'v2'; // Marketing V2 is the promotional view
     }
@@ -1220,10 +1224,26 @@ export default function App() {
       <MarketingLandingPage2 
         inviteToken={inviteToken} 
         confirmedCount={metrics.confirmedCount}
+        onNavigateToCheckout={() => {
+          setMarketingVersion('checkout');
+          window.history.pushState({}, document.title, '?page=checkout');
+        }}
         onNavigateToAuth={() => {
           setMarketingVersion(null);
           window.history.pushState({}, document.title, '?page=admin');
         }} 
+      />
+    );
+  }
+
+  if (marketingVersion === 'checkout') {
+    return (
+      <CheckoutPage 
+        onNavigateToLanding={() => {
+          setMarketingVersion('v2');
+          window.history.pushState({}, document.title, '?page=marketing');
+        }}
+        ticketPrice={financialSettings.ticketPriceDefault}
       />
     );
   }

@@ -50,12 +50,14 @@ interface MarketingLandingPage2Props {
   inviteToken: string | null;
   confirmedCount?: number;
   onNavigateToAuth: () => void;
+  onNavigateToCheckout: () => void;
 }
 
 export const MarketingLandingPage2: React.FC<MarketingLandingPage2Props> = ({
   inviteToken,
   confirmedCount = 0,
-  onNavigateToAuth
+  onNavigateToAuth,
+  onNavigateToCheckout
 }) => {
   const [openFaq, setOpenFaq] = useState<number | null>(null);
   const [copied, setCopied] = useState(false);
@@ -163,11 +165,7 @@ export const MarketingLandingPage2: React.FC<MarketingLandingPage2Props> = ({
   };
 
   const handleActionClick = () => {
-    if (inviteToken) {
-      window.location.search = `?invite=${inviteToken}`;
-    } else {
-      onNavigateToAuth();
-    }
+    onNavigateToCheckout();
   };
 
   const handleCopyLink = () => {
