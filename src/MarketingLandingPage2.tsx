@@ -87,6 +87,26 @@ export const MarketingLandingPage2: React.FC<MarketingLandingPage2Props> = ({
     };
   }, []);
 
+  // ── SCROLL FADE-IN: IntersectionObserver em todas as seções ──
+  useEffect(() => {
+    const targets = document.querySelectorAll<HTMLElement>(
+      '.mkt2-section, .mkt2-fade-in, .mkt2-timeline-item, .mkt2-gallery-card, .mkt2-host-card, .mkt2-audience-card'
+    );
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            (entry.target as HTMLElement).classList.add('mkt2-is-visible');
+            observer.unobserve(entry.target); // animate once
+          }
+        });
+      },
+      { threshold: 0.08, rootMargin: '0px 0px -40px 0px' }
+    );
+    targets.forEach((el) => observer.observe(el));
+    return () => observer.disconnect();
+  }, []);
+
   const currentSlide = slides[currentSlideIndex];
 
   useEffect(() => {
@@ -400,6 +420,21 @@ export const MarketingLandingPage2: React.FC<MarketingLandingPage2Props> = ({
           </div>
         </div>
       </section>
+      {/* MARQUEE DECORATIVO — identidade das ferramentas */}
+      <div className="mkt2-marquee-strip" aria-hidden="true">
+        <div className="mkt2-marquee-track">
+          {[...Array(3)].map((_, rep) => (
+            <div className="mkt2-marquee-group" key={rep}>
+              {['IA', 'CLAUDE CODE', 'LOVABLE', 'REPLIT', 'CURSOR', 'ANTIGRAVITY', 'HANDS-ON', 'BUILD & DEPLOY'].map((item) => (
+                <span className="mkt2-marquee-item" key={item}>
+                  {item}
+                  <span className="mkt2-marquee-dot">✦</span>
+                </span>
+              ))}
+            </div>
+          ))}
+        </div>
+      </div>
 
       {/* METODO GUIDE SECTION */}
       <span id="metodo"></span>
