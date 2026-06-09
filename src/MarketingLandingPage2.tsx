@@ -115,7 +115,9 @@ export const MarketingLandingPage2: React.FC<MarketingLandingPage2Props> = ({
   // ── ZOOM: faz o 100% do browser ter a mesma proporção do antigo 80% ──
   useEffect(() => {
     const html = document.documentElement;
-    html.style.zoom = '0.8';
+    if (window.innerWidth > 992) {
+      html.style.zoom = '0.8';
+    }
     return () => {
       html.style.zoom = '';
     };
@@ -372,7 +374,7 @@ export const MarketingLandingPage2: React.FC<MarketingLandingPage2Props> = ({
               </div>
             </div>
             {!timeLeft.isOver && (
-              <div className="mkt2-detail-card" style={{ borderLeft: '1px solid var(--border-b)', paddingLeft: '24px' }}>
+              <div className="mkt2-detail-card mkt2-detail-card--countdown">
                 <Clock size={20} className="mkt2-detail-icon" style={{ color: currentSlide.color }} />
                 <div>
                   <div className="mkt2-detail-label">Faltam</div>
