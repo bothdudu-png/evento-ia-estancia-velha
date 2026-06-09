@@ -676,7 +676,7 @@ export const MarketingLandingPage2: React.FC<MarketingLandingPage2Props> = ({
       <section className="mkt2-section">
         <div className="mkt2-mentor-layout">
           <div className="mkt2-mentor-photo-wrapper">
-            <div className="mkt2-mentor-tag">MENTOR</div>
+            <div className="mkt2-mentor-tag">MENTOR_01</div>
             <img
               src="/thiago-diaz.jpg"
               alt="Thiago Diaz"
@@ -685,28 +685,46 @@ export const MarketingLandingPage2: React.FC<MarketingLandingPage2Props> = ({
                 (e.target as HTMLImageElement).src = '/thiago_diaz.png';
               }}
             />
+            <div className="mkt2-mentor-photo-info">
+              <span>ISO 400 · 50MM</span>
+              <span className="mkt2-mentor-photo-arrow">▼</span>
+            </div>
           </div>
 
           <div className="mkt2-mentor-info">
-            <span className="mkt2-section-label">// Mentor do Evento</span>
-            <h2 className="mkt2-mentor-name">Thiago Diaz</h2>
-            <div className="mkt2-mentor-title">Founder da Builderz</div>
+            <span className="mkt2-section-label">[ 07 ] · QUEM TE GUIA</span>
+            <h2 className="mkt2-mentor-name">
+              THIAGO <br />
+              <span className="mkt2-mentor-name-outline">DIAZ.</span>
+            </h2>
             <p className="mkt2-mentor-bio">
-              Desenvolvedor e educador corporativo. Criador da comunidade Builderz, já liderou e mentores mais de 12.000 profissionais e programadores do conceito inicial à entrega. Thiago Diaz estará conduzindo a imersão presencialmente em Estância Velha, guiando todas as bancadas de trabalho e integrações.
+              Founder da Builderz. Já guiou milhares de builders do "tenho uma ideia" para o "está no ar". Engenheiro por formação, criador por ofício. Vai estar em todas as 6 paradas — sem stand-in.
             </p>
 
             <div className="mkt2-mentor-stats">
               <div className="mkt2-mentor-stat-card">
-                <span className="mkt2-mentor-stat-label">Comunidade</span>
-                <span className="mkt2-mentor-stat-value">12k+</span>
+                <span className="mkt2-mentor-stat-label">Lives</span>
+                <span className="mkt2-mentor-stat-value">85+</span>
               </div>
               <div className="mkt2-mentor-stat-card">
-                <span className="mkt2-mentor-stat-label">Apps no Ar</span>
+                <span className="mkt2-mentor-stat-label">Builders</span>
+                <span className="mkt2-mentor-stat-value">12k</span>
+              </div>
+              <div className="mkt2-mentor-stat-card">
+                <span className="mkt2-mentor-stat-label">Apps Lançados</span>
                 <span className="mkt2-mentor-stat-value">230+</span>
               </div>
               <div className="mkt2-mentor-stat-card">
-                <span className="mkt2-mentor-stat-label">Lives Práticas</span>
-                <span className="mkt2-mentor-stat-value">85+</span>
+                <span className="mkt2-mentor-stat-label">Países</span>
+                <span className="mkt2-mentor-stat-value">07</span>
+              </div>
+              <div className="mkt2-mentor-stat-card">
+                <span className="mkt2-mentor-stat-label">Anos no Jogo</span>
+                <span className="mkt2-mentor-stat-value">11</span>
+              </div>
+              <div className="mkt2-mentor-stat-card">
+                <span className="mkt2-mentor-stat-label">Cafés/Dia</span>
+                <span className="mkt2-mentor-stat-value">∞</span>
               </div>
             </div>
           </div>

@@ -1025,18 +1025,40 @@
 
 .mkt2-mentor-tag {
   position: absolute;
-  top: 16px;
-  left: 16px;
-  background: rgba(124, 58, 237, 0.15);
-  border: 1px solid var(--purple-b);
-  color: #a78bfa;
+  bottom: 16px;
+  right: 16px;
+  background: color-mix(in srgb, var(--brand-b) 12%, transparent);
+  border: 1px solid var(--brand-b);
+  color: var(--brand-b);
   font-family: 'JetBrains Mono', monospace;
   font-size: 0.75rem;
   font-weight: 700;
   padding: 4px 10px;
   border-radius: 4px;
   z-index: 10;
-  text-shadow: 0 0 8px rgba(124, 58, 237, 0.2);
+  text-shadow: 0 0 8px color-mix(in srgb, var(--brand-b) 20%, transparent);
+  letter-spacing: 0.05em;
+  transition: color 0.7s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.7s cubic-bezier(0.16, 1, 0.3, 1), background 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.mkt2-mentor-photo-info {
+  position: absolute;
+  bottom: 18px;
+  left: 18px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.45);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  pointer-events: none;
+  z-index: 10;
+}
+
+.mkt2-mentor-photo-arrow {
+  font-size: 0.5rem;
+  opacity: 0.75;
 }
 
 .mkt2-mentor-info {
@@ -1045,20 +1067,19 @@
 }
 
 .mkt2-mentor-name {
-  font-size: clamp(2.5rem, 4.5vw, 4rem);
+  font-size: clamp(2.5rem, 5vw, 4.5rem);
   font-weight: 900;
-  line-height: 1;
+  line-height: 0.88;
   text-transform: uppercase;
-  margin: 0 0 8px;
+  margin: 0 0 24px;
 }
 
-.mkt2-mentor-title {
-  font-size: 1rem;
-  color: var(--brand-b);
-  text-transform: uppercase;
-  font-family: 'JetBrains Mono', monospace;
-  font-weight: 700;
-  margin-bottom: 24px;
+.mkt2-mentor-name-outline {
+  color: transparent;
+  -webkit-text-stroke: 1.5px var(--brand-b);
+  font-style: italic;
+  text-shadow: 0 0 25px color-mix(in srgb, var(--brand-b) 10%, transparent);
+  transition: -webkit-text-stroke 0.7s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .mkt2-mentor-bio {
@@ -1071,7 +1092,7 @@
 .mkt2-mentor-stats {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 24px;
+  gap: 24px 32px;
   border-top: 1px solid var(--border-b);
   padding-top: 24px;
 }
@@ -1079,18 +1100,35 @@
 .mkt2-mentor-stat-card {
   display: flex;
   flex-direction: column;
+  padding: 8px 0;
+}
+
+.mkt2-mentor-stat-card:nth-child(3n-2),
+.mkt2-mentor-stat-card:nth-child(3n-1) {
+  border-right: 1px solid var(--border-b);
+  padding-right: 16px;
+}
+
+.mkt2-mentor-stat-card:nth-child(-n+3) {
+  border-bottom: 1px solid var(--border-b);
+  padding-bottom: 20px;
+}
+
+.mkt2-mentor-stat-card:nth-child(n+4) {
+  padding-top: 20px;
 }
 
 .mkt2-mentor-stat-label {
   font-family: 'JetBrains Mono', monospace;
-  font-size: 0.7rem;
-  color: rgba(255,255,255,0.4);
+  font-size: 0.65rem;
+  color: rgba(255, 255, 255, 0.4);
   text-transform: uppercase;
   margin-bottom: 4px;
+  letter-spacing: 0.05em;
 }
 
 .mkt2-mentor-stat-value {
-  font-size: 1.6rem;
+  font-size: 1.8rem;
   font-weight: 800;
   color: var(--fg-b);
 }
@@ -1462,6 +1500,15 @@
   }
   .mkt2-cta-box {
     padding: 40px 20px;
+  }
+  .mkt2-mentor-stats {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 16px !important;
+  }
+  .mkt2-mentor-stat-card {
+    border-right: none !important;
+    border-bottom: none !important;
+    padding: 8px !important;
   }
 }
 
