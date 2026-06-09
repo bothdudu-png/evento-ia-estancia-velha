@@ -80,7 +80,7 @@ serve(async (req) => {
     dueDate.setDate(dueDate.getDate() + 3)
     const formattedDueDate = dueDate.toISOString().split('T')[0]
 
-    const paymentResponse = await fetch(`${asaasUrl}/payments`, {
+    let paymentResponse = await fetch(`${asaasUrl}/payments`, {
       method: 'POST',
       headers: {
         'access_token': asaasToken,
@@ -96,7 +96,33 @@ serve(async (req) => {
       })
     })
 
-    const paymentData = await paymentResponse.json()
+    let paymentData = await paymentResponse.json()
+
+    // Fallback: If PIX is requested but not allowed by the Asaas account settings, fall back to CREDIT_CARD
+    if (billingType === 'PIX' && (!paymentResponse.ok || paymentData.errors)) {
+      const errDescription = paymentData.errors?.[0]?.description || ''
+      if (errDescription.includes('não permite pagamentos via Pix') || errDescription.includes('Pix') || errDescription.includes('PIX')) {
+        console.warn('PIX billing type not allowed on Asaas account. Falling back to CREDIT_CARD.');
+        
+        paymentResponse = await fetch(`${asaasUrl}/payments`, {
+          method: 'POST',
+          headers: {
+            'access_token': asaasToken,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            customer: customerId,
+            billingType: 'CREDIT_CARD',
+            value: Number(value),
+            dueDate: formattedDueDate,
+            description: `AI Experience Estância Velha - Ingresso`,
+            externalReference: participantId
+          })
+        })
+        paymentData = await paymentResponse.json()
+      }
+    }
+
     if (!paymentResponse.ok || paymentData.errors) {
       const err = paymentData.errors?.[0]?.description || 'Failed to create charge in Asaas'
       throw new Error(err)
@@ -104,9 +130,10 @@ serve(async (req) => {
 
     const paymentId = paymentData.id
     const invoiceUrl = paymentData.invoiceUrl
+    const actualBillingType = paymentData.billingType || billingType
 
     // C. If PIX, retrieve QR Code image and payload
-    if (billingType === 'PIX') {
+    if (actualBillingType === 'PIX') {
       const pixResponse = await fetch(`${asaasUrl}/payments/${paymentId}/pixQrCode`, {
         method: 'GET',
         headers: {
@@ -138,7 +165,7 @@ serve(async (req) => {
     return new Response(
       JSON.stringify({
         success: true,
-        billingType,
+        billingType: actualBillingType,
         participantId,
         paymentId,
         invoiceUrl

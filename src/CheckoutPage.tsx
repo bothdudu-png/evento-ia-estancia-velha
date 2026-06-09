@@ -212,7 +212,7 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({
       });
 
       // 3. If credit card, redirect immediately to Asaas invoice check out page
-      if (selectedBilling === 'CREDIT_CARD') {
+      if (data.billingType === 'CREDIT_CARD' || data.billingType === 'BOLETO' || !data.pixQrCodeBase64) {
         window.location.href = data.invoiceUrl;
       } else {
         setCheckoutStep('payment');
@@ -282,7 +282,7 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({
         invoiceUrl: data.invoiceUrl
       });
 
-      if (selectedBilling === 'CREDIT_CARD') {
+      if (data.billingType === 'CREDIT_CARD' || data.billingType === 'BOLETO' || !data.pixQrCodeBase64) {
         window.location.href = data.invoiceUrl;
       } else {
         setCheckoutStep('payment');
@@ -348,7 +348,7 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({
         invoiceUrl: data.invoiceUrl
       });
 
-      if (selectedBilling === 'CREDIT_CARD') {
+      if (data.billingType === 'CREDIT_CARD' || data.billingType === 'BOLETO' || !data.pixQrCodeBase64) {
         window.location.href = data.invoiceUrl;
       } else {
         setCheckoutStep('payment');
