@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useMemo, useRef, useCallback } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
+import type { Variants } from 'framer-motion';
 import {
   Clock,
   Users,
@@ -11,6 +12,39 @@ import {
   Calendar
 } from 'lucide-react';
 import './MarketingLandingPage2.css';
+
+const revealVariants: Variants = {
+  hidden: { opacity: 0, y: 24 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: {
+      duration: 0.8,
+      ease: [0.16, 1, 0.3, 1]
+    }
+  }
+};
+
+const containerVariants: Variants = {
+  hidden: {},
+  visible: {
+    transition: {
+      staggerChildren: 0.12,
+    }
+  }
+};
+
+const cardVariants: Variants = {
+  hidden: { opacity: 0, y: 20 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: {
+      duration: 0.7,
+      ease: [0.16, 1, 0.3, 1]
+    }
+  }
+};
 
 interface MarketingLandingPage2Props {
   inviteToken: string | null;
@@ -85,26 +119,6 @@ export const MarketingLandingPage2: React.FC<MarketingLandingPage2Props> = ({
     return () => {
       html.style.zoom = '';
     };
-  }, []);
-
-  // ── SCROLL FADE-IN: IntersectionObserver em todas as seções ──
-  useEffect(() => {
-    const targets = document.querySelectorAll<HTMLElement>(
-      '.mkt2-section, .mkt2-fade-in, .mkt2-timeline-item, .mkt2-gallery-card, .mkt2-host-card, .mkt2-audience-card'
-    );
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            (entry.target as HTMLElement).classList.add('mkt2-is-visible');
-            observer.unobserve(entry.target); // animate once
-          }
-        });
-      },
-      { threshold: 0.08, rootMargin: '0px 0px -40px 0px' }
-    );
-    targets.forEach((el) => observer.observe(el));
-    return () => observer.disconnect();
   }, []);
 
   const currentSlide = slides[currentSlideIndex];
@@ -443,7 +457,13 @@ export const MarketingLandingPage2: React.FC<MarketingLandingPage2Props> = ({
 
       {/* METODO GUIDE SECTION */}
       <span id="metodo"></span>
-      <section className="mkt2-section">
+      <motion.section
+        className="mkt2-section"
+        variants={revealVariants}
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true, margin: "-80px" }}
+      >
         <span className="mkt2-section-label">// O Método GUIDE</span>
         <h2 className="mkt2-section-title">Construa e publique em tempo real</h2>
         <p className="mkt2-section-desc">
@@ -451,29 +471,29 @@ export const MarketingLandingPage2: React.FC<MarketingLandingPage2Props> = ({
         </p>
 
         <div className="mkt2-split-grid">
-          <div className="mkt2-steps-list">
-            <div className="mkt2-step-item">
+          <motion.div className="mkt2-steps-list" variants={containerVariants}>
+            <motion.div className="mkt2-step-item" variants={cardVariants}>
               <div className="mkt2-step-num">01</div>
               <h3 className="mkt2-step-title">Arquitetura Visual</h3>
               <p className="mkt2-step-desc">
                 Crie e esboce telas de forma intuitiva. Você aprende a modelar fluxos e layouts comerciais que engajam usuários, convertendo ideias em interfaces em poucos minutos.
               </p>
-            </div>
-            <div className="mkt2-step-item">
+            </motion.div>
+            <motion.div className="mkt2-step-item" variants={cardVariants}>
               <div className="mkt2-step-num">02</div>
               <h3 className="mkt2-step-title">Logic Injection</h3>
               <p className="mkt2-step-desc">
                 A Inteligência Artificial atua como seu desenvolvedor dedicado. Suas regras e ideias operacionais são injetadas em bancos de dados reais de forma automatizada e segura.
               </p>
-            </div>
-            <div className="mkt2-step-item">
+            </motion.div>
+            <motion.div className="mkt2-step-item" variants={cardVariants}>
               <div className="mkt2-step-num">03</div>
               <h3 className="mkt2-step-title">Instant Deploy</h3>
               <p className="mkt2-step-desc">
                 Publique seu app diretamente na nuvem em tempo real com link utilizável em computadores e celulares. Ao final do dia, seu projeto estará ativo e funcional.
               </p>
-            </div>
-          </div>
+            </motion.div>
+          </motion.div>
 
           <div className="mkt2-photo-panel">
             <img
@@ -486,11 +506,17 @@ export const MarketingLandingPage2: React.FC<MarketingLandingPage2Props> = ({
             />
           </div>
         </div>
-      </section>
+      </motion.section>
 
       {/* CALCULADORA DE ROI E PRODUTIVIDADE */}
       <span id="roi"></span>
-      <section className="mkt2-section">
+      <motion.section
+        className="mkt2-section"
+        variants={revealVariants}
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true, margin: "-80px" }}
+      >
         <span className="mkt2-section-label">// Calculadora de Tempo e Produtividade</span>
         <h2 className="mkt2-section-title">Quanto tempo você ainda desperdiça por semana?</h2>
         <p className="mkt2-section-desc">
@@ -566,18 +592,24 @@ export const MarketingLandingPage2: React.FC<MarketingLandingPage2Props> = ({
             </div>
           </div>
         </div>
-      </section>
+      </motion.section>
 
       {/* BASTIDORES DA IMERSÃO (story-room, story-stage, story-launch) */}
-      <section className="mkt2-section">
+      <motion.section
+        className="mkt2-section"
+        variants={revealVariants}
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true, margin: "-80px" }}
+      >
         <span className="mkt2-section-label">// A Experiência</span>
         <h2 className="mkt2-section-title">Um dia focado em entrega</h2>
         <p className="mkt2-section-desc">
           Veja a dinâmica prática desenvolvida nas imersões presenciais da Builderz.
         </p>
 
-        <div className="mkt2-gallery-grid">
-          <div className="mkt2-gallery-card">
+        <motion.div className="mkt2-gallery-grid" variants={containerVariants}>
+          <motion.div className="mkt2-gallery-card" variants={cardVariants}>
             <img
               src="/story-room.jpg"
               alt="Auditório do Evento"
@@ -593,9 +625,9 @@ export const MarketingLandingPage2: React.FC<MarketingLandingPage2Props> = ({
                 Infraestrutura premium no Auditório Müller, preparado para focar no seu computador com conexões de alta performance.
               </p>
             </div>
-          </div>
+          </motion.div>
 
-          <div className="mkt2-gallery-card">
+          <motion.div className="mkt2-gallery-card" variants={cardVariants}>
             <img
               src="/story-stage.jpg"
               alt="Thiago Diaz no Palco"
@@ -611,9 +643,9 @@ export const MarketingLandingPage2: React.FC<MarketingLandingPage2Props> = ({
                 O mentor no telão programando ao vivo enquanto você replica a arquitetura lógica e visual do seu lado.
               </p>
             </div>
-          </div>
+          </motion.div>
 
-          <div className="mkt2-gallery-card">
+          <motion.div className="mkt2-gallery-card" variants={cardVariants}>
             <img
               src="/story-launch.jpg"
               alt="Deploy e Lançamento"
@@ -629,13 +661,19 @@ export const MarketingLandingPage2: React.FC<MarketingLandingPage2Props> = ({
                 Final do dia com aplicativos operacionais lançados online, prontos para uso comercial real e validação.
               </p>
             </div>
-          </div>
-        </div>
-      </section>
+          </motion.div>
+        </motion.div>
+      </motion.section>
 
       {/* CRONOGRAMA OFICIAL */}
       <span id="cronograma"></span>
-      <section className="mkt2-section">
+      <motion.section
+        className="mkt2-section"
+        variants={revealVariants}
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true, margin: "-80px" }}
+      >
         <span className="mkt2-section-label">// Roteiro do Dia</span>
         <h2 className="mkt2-section-title">Estrutura de Blocos</h2>
         <p className="mkt2-section-desc">
@@ -643,7 +681,7 @@ export const MarketingLandingPage2: React.FC<MarketingLandingPage2Props> = ({
         </p>
 
         <div className="mkt2-timeline-box">
-          <div className="mkt2-timeline">
+          <motion.div className="mkt2-timeline" variants={containerVariants} initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-60px" }}>
             {[
               { time: '08:30', duration: '30min', title: 'Check-in', desc: 'Abertura oficial, recepção dos computadores, setup de rede e kit de boas-vindas.', shift: 'morning' },
               { time: '09:00', duration: '20min', title: 'IA First', desc: 'Como estruturar o raciocínio de automação e comandos inteligentes.', shift: 'morning' },
@@ -658,7 +696,7 @@ export const MarketingLandingPage2: React.FC<MarketingLandingPage2Props> = ({
               { time: '14:30', duration: '2h 00m', title: 'Hands-on Mentorado', desc: 'Bancada aberta de desenvolvimento individual sob mentoria 1:1 direta.', shift: 'afternoon' },
               { time: '16:30', duration: '1h 00m', title: 'Encerramento & Deploy', desc: 'Deploy final com apps no ar e fechamento de conexões locais. Encerramento às 17:30.', shift: 'evening' }
             ].map((item, idx) => (
-              <div className="mkt2-timeline-item" key={idx}>
+              <motion.div className="mkt2-timeline-item" key={idx} variants={cardVariants}>
                 <div className="mkt2-timeline-left">
                   <div className="mkt2-timeline-time">{item.time}</div>
                   <div className="mkt2-timeline-duration">{item.duration}</div>
@@ -670,15 +708,21 @@ export const MarketingLandingPage2: React.FC<MarketingLandingPage2Props> = ({
                   <h4 className="mkt2-timeline-title">{item.title}</h4>
                   <p className="mkt2-timeline-desc">{item.desc}</p>
                 </div>
-              </div>
+              </motion.div>
             ))}
-          </div>
+          </motion.div>
         </div>
-      </section>
+      </motion.section>
 
       {/* MENTOR THIAGO DIAZ */}
       <span id="mentor"></span>
-      <section className="mkt2-section">
+      <motion.section
+        className="mkt2-section"
+        variants={revealVariants}
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true, margin: "-80px" }}
+      >
         <div className="mkt2-mentor-layout">
           <div className="mkt2-mentor-photo-wrapper">
             <div className="mkt2-mentor-tag">MENTOR_01</div>
@@ -734,18 +778,24 @@ export const MarketingLandingPage2: React.FC<MarketingLandingPage2Props> = ({
             </div>
           </div>
         </div>
-      </section>
+      </motion.section>
 
       {/* HOSTS LOCAIS */}
-      <section className="mkt2-section">
+      <motion.section
+        className="mkt2-section"
+        variants={revealVariants}
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true, margin: "-80px" }}
+      >
         <span className="mkt2-section-label" style={{ textAlign: 'center' }}>// Organização Regional</span>
         <h2 className="mkt2-section-title" style={{ textAlign: 'center' }}>Parceria & Idealização Local</h2>
         <p className="mkt2-section-desc" style={{ marginLeft: 'auto', marginRight: 'auto', textAlign: 'center' }}>
           Conheça quem trouxe e viabilizou esta imersão em Estância Velha, promovendo networking corporativo de alto nível na região do Vale do Sinos.
         </p>
 
-        <div className="mkt2-hosts-grid mkt2-hosts-grid--two">
-          <div className="mkt2-host-card mkt2-host-card--photo">
+        <motion.div className="mkt2-hosts-grid mkt2-hosts-grid--two" variants={containerVariants}>
+          <motion.div className="mkt2-host-card mkt2-host-card--photo" variants={cardVariants}>
             <img
               src="/gabriel-muller.jpg"
               alt="Gabriel Müller"
@@ -758,9 +808,9 @@ export const MarketingLandingPage2: React.FC<MarketingLandingPage2Props> = ({
                 Empresário e liderança local no Vale do Sinos. Viabilizou a parceria com a Builderz e cedeu o Auditório Müller Centro Empresarial para sediar a imersão, promovendo networking corporativo de alto nível na região.
               </p>
             </div>
-          </div>
+          </motion.div>
 
-          <div className="mkt2-host-card mkt2-host-card--photo">
+          <motion.div className="mkt2-host-card mkt2-host-card--photo" variants={cardVariants}>
             <img
               src="/eduardo-both.jpg"
               alt="Eduardo Both"
@@ -773,65 +823,77 @@ export const MarketingLandingPage2: React.FC<MarketingLandingPage2Props> = ({
                 Empreendedor regional, idealizador do encontro em Estância Velha. Focado em expandir o ecossistema tecnológico prático local, conectando profissionais e lideranças que querem usar IA como ferramenta real de produtividade.
               </p>
             </div>
-          </div>
-        </div>
-      </section>
+          </motion.div>
+        </motion.div>
+      </motion.section>
 
       {/* COMPATIBILIDADE / PARA QUEM É */}
-      <section className="mkt2-section">
+      <motion.section
+        className="mkt2-section"
+        variants={revealVariants}
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true, margin: "-80px" }}
+      >
         <span className="mkt2-section-label" style={{ textAlign: 'center' }}>// Para quem é</span>
         <h2 className="mkt2-section-title" style={{ textAlign: 'center' }}>Perfil do Builder</h2>
         <p className="mkt2-section-desc" style={{ marginLeft: 'auto', marginRight: 'auto', textAlign: 'center' }}>
           A imersão prática acolhe profissionais com diferentes níveis de contato tecnológico.
         </p>
 
-        <div className="mkt2-audience-grid">
-          <div className="mkt2-audience-card">
+        <motion.div className="mkt2-audience-grid" variants={containerVariants}>
+          <motion.div className="mkt2-audience-card" variants={cardVariants}>
             <h4 className="mkt2-audience-header">
               <span className="mkt2-audience-slash">//</span> Iniciantes
             </h4>
             <p className="mkt2-audience-desc">
               Pessoas com ótimas ideias de negócios ou sistemas, mas que não possuem formação em programação e buscam construir de forma ágil.
             </p>
-          </div>
-          <div className="mkt2-audience-card">
+          </motion.div>
+          <motion.div className="mkt2-audience-card" variants={cardVariants}>
             <h4 className="mkt2-audience-header">
               <span className="mkt2-audience-slash">//</span> Vibecoders
             </h4>
             <p className="mkt2-audience-desc">
               Entusiastas que já conhecem ou operam IAs conversacionais (ChatGPT, Claude) e querem dominar o fluxo completo de bancos de dados.
             </p>
-          </div>
-          <div className="mkt2-audience-card">
+          </motion.div>
+          <motion.div className="mkt2-audience-card" variants={cardVariants}>
             <h4 className="mkt2-audience-header">
               <span className="mkt2-audience-slash">//</span> Devs
             </h4>
             <p className="mkt2-audience-desc">
               Programadores que querem otimizar seu tempo de escrita de telas, utilizando IA generativa para turbinar sua velocidade de entrega.
             </p>
-          </div>
-          <div className="mkt2-audience-card">
+          </motion.div>
+          <motion.div className="mkt2-audience-card" variants={cardVariants}>
             <h4 className="mkt2-audience-header">
               <span className="mkt2-audience-slash">//</span> Designers
             </h4>
             <p className="mkt2-audience-desc">
               Criativos visuais de interfaces no Figma que desejam dar vida real, lógica e banco de dados ativo a seus próprios protótipos de forma rápida.
             </p>
-          </div>
-          <div className="mkt2-audience-card">
+          </motion.div>
+          <motion.div className="mkt2-audience-card" variants={cardVariants}>
             <h4 className="mkt2-audience-header">
               <span className="mkt2-audience-slash">//</span> Empresários
             </h4>
             <p className="mkt2-audience-desc">
               Líderes de negócios focados em reduzir custos e economizar horas do seu time operando automações, robôs comerciais e painéis próprios.
             </p>
-          </div>
-        </div>
-      </section>
+          </motion.div>
+        </motion.div>
+      </motion.section>
 
       {/* FAQ SECTION */}
       <span id="faq"></span>
-      <section className="mkt2-section">
+      <motion.section
+        className="mkt2-section"
+        variants={revealVariants}
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true, margin: "-80px" }}
+      >
         <span className="mkt2-section-label" style={{ textAlign: 'center' }}>// Dúvidas Frequentes</span>
         <h2 className="mkt2-section-title" style={{ textAlign: 'center' }}>FAQ do Evento</h2>
         
@@ -854,10 +916,17 @@ export const MarketingLandingPage2: React.FC<MarketingLandingPage2Props> = ({
             </div>
           ))}
         </div>
-      </section>
+      </motion.section>
 
       {/* CTA REGISTER */}
-      <section className="mkt2-section" style={{ borderBottom: 'none' }}>
+      <motion.section
+        className="mkt2-section"
+        style={{ borderBottom: 'none' }}
+        variants={revealVariants}
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true, margin: "-80px" }}
+      >
         <div className="mkt2-cta-box">
           <span className="mkt2-cta-badge">BANCADAS LIMITADAS A 60 VAGAS</span>
           <h2 className="mkt2-cta-title">Participe da Edição de Estância Velha</h2>
@@ -868,7 +937,7 @@ export const MarketingLandingPage2: React.FC<MarketingLandingPage2Props> = ({
             Acessar com Token de Convite <ArrowRight size={16} />
           </button>
         </div>
-      </section>
+      </motion.section>
 
       {/* FOOTER */}
       <footer className="mkt2-footer">
