@@ -423,14 +423,11 @@ export const MarketingLandingPage2: React.FC<MarketingLandingPage2Props> = ({
       {/* MARQUEE DECORATIVO — cidade e data do evento */}
       <div className="mkt2-marquee-strip" aria-hidden="true">
         <div className="mkt2-marquee-track">
-          {[...Array(6)].map((_, rep) => (
+          {[...Array(8)].map((_, rep) => (
             <div className="mkt2-marquee-group" key={rep}>
-              {['ESTÂNCIA VELHA', '15/08/2026'].map((item) => (
-                <span className="mkt2-marquee-item" key={item}>
-                  {item}
-                  <span className="mkt2-marquee-dot">✦</span>
-                </span>
-              ))}
+              <span className="mkt2-marquee-city">ESTÂNCIA VELHA</span>
+              <span className="mkt2-marquee-date" style={{ color: currentSlide.color }}>15.08.26</span>
+              <span className="mkt2-marquee-dot">✦</span>
             </div>
           ))}
         </div>
