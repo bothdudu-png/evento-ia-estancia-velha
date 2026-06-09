@@ -1009,10 +1009,10 @@
 
 .mkt2-mentor-photo-wrapper {
   position: relative;
-  border: 1px solid var(--border-b);
-  border-radius: 20px;
+  border: 1px solid color-mix(in srgb, var(--brand-b) 30%, transparent);
+  border-radius: 0;
   overflow: hidden;
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
   aspect-ratio: 0.9 / 1;
 }
 

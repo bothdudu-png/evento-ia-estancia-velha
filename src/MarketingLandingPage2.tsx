@@ -420,12 +420,12 @@ export const MarketingLandingPage2: React.FC<MarketingLandingPage2Props> = ({
           </div>
         </div>
       </section>
-      {/* MARQUEE DECORATIVO — identidade das ferramentas */}
+      {/* MARQUEE DECORATIVO — cidade e data do evento */}
       <div className="mkt2-marquee-strip" aria-hidden="true">
         <div className="mkt2-marquee-track">
-          {[...Array(3)].map((_, rep) => (
+          {[...Array(6)].map((_, rep) => (
             <div className="mkt2-marquee-group" key={rep}>
-              {['IA', 'CLAUDE CODE', 'LOVABLE', 'REPLIT', 'CURSOR', 'ANTIGRAVITY', 'HANDS-ON', 'BUILD & DEPLOY'].map((item) => (
+              {['ESTÂNCIA VELHA', '15/08/2026'].map((item) => (
                 <span className="mkt2-marquee-item" key={item}>
                   {item}
                   <span className="mkt2-marquee-dot">✦</span>
