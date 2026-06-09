@@ -45,6 +45,7 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
   const [copied, setCopied] = useState(false);
+  const [needProfileDetails, setNeedProfileDetails] = useState(false);
   const [paymentDetails, setPaymentDetails] = useState<{
     participantId: string;
     paymentId: string;
@@ -117,6 +118,32 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({
     }
   };
 
+  const invokeCreatePayment = async (body: any) => {
+    if (!supabase) throw new Error('Supabase não está configurado.');
+
+    const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || '';
+    const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || '';
+
+    // Get current session token for authentication if available
+    const { data: { session } } = await supabase.auth.getSession();
+    const token = session?.access_token || supabaseAnonKey;
+
+    const response = await fetch(`${supabaseUrl}/functions/v1/create-payment`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
+      body: JSON.stringify(body)
+    });
+
+    const data = await response.json().catch(() => null);
+    if (!response.ok || !data || !data.success) {
+      throw new Error(data?.error || 'Falha ao processar cobrança no Asaas.');
+    }
+    return data;
+  };
+
   const handleRegisterSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMsg('');
@@ -164,23 +191,17 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({
       if (authError) throw authError;
 
       // 2. Call secure Edge Function to process participant database insertion and Asaas charge creation
-      const { data, error: functionError } = await supabase.functions.invoke('create-payment', {
-        body: {
-          name,
-          email,
-          cpf: cpf.replace(/\D/g, ''),
-          phone: phone.replace(/\D/g, ''),
-          city,
-          uf,
-          howHeard,
-          billingType: selectedBilling,
-          value: ticketPrice
-        }
+      const data = await invokeCreatePayment({
+        name,
+        email,
+        cpf: cpf.replace(/\D/g, ''),
+        phone: phone.replace(/\D/g, ''),
+        city,
+        uf,
+        howHeard,
+        billingType: selectedBilling,
+        value: ticketPrice
       });
-
-      if (functionError || !data || !data.success) {
-        throw new Error(data?.error || functionError?.message || 'Falha ao processar cobrança no Asaas.');
-      }
 
       setPaymentDetails({
         participantId: data.participantId,
@@ -226,24 +247,32 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({
       // Fetch user profile info to call checkout payment function
       const user = authData.user;
       const meta = user?.user_metadata || {};
-      
-      const { data, error: functionError } = await supabase.functions.invoke('create-payment', {
-        body: {
-          name: meta.name || user?.email?.split('@')[0] || 'Participante',
-          email: user?.email || '',
-          cpf: meta.cpf || '00000000000',
-          phone: meta.phone || '00000000000',
-          city: meta.city || 'Estância Velha',
-          uf: meta.uf || 'RS',
-          howHeard: meta.howHeard || 'Outros',
-          billingType: selectedBilling,
-          value: ticketPrice
-        }
-      });
 
-      if (functionError || !data || !data.success) {
-        throw new Error(data?.error || functionError?.message || 'Falha ao processar cobrança.');
+      // If user lacks CPF or Phone, we need to gather profile details before calling the payment function
+      if (!meta.cpf || meta.cpf === '00000000000' || !meta.phone || meta.phone === '00000000000') {
+        // Prefill any existing fields they do have
+        setName(meta.name || user?.email?.split('@')[0] || '');
+        setCpf(meta.cpf && meta.cpf !== '00000000000' ? meta.cpf : '');
+        setPhone(meta.phone && meta.phone !== '00000000000' ? meta.phone : '');
+        setCity(meta.city || '');
+        setUf(meta.uf || '');
+        setHowHeard(meta.howHeard || '');
+        setNeedProfileDetails(true);
+        setLoading(false);
+        return;
       }
+      
+      const data = await invokeCreatePayment({
+        name: meta.name || user?.email?.split('@')[0] || 'Participante',
+        email: user?.email || '',
+        cpf: meta.cpf,
+        phone: meta.phone,
+        city: meta.city || 'Estância Velha',
+        uf: meta.uf || 'RS',
+        howHeard: meta.howHeard || 'Outros',
+        billingType: selectedBilling,
+        value: ticketPrice
+      });
 
       setPaymentDetails({
         participantId: data.participantId,
@@ -261,6 +290,72 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({
 
     } catch (err: any) {
       setErrorMsg(err.message || 'Erro ao conectar em sua conta.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleCompleteProfileAndSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setErrorMsg('');
+
+    if (!supabase) {
+      setErrorMsg('Supabase não está configurado.');
+      return;
+    }
+
+    const cleanCpf = cpf.replace(/\D/g, '');
+    if (cleanCpf.length !== 11) {
+      setErrorMsg('Informe um CPF válido com 11 dígitos.');
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      // 1. Update user metadata in Supabase Auth
+      const { data: { user }, error: authError } = await supabase.auth.updateUser({
+        data: {
+          name,
+          cpf: cleanCpf,
+          phone: phone.replace(/\D/g, ''),
+          city,
+          uf,
+          howHeard
+        }
+      });
+
+      if (authError) throw authError;
+
+      // 2. Call the payment endpoint with the updated details
+      const data = await invokeCreatePayment({
+        name,
+        email: user?.email || '',
+        cpf: cleanCpf,
+        phone: phone.replace(/\D/g, ''),
+        city,
+        uf,
+        howHeard,
+        billingType: selectedBilling,
+        value: ticketPrice
+      });
+
+      setPaymentDetails({
+        participantId: data.participantId,
+        paymentId: data.paymentId,
+        pixQrCodeBase64: data.pixQrCodeBase64,
+        pixCopyPaste: data.pixCopyPaste,
+        invoiceUrl: data.invoiceUrl
+      });
+
+      if (selectedBilling === 'CREDIT_CARD') {
+        window.location.href = data.invoiceUrl;
+      } else {
+        setCheckoutStep('payment');
+      }
+
+    } catch (err: any) {
+      setErrorMsg(err.message || 'Erro ao atualizar dados e gerar cobrança.');
     } finally {
       setLoading(false);
     }
@@ -295,22 +390,22 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({
           <div className="mkt2-checkout-col-left">
             {checkoutStep === 'form' && (
               <div className="mkt2-checkout-panel animate-slide-up">
-                
-                {/* TABS HEADER */}
-                <div className="mkt2-checkout-tabs">
-                  <button 
-                    onClick={() => { setActiveTab('register'); setErrorMsg(''); }} 
-                    className={`mkt2-checkout-tab-btn ${activeTab === 'register' ? 'active' : ''}`}
-                  >
-                    Cadastrar
-                  </button>
-                  <button 
-                    onClick={() => { setActiveTab('login'); setErrorMsg(''); }} 
-                    className={`mkt2-checkout-tab-btn ${activeTab === 'login' ? 'active' : ''}`}
-                  >
-                    Entrar
-                  </button>
-                </div>
+                {!needProfileDetails && (
+                  <div className="mkt2-checkout-tabs">
+                    <button 
+                      onClick={() => { setActiveTab('register'); setErrorMsg(''); }} 
+                      className={`mkt2-checkout-tab-btn ${activeTab === 'register' ? 'active' : ''}`}
+                    >
+                      Cadastrar
+                    </button>
+                    <button 
+                      onClick={() => { setActiveTab('login'); setErrorMsg(''); }} 
+                      className={`mkt2-checkout-tab-btn ${activeTab === 'login' ? 'active' : ''}`}
+                    >
+                      Entrar
+                    </button>
+                  </div>
+                )}
 
                 {errorMsg && (
                   <div className="mkt2-checkout-error">
@@ -319,7 +414,137 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({
                   </div>
                 )}
 
-                {activeTab === 'register' ? (
+                {needProfileDetails ? (
+                  /* COMPLETE PROFILE FORM */
+                  <form onSubmit={handleCompleteProfileAndSubmit} className="mkt2-checkout-form">
+                    <div className="mkt2-form-title-wrap">
+                      <span className="mkt2-form-label-code">[ COMPLEMENTO DE CADASTRO ]</span>
+                      <h2 className="mkt2-form-title">Complete seus dados para continuar</h2>
+                      <p className="mkt2-form-desc">Precisamos de algumas informações obrigatórias para emitir a cobrança no Asaas.</p>
+                    </div>
+
+                    <div className="mkt2-form-row">
+                      <div className="mkt2-form-group">
+                        <label>NOME COMPLETO *</label>
+                        <input 
+                          type="text" 
+                          required 
+                          value={name}
+                          onChange={(e) => setName(e.target.value)}
+                          placeholder="Nome Completo"
+                          className="mkt2-checkout-input"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="mkt2-form-row mkt2-form-row--two">
+                      <div className="mkt2-form-group">
+                        <label>CPF *</label>
+                        <input 
+                          type="text" 
+                          required 
+                          value={cpf}
+                          onChange={handleCpfChange}
+                          placeholder="000.000.000-00"
+                          className="mkt2-checkout-input"
+                        />
+                      </div>
+                      <div className="mkt2-form-group">
+                        <label>WHATSAPP *</label>
+                        <input 
+                          type="text" 
+                          required 
+                          value={phone}
+                          onChange={handlePhoneChange}
+                          placeholder="(00) 00000-0000"
+                          className="mkt2-checkout-input"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="mkt2-form-row mkt2-form-row--two">
+                      <div className="mkt2-form-group" style={{ flex: '2' }}>
+                        <label>CIDADE *</label>
+                        <input 
+                          type="text" 
+                          required 
+                          value={city}
+                          onChange={(e) => setCity(e.target.value)}
+                          placeholder="Cidade"
+                          className="mkt2-checkout-input"
+                        />
+                      </div>
+                      <div className="mkt2-form-group" style={{ flex: '1' }}>
+                        <label>UF *</label>
+                        <select 
+                          required 
+                          value={uf}
+                          onChange={(e) => setUf(e.target.value)}
+                          className="mkt2-checkout-input"
+                        >
+                          <option value="">--</option>
+                          {['RS', 'SC', 'PR', 'SP', 'RJ', 'MG', 'ES', 'DF', 'BA', 'PE', 'CE', 'GO', 'MS', 'MT'].map(state => (
+                            <option key={state} value={state}>{state}</option>
+                          ))}
+                        </select>
+                      </div>
+                    </div>
+
+                    <div className="mkt2-form-row">
+                      <div className="mkt2-form-group">
+                        <label>COMO CONHECEU O EVENTO? *</label>
+                        <select 
+                          required 
+                          value={howHeard}
+                          onChange={(e) => setHowHeard(e.target.value)}
+                          className="mkt2-checkout-input"
+                        >
+                          <option value="">Selecione uma opção</option>
+                          <option value="Instagram / Facebook">Instagram / Facebook</option>
+                          <option value="LinkedIn">LinkedIn</option>
+                          <option value="Indicação de Amigo">Indicação de Amigo</option>
+                          <option value="Grupo de Whatsapp">Grupo de Whatsapp</option>
+                          <option value="E-mail">E-mail</option>
+                          <option value="Outros">Outros</option>
+                        </select>
+                      </div>
+                    </div>
+
+                    {/* BILLING TYPE SELECTOR */}
+                    <div className="mkt2-form-group" style={{ marginTop: '12px' }}>
+                      <label>MÉTODO DE PAGAMENTO *</label>
+                      <div className="mkt2-payment-selectors">
+                        <button
+                          type="button"
+                          onClick={() => setSelectedBilling('PIX')}
+                          className={`mkt2-payment-select-btn ${selectedBilling === 'PIX' ? 'active' : ''}`}
+                        >
+                          <QrCode size={16} /> Pagar com PIX
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setSelectedBilling('CREDIT_CARD')}
+                          className={`mkt2-payment-select-btn ${selectedBilling === 'CREDIT_CARD' ? 'active' : ''}`}
+                        >
+                          <CreditCard size={16} /> Cartão de Crédito / Boleto (Asaas)
+                        </button>
+                      </div>
+                    </div>
+
+                    <button type="submit" disabled={loading} className="mkt2-submit-btn">
+                      {loading ? 'Processando e Gerando Cobrança...' : 'CONFIRMAR DADOS & PAGAR ->'}
+                    </button>
+
+                    <button 
+                      type="button" 
+                      onClick={() => { setNeedProfileDetails(false); setErrorMsg(''); }} 
+                      className="mkt2-btn-secondary" 
+                      style={{ marginTop: '10px', width: '100%', justifyContent: 'center' }}
+                    >
+                      Voltar ao Login
+                    </button>
+                  </form>
+                ) : activeTab === 'register' ? (
                   /* REGISTER FORM */
                   <form onSubmit={handleRegisterSubmit} className="mkt2-checkout-form">
                     <div className="mkt2-form-title-wrap">
@@ -355,20 +580,20 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({
                         />
                       </div>
                       <div className="mkt2-form-group">
-                        <label>TELEFONE *</label>
+                        <label>WHATSAPP *</label>
                         <input 
                           type="text" 
                           required 
                           value={phone}
                           onChange={handlePhoneChange}
-                          placeholder="(51) 99999-9999"
+                          placeholder="(00) 00000-0000"
                           className="mkt2-checkout-input"
                         />
                       </div>
                     </div>
 
                     <div className="mkt2-form-row mkt2-form-row--two">
-                      <div className="mkt2-form-group">
+                      <div className="mkt2-form-group flex-date">
                         <label>DATA DE NASCIMENTO *</label>
                         <input 
                           type="date" 
@@ -378,7 +603,7 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({
                           className="mkt2-checkout-input"
                         />
                       </div>
-                      <div className="mkt2-form-group">
+                      <div className="mkt2-form-group flex-heard">
                         <label>COMO CONHECEU O EVENTO? *</label>
                         <select 
                           required 
@@ -387,11 +612,11 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({
                           className="mkt2-checkout-input"
                         >
                           <option value="">Selecione...</option>
-                          <option value="Redes Sociais">Redes Sociais</option>
-                          <option value="Indicação">Indicação / Amigo</option>
-                          <option value="Google">Google / Pesquisa</option>
+                          <option value="Instagram / Facebook">Instagram / Facebook</option>
+                          <option value="LinkedIn">LinkedIn</option>
+                          <option value="Indicação de Amigo">Indicação de Amigo</option>
+                          <option value="Grupo de Whatsapp">Grupo de Whatsapp</option>
                           <option value="E-mail">E-mail</option>
-                          <option value="WhatsApp">Mensagem de WhatsApp</option>
                           <option value="Outros">Outros</option>
                         </select>
                       </div>
