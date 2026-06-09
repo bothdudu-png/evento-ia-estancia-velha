@@ -79,13 +79,13 @@ export default function App() {
     const page = params.get('page');
     const path = window.location.pathname;
     
-    if (page === 'admin' || path === '/admin') {
-      return null; // Show admin panel
+    if (page === 'marketing' || page === 'landing' || page === 'v2' || path === '/marketing' || path === '/landing') {
+      return 'v2'; // Marketing V2 is the promotional view
     }
     if (page === 'marketing1' || path === '/marketing1') {
       return 'v1'; // Legacy one in background
     }
-    return 'v2'; // Marketing V2 is the default public view!
+    return null; // Dashboard Executivo (Admin Panel) is the default main page!
   });
 
   // --- Auth Form States ---
