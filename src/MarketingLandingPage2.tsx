@@ -155,7 +155,7 @@ export const MarketingLandingPage2: React.FC<MarketingLandingPage2Props> = ({
     },
     {
       q: 'Alimentação está inclusa?',
-      a: 'Sim! Teremos um coffee break de alta qualidade preparado para os participantes, ideal para repor as energias e fomentar o networking direto.'
+      a: 'Os coffee breaks dos intervalos da manhã estão inclusos na inscrição — haverá café, frutas e lanches de qualidade para recarregar as energias. O almoço (12:00–13:30) é por conta de cada participante, e há diversas opções próximas ao Auditório Müller.'
     },
     {
       q: 'Como funciona a restrição de vagas?',
@@ -451,10 +451,10 @@ export const MarketingLandingPage2: React.FC<MarketingLandingPage2Props> = ({
       {/* CALCULADORA DE ROI E PRODUTIVIDADE */}
       <span id="roi"></span>
       <section className="mkt2-section">
-        <span className="mkt2-section-label">// Calculadora de ROI de IA</span>
-        <h2 className="mkt2-section-title">Quanto vale a automação na sua empresa?</h2>
+        <span className="mkt2-section-label">// Calculadora de Tempo e Produtividade</span>
+        <h2 className="mkt2-section-title">Quanto tempo você ainda desperdiça por semana?</h2>
         <p className="mkt2-section-desc">
-          Utilize o simulador interativo abaixo para descobrir o impacto operacional de automatizar pequenas rotinas e criar ferramentas dedicadas com Inteligência Artificial.
+          Seja você autônomo, profissional ou gestor de equipe — simule abaixo quanto tempo e energia você pode recuperar automatizando tarefas repetitivas com IA.
         </p>
 
         <div className="mkt2-calc-container">
@@ -605,23 +605,27 @@ export const MarketingLandingPage2: React.FC<MarketingLandingPage2Props> = ({
         <div className="mkt2-timeline-box">
           <div className="mkt2-timeline">
             {[
-              { duration: '30min', title: 'Check-in', desc: 'Abertura oficial, recepção dos computadores,setup de rede e kit de boas-vindas.', shift: 'morning' },
-              { duration: '20min', title: 'IA First', desc: 'Como estruturar o raciocínio de automação e comandos inteligentes.', shift: 'morning' },
-              { duration: '20min', title: 'A Era do Selfware', desc: 'Construa sob medida: ferramentas, bots e scripts que poupam horas de tarefas diárias.', shift: 'morning' },
-              { duration: '20min', title: 'Plataformas de IA', desc: 'Visão geral do ecossistema de ferramentas e builders automatizados.', shift: 'morning' },
-              { duration: '40min', title: 'Princípios de Design', desc: 'Noções básicas de design visual prático e Design Systems eficientes.', shift: 'morning' },
-              { duration: '20min', title: 'O Framework Guide', desc: 'Introdução técnica ao método de Discovery Driven e deploy ágil.', shift: 'morning' },
-              { duration: '30min', title: 'Intervalo Networking', desc: 'Pausa para coffee break premium e conexões estratégicas entre profissionais.', shift: 'afternoon' },
-              { duration: '1h 00m', title: 'Live Build I — Front-end & Telas', desc: 'Criação estruturada das interfaces e fluxo visual do zero no telão.', shift: 'afternoon' },
-              { duration: '1h 00m', title: 'Live Build II — Banco de Dados', desc: 'Conexão e segurança, lógicas de acesso (RLS) e integrações.', shift: 'afternoon' },
-              { duration: '2h 00m', title: 'Hands-on Mentorado', desc: 'Bancada aberta de desenvolvimento individual sob mentoria 1:1 direta.', shift: 'afternoon' },
-              { duration: '1h 00m', title: 'Encerramento & Deploy', desc: 'Deploy final com apps no ar e fechamento de conexões locais.', shift: 'evening' }
+              { time: '08:30', duration: '30min', title: 'Check-in', desc: 'Abertura oficial, recepção dos computadores, setup de rede e kit de boas-vindas.', shift: 'morning' },
+              { time: '09:00', duration: '20min', title: 'IA First', desc: 'Como estruturar o raciocínio de automação e comandos inteligentes.', shift: 'morning' },
+              { time: '09:20', duration: '20min', title: 'A Era do Selfware', desc: 'Construa sob medida: ferramentas, bots e scripts que poupam horas de tarefas diárias.', shift: 'morning' },
+              { time: '09:40', duration: '20min', title: 'Plataformas de IA', desc: 'Visão geral do ecossistema de ferramentas e builders automatizados.', shift: 'morning' },
+              { time: '10:00', duration: '40min', title: 'Princípios de Design', desc: 'Noções básicas de design visual prático e Design Systems eficientes.', shift: 'morning' },
+              { time: '10:40', duration: '20min', title: 'O Framework Guide', desc: 'Introdução técnica ao método de Discovery Driven e deploy ágil.', shift: 'morning' },
+              { time: '11:00', duration: '30min', title: 'Coffee Break & Networking', desc: 'Pausa com coffee break premium e conexões estratégicas entre os participantes.', shift: 'morning' },
+              { time: '11:30', duration: '30min', title: 'Live Build I — Front-end & Telas', desc: 'Criação estruturada das interfaces e fluxo visual do zero no telão.', shift: 'morning' },
+              { time: '12:00', duration: '1h 30m', title: 'Almoço — Intervalo Livre', desc: 'Pausa para almoço por conta de cada participante. Retorno às 13:30. Ótimo momento para networking informal.', shift: 'lunch' },
+              { time: '13:30', duration: '1h 00m', title: 'Live Build II — Banco de Dados', desc: 'Conexão e segurança, lógicas de acesso (RLS) e integrações.', shift: 'afternoon' },
+              { time: '14:30', duration: '2h 00m', title: 'Hands-on Mentorado', desc: 'Bancada aberta de desenvolvimento individual sob mentoria 1:1 direta.', shift: 'afternoon' },
+              { time: '16:30', duration: '1h 00m', title: 'Encerramento & Deploy', desc: 'Deploy final com apps no ar e fechamento de conexões locais. Encerramento às 17:30.', shift: 'evening' }
             ].map((item, idx) => (
               <div className="mkt2-timeline-item" key={idx}>
-                <div className="mkt2-timeline-duration">{item.duration}</div>
+                <div className="mkt2-timeline-left">
+                  <div className="mkt2-timeline-time">{item.time}</div>
+                  <div className="mkt2-timeline-duration">{item.duration}</div>
+                </div>
                 <div className="mkt2-timeline-content">
                   <span className={`mkt2-timeline-shift-badge mkt2-badge-${item.shift}`}>
-                    {item.shift === 'morning' ? 'Manhã' : item.shift === 'afternoon' ? 'Tarde' : 'Noite'}
+                    {item.shift === 'morning' ? 'Manhã' : item.shift === 'afternoon' ? 'Tarde' : item.shift === 'lunch' ? 'Almoço' : 'Encerramento'}
                   </span>
                   <h4 className="mkt2-timeline-title">{item.title}</h4>
                   <p className="mkt2-timeline-desc">{item.desc}</p>
@@ -682,18 +686,35 @@ export const MarketingLandingPage2: React.FC<MarketingLandingPage2Props> = ({
           Conheça quem trouxe e viabilizou esta imersão em Estância Velha, promovendo networking corporativo de alto nível na região do Vale do Sinos.
         </p>
 
-        <div className="mkt2-hosts-grid">
-          <div className="mkt2-host-card">
-            <div className="mkt2-host-header">
-              <div className="mkt2-host-avatar">EB</div>
-              <div className="mkt2-host-meta">
-                <h3 className="mkt2-host-name">Eduardo Both & Gabriel Müller</h3>
-                <span className="mkt2-host-role">Hosts & Promotores do Evento</span>
-              </div>
+        <div className="mkt2-hosts-grid mkt2-hosts-grid--two">
+          <div className="mkt2-host-card mkt2-host-card--photo">
+            <img
+              src="/gabriel-muller.jpg"
+              alt="Gabriel Müller"
+              className="mkt2-host-photo"
+            />
+            <div className="mkt2-host-info">
+              <h3 className="mkt2-host-name">Gabriel Müller</h3>
+              <span className="mkt2-host-role">Host & Co-organizador</span>
+              <p className="mkt2-host-bio">
+                Empresário e liderança local no Vale do Sinos. Viabilizou a parceria com a Builderz e cedeu o Auditório Müller Centro Empresarial para sediar a imersão, promovendo networking corporativo de alto nível na região.
+              </p>
             </div>
-            <p className="mkt2-host-bio">
-              Empresários e líderes focados no ecossistema comercial do Vale do Sinos. Mobilizaram a parceria presencial da Builderz para levar esta metodologia hands-on ao empresariado e aos profissionais regionais, sediando o encontro no Müller Centro Empresarial. O objetivo é expandir a atuação tecnológica prática local, convertendo a IA de pauta teórica de reuniões para ferramentas de real produtividade nas empresas.
-            </p>
+          </div>
+
+          <div className="mkt2-host-card mkt2-host-card--photo">
+            <img
+              src="/eduardo-both.jpg"
+              alt="Eduardo Both"
+              className="mkt2-host-photo"
+            />
+            <div className="mkt2-host-info">
+              <h3 className="mkt2-host-name">Eduardo Both</h3>
+              <span className="mkt2-host-role">Host & Promotor do Evento</span>
+              <p className="mkt2-host-bio">
+                Empreendedor regional, idealizador do encontro em Estância Velha. Focado em expandir o ecossistema tecnológico prático local, conectando profissionais e lideranças que querem usar IA como ferramenta real de produtividade.
+              </p>
+            </div>
           </div>
         </div>
       </section>

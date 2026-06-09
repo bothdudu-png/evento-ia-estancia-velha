@@ -918,6 +918,26 @@
 .mkt2-badge-morning { background: rgba(0, 242, 254, 0.08); color: var(--brand-b); border: 1px solid rgba(0, 242, 254, 0.2); }
 .mkt2-badge-afternoon { background: rgba(124, 58, 237, 0.08); color: #a78bfa; border: 1px solid rgba(124, 58, 237, 0.2); }
 .mkt2-badge-evening { background: rgba(236, 72, 153, 0.08); color: var(--pink-b); border: 1px solid rgba(236, 72, 153, 0.2); }
+.mkt2-badge-lunch { background: rgba(251, 191, 36, 0.08); color: #FBBF24; border: 1px solid rgba(251, 191, 36, 0.2); }
+
+/* Timeline left column: time + duration */
+.mkt2-timeline-left {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  min-width: 80px;
+  flex-shrink: 0;
+  gap: 2px;
+  padding-top: 2px;
+}
+
+.mkt2-timeline-time {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 1rem;
+  font-weight: 800;
+  color: var(--fg-b);
+  letter-spacing: -0.02em;
+}
 
 .mkt2-timeline-duration {
   font-family: 'JetBrains Mono', monospace;
@@ -1052,6 +1072,12 @@
   margin: 0 auto;
 }
 
+.mkt2-hosts-grid--two {
+  grid-template-columns: 1fr 1fr;
+  max-width: 1000px;
+  gap: 32px;
+}
+
 .mkt2-host-card {
   background: var(--surface-b);
   border: 1px solid rgba(0, 242, 254, 0.15);
@@ -1061,6 +1087,28 @@
   display: flex;
   flex-direction: column;
   gap: 20px;
+}
+
+/* Photo-based host card variant */
+.mkt2-host-card--photo {
+  padding: 0;
+  overflow: hidden;
+  gap: 0;
+}
+
+.mkt2-host-photo {
+  width: 100%;
+  height: 280px;
+  object-fit: cover;
+  object-position: center top;
+  display: block;
+}
+
+.mkt2-host-info {
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 }
 
 .mkt2-host-header {
