@@ -1582,7 +1582,6 @@
 .mkt2-marquee-track {
   display: flex;
   width: max-content;
-  animation: mkt2-marquee-anim 25s linear infinite;
 }
 
 .mkt2-marquee-group {
@@ -1616,9 +1615,4 @@
   font-size: 1.2rem;
   line-height: 1;
   transition: color 0.7s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-@keyframes mkt2-marquee-anim {
-  0% { transform: translateX(0); }
-  100% { transform: translateX(-50%); }
 }

@@ -422,7 +422,15 @@ export const MarketingLandingPage2: React.FC<MarketingLandingPage2Props> = ({
       </section>
       {/* MARQUEE DECORATIVO — cidade e data do evento */}
       <div className="mkt2-marquee-strip" aria-hidden="true">
-        <div className="mkt2-marquee-track">
+        <motion.div
+          className="mkt2-marquee-track"
+          animate={{ x: [0, '-50%'] }}
+          transition={{
+            ease: "linear",
+            duration: 25,
+            repeat: Infinity,
+          }}
+        >
           {[...Array(8)].map((_, rep) => (
             <div className="mkt2-marquee-group" key={rep}>
               <span className="mkt2-marquee-city">ESTÂNCIA VELHA</span>
@@ -430,7 +438,7 @@ export const MarketingLandingPage2: React.FC<MarketingLandingPage2Props> = ({
               <span className="mkt2-marquee-dot">✦</span>
             </div>
           ))}
-        </div>
+        </motion.div>
       </div>
 
       {/* METODO GUIDE SECTION */}
