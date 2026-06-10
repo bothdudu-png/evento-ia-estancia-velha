@@ -23,7 +23,7 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({
 }) => {
   const [activeTab, setActiveTab] = useState<'register' | 'login'>('register');
   const [checkoutStep, setCheckoutStep] = useState<'form' | 'payment' | 'success'>('form');
-  const [selectedBilling, setSelectedBilling] = useState<'PIX' | 'CREDIT_CARD'>('PIX');
+  const [selectedBilling, setSelectedBilling] = useState<'PIX' | 'CREDIT_CARD' | 'BOLETO'>('PIX');
   
   // --- Form States (Register) ---
   const [name, setName] = useState('');
@@ -41,6 +41,15 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({
   const [loginEmail, setLoginEmail] = useState('');
   const [loginPassword, setLoginPassword] = useState('');
 
+  // --- Form States (Credit Card transparent checkout) ---
+  const [cardNumber, setCardNumber] = useState('');
+  const [cardHolder, setCardHolder] = useState('');
+  const [cardExpiry, setCardExpiry] = useState('');
+  const [cardCvv, setCardCvv] = useState('');
+  const [cardCep, setCardCep] = useState('');
+  const [cardAddressNumber, setCardAddressNumber] = useState('');
+  const [cardInstallments, setCardInstallments] = useState('1');
+
   // --- UX States ---
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
@@ -52,6 +61,9 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({
     pixQrCodeBase64?: string;
     pixCopyPaste?: string;
     invoiceUrl: string;
+    identificationField?: string;
+    barCode?: string;
+    bankSlipUrl?: string;
   } | null>(null);
 
   // --- Masking formatting ---
@@ -70,6 +82,38 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({
     if (clean.length <= 2) setPhone(clean);
     else if (clean.length <= 7) setPhone(`(${clean.slice(0, 2)}) ${clean.slice(2)}`);
     else setPhone(`(${clean.slice(0, 2)}) ${clean.slice(2, 7)}-${clean.slice(7)}`);
+  };
+
+  const handleCardNumberChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const rawVal = e.target.value;
+    const clean = rawVal.replace(/\D/g, '').slice(0, 16);
+    const matched = clean.match(/.{1,4}/g);
+    setCardNumber(matched ? matched.join(' ') : clean);
+  };
+
+  const handleCardExpiryChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const rawVal = e.target.value;
+    const clean = rawVal.replace(/\D/g, '').slice(0, 4);
+    if (clean.length <= 2) {
+      setCardExpiry(clean);
+    } else {
+      setCardExpiry(`${clean.slice(0, 2)}/${clean.slice(2)}`);
+    }
+  };
+
+  const handleCardCvvChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const rawVal = e.target.value;
+    setCardCvv(rawVal.replace(/\D/g, '').slice(0, 4));
+  };
+
+  const handleCardCepChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const rawVal = e.target.value;
+    const clean = rawVal.replace(/\D/g, '').slice(0, 8);
+    if (clean.length <= 5) {
+      setCardCep(clean);
+    } else {
+      setCardCep(`${clean.slice(0, 5)}-${clean.slice(5)}`);
+    }
   };
 
   // --- Password Rules Validation ---
@@ -144,6 +188,33 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({
     return data;
   };
 
+  const getCardPayload = () => {
+    if (selectedBilling !== 'CREDIT_CARD') return undefined;
+
+    const cleanNum = cardNumber.replace(/\s/g, '');
+    if (cleanNum.length !== 16) throw new Error('Número do cartão inválido.');
+    if (!cardHolder.trim()) throw new Error('Nome do titular é obrigatório.');
+    if (cardExpiry.length !== 5) throw new Error('Validade do cartão inválida. Use o formato MM/AA.');
+    const [expMonth, expYear] = cardExpiry.split('/');
+    if (!expMonth || !expYear || expMonth.length !== 2 || expYear.length !== 2) throw new Error('Validade do cartão inválida.');
+    const cleanCvv = cardCvv.trim();
+    if (cleanCvv.length < 3 || cleanCvv.length > 4) throw new Error('Código de segurança (CVV) inválido.');
+    const cleanCep = cardCep.replace(/\D/g, '');
+    if (cleanCep.length !== 8) throw new Error('CEP de cobrança inválido.');
+    if (!cardAddressNumber.trim()) throw new Error('Número de residência é obrigatório.');
+
+    return {
+      number: cleanNum,
+      holderName: cardHolder,
+      expiryMonth: expMonth,
+      expiryYear: '20' + expYear, // Asaas expects 4 digit year
+      cvv: cleanCvv,
+      cep: cleanCep,
+      addressNumber: cardAddressNumber,
+      installments: Number(cardInstallments)
+    };
+  };
+
   const handleRegisterSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMsg('');
@@ -171,6 +242,15 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({
     setLoading(true);
 
     try {
+      let cardPayload;
+      try {
+        cardPayload = getCardPayload();
+      } catch (err: any) {
+        setErrorMsg(err.message);
+        setLoading(false);
+        return;
+      }
+
       // 1. Sign Up in Supabase Auth
       const { error: authError } = await supabase.auth.signUp({
         email,
@@ -200,7 +280,8 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({
         uf,
         howHeard,
         billingType: selectedBilling,
-        value: ticketPrice
+        value: ticketPrice,
+        card: cardPayload
       });
 
       setPaymentDetails({
@@ -208,12 +289,14 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({
         paymentId: data.paymentId,
         pixQrCodeBase64: data.pixQrCodeBase64,
         pixCopyPaste: data.pixCopyPaste,
-        invoiceUrl: data.invoiceUrl
+        invoiceUrl: data.invoiceUrl,
+        identificationField: data.identificationField,
+        barCode: data.barCode,
+        bankSlipUrl: data.bankSlipUrl
       });
 
-      // 3. If credit card, redirect immediately to Asaas invoice check out page
-      if (data.billingType === 'CREDIT_CARD' || data.billingType === 'BOLETO' || !data.pixQrCodeBase64) {
-        window.location.href = data.invoiceUrl;
+      if (data.billingType === 'CREDIT_CARD') {
+        setCheckoutStep('success');
       } else {
         setCheckoutStep('payment');
       }
@@ -261,6 +344,15 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({
         setLoading(false);
         return;
       }
+
+      let cardPayload;
+      try {
+        cardPayload = getCardPayload();
+      } catch (err: any) {
+        setErrorMsg(err.message);
+        setLoading(false);
+        return;
+      }
       
       const data = await invokeCreatePayment({
         name: meta.name || user?.email?.split('@')[0] || 'Participante',
@@ -271,7 +363,8 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({
         uf: meta.uf || 'RS',
         howHeard: meta.howHeard || 'Outros',
         billingType: selectedBilling,
-        value: ticketPrice
+        value: ticketPrice,
+        card: cardPayload
       });
 
       setPaymentDetails({
@@ -279,11 +372,14 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({
         paymentId: data.paymentId,
         pixQrCodeBase64: data.pixQrCodeBase64,
         pixCopyPaste: data.pixCopyPaste,
-        invoiceUrl: data.invoiceUrl
+        invoiceUrl: data.invoiceUrl,
+        identificationField: data.identificationField,
+        barCode: data.barCode,
+        bankSlipUrl: data.bankSlipUrl
       });
 
-      if (data.billingType === 'CREDIT_CARD' || data.billingType === 'BOLETO' || !data.pixQrCodeBase64) {
-        window.location.href = data.invoiceUrl;
+      if (data.billingType === 'CREDIT_CARD') {
+        setCheckoutStep('success');
       } else {
         setCheckoutStep('payment');
       }
@@ -313,6 +409,15 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({
     setLoading(true);
 
     try {
+      let cardPayload;
+      try {
+        cardPayload = getCardPayload();
+      } catch (err: any) {
+        setErrorMsg(err.message);
+        setLoading(false);
+        return;
+      }
+
       // 1. Update user metadata in Supabase Auth
       const { data: { user }, error: authError } = await supabase.auth.updateUser({
         data: {
@@ -337,7 +442,8 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({
         uf,
         howHeard,
         billingType: selectedBilling,
-        value: ticketPrice
+        value: ticketPrice,
+        card: cardPayload
       });
 
       setPaymentDetails({
@@ -345,11 +451,14 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({
         paymentId: data.paymentId,
         pixQrCodeBase64: data.pixQrCodeBase64,
         pixCopyPaste: data.pixCopyPaste,
-        invoiceUrl: data.invoiceUrl
+        invoiceUrl: data.invoiceUrl,
+        identificationField: data.identificationField,
+        barCode: data.barCode,
+        bankSlipUrl: data.bankSlipUrl
       });
 
-      if (data.billingType === 'CREDIT_CARD' || data.billingType === 'BOLETO' || !data.pixQrCodeBase64) {
-        window.location.href = data.invoiceUrl;
+      if (data.billingType === 'CREDIT_CARD') {
+        setCheckoutStep('success');
       } else {
         setCheckoutStep('payment');
       }
@@ -359,6 +468,112 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({
     } finally {
       setLoading(false);
     }
+  };
+
+  // Sleek inline Card Fields builder to avoid code duplication
+  const renderCardFields = () => {
+    if (selectedBilling !== 'CREDIT_CARD') return null;
+    return (
+      <div className="mkt2-card-transparent-fields">
+        <span className="mkt2-form-label-code" style={{ color: '#00F2FE', display: 'block', margin: '20px 0 10px 0' }}>
+          [ DADOS DO CARTÃO DE CRÉDITO ]
+        </span>
+        
+        <div className="mkt2-form-row">
+          <div className="mkt2-form-group">
+            <label>NOME IMPRESSO NO CARTÃO *</label>
+            <input 
+              type="text" 
+              required={selectedBilling === 'CREDIT_CARD'}
+              value={cardHolder}
+              onChange={(e) => setCardHolder(e.target.value)}
+              placeholder="Nome conforme impresso"
+              className="mkt2-checkout-input"
+            />
+          </div>
+        </div>
+
+        <div className="mkt2-form-row">
+          <div className="mkt2-form-group">
+            <label>NÚMERO DO CARTÃO *</label>
+            <input 
+              type="text" 
+              required={selectedBilling === 'CREDIT_CARD'}
+              value={cardNumber}
+              onChange={handleCardNumberChange}
+              placeholder="0000 0000 0000 0000"
+              className="mkt2-checkout-input"
+            />
+          </div>
+        </div>
+
+        <div className="mkt2-form-row mkt2-form-row--two">
+          <div className="mkt2-form-group">
+            <label>VALIDADE *</label>
+            <input 
+              type="text" 
+              required={selectedBilling === 'CREDIT_CARD'}
+              value={cardExpiry}
+              onChange={handleCardExpiryChange}
+              placeholder="MM/AA"
+              className="mkt2-checkout-input"
+            />
+          </div>
+          <div className="mkt2-form-group">
+            <label>CÓDIGO (CVV) *</label>
+            <input 
+              type="text" 
+              required={selectedBilling === 'CREDIT_CARD'}
+              value={cardCvv}
+              onChange={handleCardCvvChange}
+              placeholder="000"
+              className="mkt2-checkout-input"
+            />
+          </div>
+        </div>
+
+        <div className="mkt2-form-row mkt2-form-row--two">
+          <div className="mkt2-form-group" style={{ flex: '2' }}>
+            <label>CEP DE COBRANÇA *</label>
+            <input 
+              type="text" 
+              required={selectedBilling === 'CREDIT_CARD'}
+              value={cardCep}
+              onChange={handleCardCepChange}
+              placeholder="00000-000"
+              className="mkt2-checkout-input"
+            />
+          </div>
+          <div className="mkt2-form-group" style={{ flex: '1' }}>
+            <label>NÚMERO *</label>
+            <input 
+              type="text" 
+              required={selectedBilling === 'CREDIT_CARD'}
+              value={cardAddressNumber}
+              onChange={(e) => setCardAddressNumber(e.target.value)}
+              placeholder="Nº"
+              className="mkt2-checkout-input"
+            />
+          </div>
+        </div>
+
+        <div className="mkt2-form-row">
+          <div className="mkt2-form-group">
+            <label>OPÇÃO DE PARCELAMENTO *</label>
+            <select 
+              required={selectedBilling === 'CREDIT_CARD'}
+              value={cardInstallments}
+              onChange={(e) => setCardInstallments(e.target.value)}
+              className="mkt2-checkout-input"
+            >
+              <option value="1">1x de R$ {ticketPrice.toFixed(2).replace('.', ',')} (Sem Juros)</option>
+              <option value="2">2x de R$ {(ticketPrice / 2).toFixed(2).replace('.', ',')} (Sem Juros)</option>
+              <option value="3">3x de R$ {(ticketPrice / 3).toFixed(2).replace('.', ',')} (Sem Juros)</option>
+            </select>
+          </div>
+        </div>
+      </div>
+    );
   };
 
   return (
@@ -526,10 +741,20 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({
                           onClick={() => setSelectedBilling('CREDIT_CARD')}
                           className={`mkt2-payment-select-btn ${selectedBilling === 'CREDIT_CARD' ? 'active' : ''}`}
                         >
-                          <CreditCard size={16} /> Cartão de Crédito / Boleto (Asaas)
+                          <CreditCard size={16} /> Cartão de Crédito
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setSelectedBilling('BOLETO')}
+                          className={`mkt2-payment-select-btn ${selectedBilling === 'BOLETO' ? 'active' : ''}`}
+                        >
+                          <MapPin size={16} /> Boleto Bancário
                         </button>
                       </div>
                     </div>
+
+                    {/* Conditional CC inputs */}
+                    {renderCardFields()}
 
                     <button type="submit" disabled={loading} className="mkt2-submit-btn">
                       {loading ? 'Processando e Gerando Cobrança...' : 'CONFIRMAR DADOS & PAGAR ->'}
@@ -711,17 +936,27 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({
                           onClick={() => setSelectedBilling('PIX')}
                           className={`mkt2-payment-select-btn ${selectedBilling === 'PIX' ? 'active' : ''}`}
                         >
-                          <QrCode size={16} /> Pagar com PIX (QR Code instantâneo)
+                          <QrCode size={16} /> Pagar com PIX
                         </button>
                         <button
                           type="button"
                           onClick={() => setSelectedBilling('CREDIT_CARD')}
                           className={`mkt2-payment-select-btn ${selectedBilling === 'CREDIT_CARD' ? 'active' : ''}`}
                         >
-                          <CreditCard size={16} /> Cartão de Crédito / Boleto (Asaas Checkout)
+                          <CreditCard size={16} /> Cartão de Crédito
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setSelectedBilling('BOLETO')}
+                          className={`mkt2-payment-select-btn ${selectedBilling === 'BOLETO' ? 'active' : ''}`}
+                        >
+                          <MapPin size={16} /> Boleto Bancário
                         </button>
                       </div>
                     </div>
+
+                    {/* Conditional CC inputs */}
+                    {renderCardFields()}
 
                     <button type="submit" disabled={loading} className="mkt2-submit-btn">
                       {loading ? 'Cadastrando e Gerando Cobrança...' : 'CRIAR CONTA & PAGAR ->'}
@@ -779,10 +1014,20 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({
                           onClick={() => setSelectedBilling('CREDIT_CARD')}
                           className={`mkt2-payment-select-btn ${selectedBilling === 'CREDIT_CARD' ? 'active' : ''}`}
                         >
-                          <CreditCard size={16} /> Cartão de Crédito / Boleto (Asaas)
+                          <CreditCard size={16} /> Cartão de Crédito
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setSelectedBilling('BOLETO')}
+                          className={`mkt2-payment-select-btn ${selectedBilling === 'BOLETO' ? 'active' : ''}`}
+                        >
+                          <MapPin size={16} /> Boleto Bancário
                         </button>
                       </div>
                     </div>
+
+                    {/* Conditional CC inputs */}
+                    {renderCardFields()}
 
                     <button type="submit" disabled={loading} className="mkt2-submit-btn">
                       {loading ? 'Acessando e Gerando Cobrança...' : 'ENTRAR & CONFIRMAR PAGAMENTO ->'}
@@ -792,53 +1037,118 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({
               </div>
             )}
 
-            {checkoutStep === 'payment' && paymentDetails?.pixQrCodeBase64 && (
-              /* PIX PAYMENT PANEL */
+            {checkoutStep === 'payment' && (
+              /* TRANSPARENT PAYMENT RESULTS STEP */
               <div className="mkt2-checkout-panel animate-slide-up text-center">
-                <span className="mkt2-form-label-code">// Pagamento Pendente</span>
-                <h2 className="mkt2-payment-title">Escaneie o QR Code do Pix</h2>
-                <p className="mkt2-payment-subtitle">
-                  Para finalizar a sua vaga, realize o Pix de <strong>R$ {ticketPrice.toFixed(2).replace('.', ',')}</strong>. A vaga é confirmada na hora!
-                </p>
+                {paymentDetails?.pixQrCodeBase64 ? (
+                  /* PIX PAYMENT SECTION */
+                  <>
+                    <span className="mkt2-form-label-code">// Pagamento Pendente</span>
+                    <h2 className="mkt2-payment-title">Escaneie o QR Code do Pix</h2>
+                    <p className="mkt2-payment-subtitle">
+                      Para finalizar a sua vaga, realize o Pix de <strong>R$ {ticketPrice.toFixed(2).replace('.', ',')}</strong>. A vaga é confirmada na hora!
+                    </p>
 
-                {/* QR CODE DISPLAY */}
-                <div className="mkt2-qr-container">
-                  <img 
-                    src={`data:image/png;base64,${paymentDetails.pixQrCodeBase64}`} 
-                    alt="Pix QR Code" 
-                    className="mkt2-qr-image"
-                  />
-                  <div className="mkt2-qr-glow"></div>
-                </div>
+                    {/* QR CODE DISPLAY */}
+                    <div className="mkt2-qr-container">
+                      <img 
+                        src={`data:image/png;base64,${paymentDetails.pixQrCodeBase64}`} 
+                        alt="Pix QR Code" 
+                        className="mkt2-qr-image"
+                      />
+                      <div className="mkt2-qr-glow"></div>
+                    </div>
 
-                {/* COPIA E COLA CHAVE */}
-                <div className="mkt2-copia-cola-group">
-                  <label>PIX COPIA E COLA</label>
-                  <div className="mkt2-copy-box">
-                    <input 
-                      type="text" 
-                      readOnly 
-                      value={paymentDetails.pixCopyPaste} 
-                      className="mkt2-copy-input"
-                    />
-                    <button onClick={handleCopyPix} className="mkt2-copy-btn">
-                      {copied ? <Check size={16} style={{ color: '#00F2FE' }} /> : <Copy size={16} />}
-                    </button>
-                  </div>
-                </div>
+                    {/* COPIA E COLA CHAVE */}
+                    <div className="mkt2-copia-cola-group">
+                      <label>PIX COPIA E COLA</label>
+                      <div className="mkt2-copy-box">
+                        <input 
+                          type="text" 
+                          readOnly 
+                          value={paymentDetails.pixCopyPaste} 
+                          className="mkt2-copy-input"
+                        />
+                        <button onClick={handleCopyPix} className="mkt2-copy-btn">
+                          {copied ? <Check size={16} style={{ color: '#00F2FE' }} /> : <Copy size={16} />}
+                        </button>
+                      </div>
+                    </div>
 
-                {/* REALTIME LOADING STATUS */}
-                <div className="mkt2-payment-status-loader">
-                  <div className="mkt2-loader-spinner"></div>
-                  <span>Aguardando a confirmação do Pix em tempo real...</span>
-                </div>
+                    {/* REALTIME LOADING STATUS */}
+                    <div className="mkt2-payment-status-loader">
+                      <div className="mkt2-loader-spinner"></div>
+                      <span>Aguardando a confirmação do Pix em tempo real...</span>
+                    </div>
 
-                <div className="mkt2-payment-alternatives">
-                  <p className="mkt2-calc-footer">O Pix expira em 3 dias. Se preferir, pague por outros métodos no painel do Asaas:</p>
-                  <a href={paymentDetails.invoiceUrl} target="_blank" rel="noopener noreferrer" className="mkt2-btn-secondary" style={{ width: '100%', justifyContent: 'center' }}>
-                    Ir para página de cobrança Asaas
-                  </a>
-                </div>
+                    <div className="mkt2-payment-alternatives">
+                      <p className="mkt2-calc-footer">O Pix expira em 3 dias. Se preferir, veja no painel do Asaas:</p>
+                      <a href={paymentDetails.invoiceUrl} target="_blank" rel="noopener noreferrer" className="mkt2-btn-secondary" style={{ width: '100%', justifyContent: 'center' }}>
+                        Ir para página de cobrança Asaas
+                      </a>
+                    </div>
+                  </>
+                ) : paymentDetails?.identificationField ? (
+                  /* BOLETO PAYMENT SECTION */
+                  <>
+                    <span className="mkt2-form-label-code" style={{ color: '#E2A110' }}>// Boleto Gerado com Sucesso</span>
+                    <h2 className="mkt2-payment-title">Copie o Código de Barras</h2>
+                    <p className="mkt2-payment-subtitle">
+                      Pague o Boleto de <strong>R$ {ticketPrice.toFixed(2).replace('.', ',')}</strong> no aplicativo do seu banco para confirmar a vaga.
+                    </p>
+
+                    {/* COPIA E COLA BOLETO */}
+                    <div className="mkt2-copia-cola-group" style={{ margin: '30px 0' }}>
+                      <label>LINHA DIGITÁVEL DO BOLETO</label>
+                      <div className="mkt2-copy-box">
+                        <input 
+                          type="text" 
+                          readOnly 
+                          value={paymentDetails.identificationField} 
+                          className="mkt2-copy-input"
+                        />
+                        <button 
+                          onClick={() => {
+                            navigator.clipboard.writeText(paymentDetails.identificationField || '');
+                            setCopied(true);
+                            setTimeout(() => setCopied(false), 2000);
+                          }} 
+                          className="mkt2-copy-btn"
+                        >
+                          {copied ? <Check size={16} style={{ color: '#E2A110' }} /> : <Copy size={16} />}
+                        </button>
+                      </div>
+                    </div>
+
+                    <div className="mkt2-payment-alternatives" style={{ marginTop: '20px' }}>
+                      <a 
+                        href={paymentDetails.bankSlipUrl} 
+                        target="_blank" 
+                        rel="noopener noreferrer" 
+                        className="mkt2-submit-btn" 
+                        style={{ width: '100%', justifyContent: 'center', background: 'linear-gradient(90deg, #E2A110 0%, #F5B041 100%)', boxShadow: '0 0 15px rgba(226, 161, 16, 0.4)' }}
+                      >
+                        Baixar Boleto em PDF
+                      </a>
+                      
+                      <p className="mkt2-calc-footer" style={{ marginTop: '20px' }}>
+                        * Boletos podem levar até 1 dia útil para compensar no banco de dados. Sua inscrição será confirmada assim que a compensação ocorrer.
+                      </p>
+                    </div>
+                  </>
+                ) : (
+                  /* FALLBACK REDIRECT LINK IF NEITHER WORKS */
+                  <>
+                    <span className="mkt2-form-label-code">// Cobrança Gerada</span>
+                    <h2 className="mkt2-payment-title">Prossiga para o Pagamento</h2>
+                    <p className="mkt2-payment-subtitle">
+                      Clique no botão abaixo para acessar o gateway seguro e finalizar o seu pagamento.
+                    </p>
+                    <a href={paymentDetails?.invoiceUrl} target="_blank" rel="noopener noreferrer" className="mkt2-submit-btn" style={{ width: '100%', justifyContent: 'center' }}>
+                      {"PAGAR NO ASAAS ->"}
+                    </a>
+                  </>
+                )}
               </div>
             )}
 
@@ -891,7 +1201,7 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({
                 <span className="mkt2-lot-price">{ticketPrice.toFixed(2).split('.')[0]}</span>
                 <span className="mkt2-lot-cents">,{ticketPrice.toFixed(2).split('.')[1]}</span>
               </div>
-              <p className="mkt2-lot-price-sub">à vista no Pix ou Boleto; parcelado no cartão de crédito em até 12x</p>
+              <p className="mkt2-lot-price-sub">à vista no Pix ou Boleto; parcelado no cartão de crédito em até 3x sem juros</p>
               
               <div className="mkt2-lot-timeline">
                 <div className="mkt2-lot-item active">

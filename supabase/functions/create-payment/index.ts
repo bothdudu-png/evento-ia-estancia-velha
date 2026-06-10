@@ -13,7 +13,7 @@ serve(async (req) => {
   }
 
   try {
-    const { name, email, cpf, phone, city, uf, howHeard, billingType, value } = await req.json()
+    const { name, email, cpf, phone, city, uf, howHeard, billingType, value, card } = await req.json()
 
     // 1. Initialize Supabase Client with Service Role Key (to bypass RLS for secure insertion)
     const supabaseUrl = Deno.env.get('SUPABASE_URL') ?? ''
@@ -80,29 +80,62 @@ serve(async (req) => {
     dueDate.setDate(dueDate.getDate() + 3)
     const formattedDueDate = dueDate.toISOString().split('T')[0]
 
+    const bodyPayload: any = {
+      customer: customerId,
+      billingType: billingType === 'PIX' ? 'PIX' : (billingType === 'BOLETO' ? 'BOLETO' : 'CREDIT_CARD'),
+      dueDate: formattedDueDate,
+      description: `AI Experience Estância Velha - Ingresso`,
+      externalReference: participantId
+    }
+
+    // Standard Transparent Credit Card processing if card info is passed
+    if (billingType === 'CREDIT_CARD' && card) {
+      const remoteIp = req.headers.get('x-forwarded-for')?.split(',')[0].trim() || req.headers.get('x-real-ip') || '127.0.0.1'
+      const installments = Number(card.installments || 1)
+      
+      if (installments > 1) {
+        bodyPayload.totalValue = Number(value)
+        bodyPayload.installmentCount = installments
+      } else {
+        bodyPayload.value = Number(value)
+      }
+      
+      bodyPayload.creditCard = {
+        holderName: card.holderName,
+        number: card.number.replace(/\s/g, ''),
+        expiryMonth: card.expiryMonth,
+        expiryYear: card.expiryYear,
+        ccv: card.cvv
+      }
+      bodyPayload.creditCardHolderInfo = {
+        name: name,
+        email: email,
+        cpfCnpj: cpf.replace(/\D/g, ''),
+        postalCode: card.cep.replace(/\D/g, ''),
+        addressNumber: card.addressNumber,
+        phone: phone.replace(/\D/g, '')
+      }
+      bodyPayload.remoteIp = remoteIp
+    } else {
+      bodyPayload.value = Number(value)
+    }
+
     let paymentResponse = await fetch(`${asaasUrl}/payments`, {
       method: 'POST',
       headers: {
         'access_token': asaasToken,
         'Content-Type': 'application/json'
       },
-      body: JSON.stringify({
-        customer: customerId,
-        billingType: billingType === 'PIX' ? 'PIX' : (billingType === 'BOLETO' ? 'BOLETO' : 'CREDIT_CARD'),
-        value: Number(value),
-        dueDate: formattedDueDate,
-        description: `AI Experience Estância Velha - Ingresso`,
-        externalReference: participantId
-      })
+      body: JSON.stringify(bodyPayload)
     })
 
     let paymentData = await paymentResponse.json()
 
-    // Fallback: If PIX is requested but not allowed by the Asaas account settings, fall back to CREDIT_CARD
+    // Fallback: If PIX is requested but not allowed by the Asaas account settings, fall back to CREDIT_CARD (Redirect mode)
     if (billingType === 'PIX' && (!paymentResponse.ok || paymentData.errors)) {
       const errDescription = paymentData.errors?.[0]?.description || ''
       if (errDescription.includes('não permite pagamentos via Pix') || errDescription.includes('Pix') || errDescription.includes('PIX')) {
-        console.warn('PIX billing type not allowed on Asaas account. Falling back to CREDIT_CARD.');
+        console.warn('PIX billing type not allowed on Asaas account. Falling back to CREDIT_CARD redirect.');
         
         paymentResponse = await fetch(`${asaasUrl}/payments`, {
           method: 'POST',
@@ -131,6 +164,18 @@ serve(async (req) => {
     const paymentId = paymentData.id
     const invoiceUrl = paymentData.invoiceUrl
     const actualBillingType = paymentData.billingType || billingType
+
+    // Update DB status immediately to 'Pago' if transparent credit card checkout was approved/confirmed
+    if (billingType === 'CREDIT_CARD' && card && (paymentData.status === 'CONFIRMED' || paymentData.status === 'RECEIVED')) {
+      const { error: updateError } = await supabase
+        .from('participants')
+        .update({ status: 'Pago' })
+        .eq('id', participantId)
+
+      if (updateError) {
+        console.error(`Error updating participant status to Pago: ${updateError.message}`)
+      }
+    }
 
     // C. If PIX, retrieve QR Code image and payload
     if (actualBillingType === 'PIX') {
@@ -161,7 +206,37 @@ serve(async (req) => {
       )
     }
 
-    // D. If Credit Card or Boleto, return redirect payment link
+    // D. If transparent BOLETO, return the barcode and digital line data
+    if (actualBillingType === 'BOLETO') {
+      const boletoResponse = await fetch(`${asaasUrl}/payments/${paymentId}/identificationField`, {
+        method: 'GET',
+        headers: {
+          'access_token': asaasToken
+        }
+      })
+
+      const boletoData = await boletoResponse.json()
+      if (!boletoResponse.ok || boletoData.errors) {
+        const err = boletoData.errors?.[0]?.description || 'Failed to generate Boleto details'
+        throw new Error(err)
+      }
+
+      return new Response(
+        JSON.stringify({
+          success: true,
+          billingType: 'BOLETO',
+          participantId,
+          paymentId,
+          invoiceUrl,
+          identificationField: boletoData.identificationField,
+          barCode: boletoData.barCode,
+          bankSlipUrl: paymentData.bankSlipUrl
+        }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      )
+    }
+
+    // E. Otherwise (Credit Card redirect/transparent or standard Boleto redirect), return standard link
     return new Response(
       JSON.stringify({
         success: true,

@@ -761,3 +761,49 @@ select.mkt2-checkout-input {
     padding: 24px 16px;
   }
 }
+
+/* Transparent Card Fields section styling */
+.mkt2-card-transparent-fields {
+  margin-top: 15px;
+  background: rgba(6, 9, 30, 0.4);
+  border: 1px dashed rgba(0, 242, 254, 0.2);
+  padding: 20px;
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  box-shadow: inset 0 0 15px rgba(0, 242, 254, 0.02);
+  text-align: left;
+}
+
+.mkt2-card-transparent-fields .mkt2-form-row {
+  margin-bottom: 0;
+}
+
+.mkt2-card-transparent-fields .mkt2-checkout-input {
+  background: rgba(12, 15, 36, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.mkt2-card-transparent-fields .mkt2-checkout-input:focus {
+  border-color: #00F2FE;
+  box-shadow: 0 0 10px rgba(0, 242, 254, 0.2);
+}
+
+/* Animations */
+.animate-fade-in {
+  animation: fade-in 0.35s ease-out forwards;
+}
+
+@keyframes fade-in {
+  0% { opacity: 0; transform: translateY(5px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+/* Responsive custom adjust */
+@media (max-width: 580px) {
+  .mkt2-card-transparent-fields {
+    padding: 16px 12px;
+  }
+}
+
