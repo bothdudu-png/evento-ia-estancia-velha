@@ -339,8 +339,8 @@ select.mkt2-checkout-input {
 }
 
 .mkt2-submit-btn {
-  background: #00F2FE;
-  color: #06091e;
+  background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
+  color: #fff;
   border: none;
   border-radius: 8px;
   padding: 14px 20px;
@@ -352,13 +352,15 @@ select.mkt2-checkout-input {
   justify-content: center;
   gap: 10px;
   margin-top: 10px;
-  box-shadow: 0 4px 15px rgba(0, 242, 254, 0.25);
+  box-shadow: 0 4px 15px rgba(2, 132, 199, 0.3);
   transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  letter-spacing: 0.01em;
 }
 
 .mkt2-submit-btn:hover {
+  background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%);
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(0, 242, 254, 0.35);
+  box-shadow: 0 6px 22px rgba(14, 165, 233, 0.38);
 }
 
 .mkt2-submit-btn:disabled {
@@ -367,6 +369,103 @@ select.mkt2-checkout-input {
   cursor: not-allowed;
   transform: none;
   box-shadow: none;
+}
+
+/* Select wrapper with custom chevron icon */
+.mkt2-select-wrapper {
+  position: relative;
+  width: 100%;
+}
+
+.mkt2-select-wrapper select.mkt2-checkout-input {
+  width: 100%;
+  padding-right: 40px;
+  appearance: none;
+  -webkit-appearance: none;
+  background-image: none;
+}
+
+.mkt2-select-chevron {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+  color: rgba(255, 255, 255, 0.45);
+  transition: color 0.2s ease;
+}
+
+.mkt2-select-wrapper:hover .mkt2-select-chevron {
+  color: rgba(255, 255, 255, 0.75);
+}
+
+/* Logout button in payment-select header */
+.mkt2-logout-btn-header {
+  background: none;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: rgba(255, 255, 255, 0.5);
+  border-radius: 6px;
+  padding: 7px 12px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.mkt2-logout-btn-header:hover {
+  color: #F87171;
+  border-color: rgba(248, 113, 113, 0.3);
+  background: rgba(248, 113, 113, 0.05);
+}
+
+/* Admin test toggle card */
+.mkt2-admin-test-toggle-card {
+  background: rgba(234, 179, 8, 0.05);
+  border: 1px solid rgba(234, 179, 8, 0.25);
+  border-radius: 10px;
+  padding: 14px 16px;
+  margin-bottom: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.mkt2-admin-badge-wrap {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.65rem;
+  font-weight: 800;
+  color: #EAB308;
+  letter-spacing: 0.08em;
+}
+
+.mkt2-admin-icon-spin {
+  animation: spin 3s linear infinite;
+}
+
+.mkt2-admin-checkbox-label {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  font-size: 0.82rem;
+  color: rgba(255, 255, 255, 0.75);
+  cursor: pointer;
+  line-height: 1.4;
+}
+
+.mkt2-admin-checkbox {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+  margin-top: 1px;
+  accent-color: #EAB308;
+  cursor: pointer;
 }
 
 /* Right column lot summary card */

@@ -8,8 +8,12 @@ import {
   MapPin, 
   Calendar,
   ChevronLeft,
-  AlertCircle
+  AlertCircle,
+  ChevronDown,
+  Settings,
+  LogOut
 } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 import './CheckoutPage.css';
 
 interface CheckoutPageProps {
@@ -22,7 +26,7 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({
   ticketPrice = 350
 }) => {
   const [activeTab, setActiveTab] = useState<'register' | 'login'>('register');
-  const [checkoutStep, setCheckoutStep] = useState<'form' | 'payment' | 'success'>('form');
+  const [checkoutStep, setCheckoutStep] = useState<'form' | 'payment-select' | 'payment' | 'success'>('form');
   const [selectedBilling, setSelectedBilling] = useState<'PIX' | 'CREDIT_CARD' | 'BOLETO'>('PIX');
   
   // --- Form States (Register) ---
@@ -46,9 +50,10 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({
   const [cardHolder, setCardHolder] = useState('');
   const [cardExpiry, setCardExpiry] = useState('');
   const [cardCvv, setCardCvv] = useState('');
-  const [cardCep, setCardCep] = useState('');
-  const [cardAddressNumber, setCardAddressNumber] = useState('');
   const [cardInstallments, setCardInstallments] = useState('1');
+
+  // --- Admin Test Mode ---
+  const [adminTestMode, setAdminTestMode] = useState(false);
 
   // --- UX States ---
   const [loading, setLoading] = useState(false);
@@ -65,6 +70,49 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({
     barCode?: string;
     bankSlipUrl?: string;
   } | null>(null);
+
+  // --- Admin User Detection ---
+  const isAdmin = useMemo(() => {
+    const checkEmail = (email || loginEmail || '').toLowerCase().trim();
+    return checkEmail === 'eduardo@esquadriasmoradadosol.com.br';
+  }, [email, loginEmail]);
+
+  // --- Dynamic price (reflects Admin Test Mode) ---
+  const displayPrice = useMemo(() => {
+    if (adminTestMode && isAdmin) {
+      return selectedBilling === 'CREDIT_CARD' ? 5.00 : 0.03;
+    }
+    return ticketPrice;
+  }, [adminTestMode, isAdmin, selectedBilling, ticketPrice]);
+
+  // --- Check existing user session on mount ---
+  useEffect(() => {
+    const checkUserSession = async () => {
+      if (!supabase) return;
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session?.user) {
+        const user = session.user;
+        const meta = user.user_metadata || {};
+        
+        // Prefill state from active session
+        setName(meta.name || '');
+        setEmail(user.email || '');
+        setLoginEmail(user.email || '');
+        setCpf(meta.cpf && meta.cpf !== '00000000000' ? meta.cpf : '');
+        setPhone(meta.phone && meta.phone !== '00000000000' ? meta.phone : '');
+        setCity(meta.city || '');
+        setUf(meta.uf || '');
+        setHowHeard(meta.howHeard || '');
+
+        if (meta.cpf && meta.cpf !== '00000000000' && meta.phone && meta.phone !== '00000000000') {
+          setCheckoutStep('payment-select');
+        } else {
+          setNeedProfileDetails(true);
+        }
+      }
+    };
+    checkUserSession();
+  }, []);
 
   // --- Masking formatting ---
   const handleCpfChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -104,16 +152,6 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({
   const handleCardCvvChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const rawVal = e.target.value;
     setCardCvv(rawVal.replace(/\D/g, '').slice(0, 4));
-  };
-
-  const handleCardCepChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const rawVal = e.target.value;
-    const clean = rawVal.replace(/\D/g, '').slice(0, 8);
-    if (clean.length <= 5) {
-      setCardCep(clean);
-    } else {
-      setCardCep(`${clean.slice(0, 5)}-${clean.slice(5)}`);
-    }
   };
 
   // --- Password Rules Validation ---
@@ -199,9 +237,10 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({
     if (!expMonth || !expYear || expMonth.length !== 2 || expYear.length !== 2) throw new Error('Validade do cartão inválida.');
     const cleanCvv = cardCvv.trim();
     if (cleanCvv.length < 3 || cleanCvv.length > 4) throw new Error('Código de segurança (CVV) inválido.');
-    const cleanCep = cardCep.replace(/\D/g, '');
-    if (cleanCep.length !== 8) throw new Error('CEP de cobrança inválido.');
-    if (!cardAddressNumber.trim()) throw new Error('Número de residência é obrigatório.');
+
+    // Removed CEP and Address Number from the form, using defaults for billing info:
+    const cleanCep = '93600000';
+    const cleanAddressNumber = '100';
 
     return {
       number: cleanNum,
@@ -210,9 +249,52 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({
       expiryYear: '20' + expYear, // Asaas expects 4 digit year
       cvv: cleanCvv,
       cep: cleanCep,
-      addressNumber: cardAddressNumber,
+      addressNumber: cleanAddressNumber,
       installments: Number(cardInstallments)
     };
+  };
+
+  const handlePaymentSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setErrorMsg('');
+    setLoading(true);
+
+    try {
+      const card = getCardPayload();
+      
+      const payload = {
+        billingType: selectedBilling,
+        card,
+        adminTestMode: adminTestMode && isAdmin
+      };
+
+      const result = await invokeCreatePayment(payload);
+
+      if (result.success) {
+        if (selectedBilling === 'CREDIT_CARD') {
+          // Credit card confirms instantly or goes to success directly if approved
+          setCheckoutStep('success');
+        } else {
+          setPaymentDetails({
+            participantId: result.participantId,
+            paymentId: result.paymentId,
+            pixQrCodeBase64: result.pixQrCodeBase64,
+            pixCopyPaste: result.pixCopyPaste,
+            invoiceUrl: result.invoiceUrl,
+            identificationField: result.identificationField,
+            barCode: result.barCode,
+            bankSlipUrl: result.bankSlipUrl
+          });
+          setCheckoutStep('payment');
+        }
+      } else {
+        throw new Error('Falha ao processar pagamento.');
+      }
+    } catch (err: any) {
+      setErrorMsg(err.message || 'Erro ao processar o pagamento. Verifique os dados fornecidos.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleRegisterSubmit = async (e: React.FormEvent) => {
@@ -242,15 +324,6 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({
     setLoading(true);
 
     try {
-      let cardPayload;
-      try {
-        cardPayload = getCardPayload();
-      } catch (err: any) {
-        setErrorMsg(err.message);
-        setLoading(false);
-        return;
-      }
-
       // 1. Sign Up in Supabase Auth
       const { error: authError } = await supabase.auth.signUp({
         email,
@@ -270,36 +343,8 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({
 
       if (authError) throw authError;
 
-      // 2. Call secure Edge Function to process participant database insertion and Asaas charge creation
-      const data = await invokeCreatePayment({
-        name,
-        email,
-        cpf: cpf.replace(/\D/g, ''),
-        phone: phone.replace(/\D/g, ''),
-        city,
-        uf,
-        howHeard,
-        billingType: selectedBilling,
-        value: ticketPrice,
-        card: cardPayload
-      });
-
-      setPaymentDetails({
-        participantId: data.participantId,
-        paymentId: data.paymentId,
-        pixQrCodeBase64: data.pixQrCodeBase64,
-        pixCopyPaste: data.pixCopyPaste,
-        invoiceUrl: data.invoiceUrl,
-        identificationField: data.identificationField,
-        barCode: data.barCode,
-        bankSlipUrl: data.bankSlipUrl
-      });
-
-      if (data.billingType === 'CREDIT_CARD') {
-        setCheckoutStep('success');
-      } else {
-        setCheckoutStep('payment');
-      }
+      // Success, move to payment select
+      setCheckoutStep('payment-select');
 
     } catch (err: any) {
       setErrorMsg(err.message || 'Ocorreu um erro ao criar sua conta.');
@@ -327,61 +372,24 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({
 
       if (authError) throw authError;
 
-      // Fetch user profile info to call checkout payment function
+      // Fetch user profile info
       const user = authData.user;
       const meta = user?.user_metadata || {};
 
-      // If user lacks CPF or Phone, we need to gather profile details before calling the payment function
+      // Prefill fields
+      setName(meta.name || user?.email?.split('@')[0] || '');
+      setEmail(user?.email || '');
+      setCpf(meta.cpf && meta.cpf !== '00000000000' ? meta.cpf : '');
+      setPhone(meta.phone && meta.phone !== '00000000000' ? meta.phone : '');
+      setCity(meta.city || '');
+      setUf(meta.uf || '');
+      setHowHeard(meta.howHeard || '');
+
+      // If user lacks CPF or Phone, we need to gather profile details before billing
       if (!meta.cpf || meta.cpf === '00000000000' || !meta.phone || meta.phone === '00000000000') {
-        // Prefill any existing fields they do have
-        setName(meta.name || user?.email?.split('@')[0] || '');
-        setCpf(meta.cpf && meta.cpf !== '00000000000' ? meta.cpf : '');
-        setPhone(meta.phone && meta.phone !== '00000000000' ? meta.phone : '');
-        setCity(meta.city || '');
-        setUf(meta.uf || '');
-        setHowHeard(meta.howHeard || '');
         setNeedProfileDetails(true);
-        setLoading(false);
-        return;
-      }
-
-      let cardPayload;
-      try {
-        cardPayload = getCardPayload();
-      } catch (err: any) {
-        setErrorMsg(err.message);
-        setLoading(false);
-        return;
-      }
-      
-      const data = await invokeCreatePayment({
-        name: meta.name || user?.email?.split('@')[0] || 'Participante',
-        email: user?.email || '',
-        cpf: meta.cpf,
-        phone: meta.phone,
-        city: meta.city || 'Estância Velha',
-        uf: meta.uf || 'RS',
-        howHeard: meta.howHeard || 'Outros',
-        billingType: selectedBilling,
-        value: ticketPrice,
-        card: cardPayload
-      });
-
-      setPaymentDetails({
-        participantId: data.participantId,
-        paymentId: data.paymentId,
-        pixQrCodeBase64: data.pixQrCodeBase64,
-        pixCopyPaste: data.pixCopyPaste,
-        invoiceUrl: data.invoiceUrl,
-        identificationField: data.identificationField,
-        barCode: data.barCode,
-        bankSlipUrl: data.bankSlipUrl
-      });
-
-      if (data.billingType === 'CREDIT_CARD') {
-        setCheckoutStep('success');
       } else {
-        setCheckoutStep('payment');
+        setCheckoutStep('payment-select');
       }
 
     } catch (err: any) {
@@ -409,15 +417,6 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({
     setLoading(true);
 
     try {
-      let cardPayload;
-      try {
-        cardPayload = getCardPayload();
-      } catch (err: any) {
-        setErrorMsg(err.message);
-        setLoading(false);
-        return;
-      }
-
       // 1. Update user metadata in Supabase Auth
       const { data: { user }, error: authError } = await supabase.auth.updateUser({
         data: {
@@ -432,39 +431,12 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({
 
       if (authError) throw authError;
 
-      // 2. Call the payment endpoint with the updated details
-      const data = await invokeCreatePayment({
-        name,
-        email: user?.email || '',
-        cpf: cleanCpf,
-        phone: phone.replace(/\D/g, ''),
-        city,
-        uf,
-        howHeard,
-        billingType: selectedBilling,
-        value: ticketPrice,
-        card: cardPayload
-      });
-
-      setPaymentDetails({
-        participantId: data.participantId,
-        paymentId: data.paymentId,
-        pixQrCodeBase64: data.pixQrCodeBase64,
-        pixCopyPaste: data.pixCopyPaste,
-        invoiceUrl: data.invoiceUrl,
-        identificationField: data.identificationField,
-        barCode: data.barCode,
-        bankSlipUrl: data.bankSlipUrl
-      });
-
-      if (data.billingType === 'CREDIT_CARD') {
-        setCheckoutStep('success');
-      } else {
-        setCheckoutStep('payment');
-      }
+      setEmail(user?.email || '');
+      setNeedProfileDetails(false);
+      setCheckoutStep('payment-select');
 
     } catch (err: any) {
-      setErrorMsg(err.message || 'Erro ao atualizar dados e gerar cobrança.');
+      setErrorMsg(err.message || 'Erro ao atualizar dados.');
     } finally {
       setLoading(false);
     }
@@ -532,44 +504,22 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({
           </div>
         </div>
 
-        <div className="mkt2-form-row mkt2-form-row--two">
-          <div className="mkt2-form-group" style={{ flex: '2' }}>
-            <label>CEP DE COBRANÇA *</label>
-            <input 
-              type="text" 
-              required={selectedBilling === 'CREDIT_CARD'}
-              value={cardCep}
-              onChange={handleCardCepChange}
-              placeholder="00000-000"
-              className="mkt2-checkout-input"
-            />
-          </div>
-          <div className="mkt2-form-group" style={{ flex: '1' }}>
-            <label>NÚMERO *</label>
-            <input 
-              type="text" 
-              required={selectedBilling === 'CREDIT_CARD'}
-              value={cardAddressNumber}
-              onChange={(e) => setCardAddressNumber(e.target.value)}
-              placeholder="Nº"
-              className="mkt2-checkout-input"
-            />
-          </div>
-        </div>
-
         <div className="mkt2-form-row">
           <div className="mkt2-form-group">
             <label>OPÇÃO DE PARCELAMENTO *</label>
-            <select 
-              required={selectedBilling === 'CREDIT_CARD'}
-              value={cardInstallments}
-              onChange={(e) => setCardInstallments(e.target.value)}
-              className="mkt2-checkout-input"
-            >
-              <option value="1">1x de R$ {ticketPrice.toFixed(2).replace('.', ',')} (Sem Juros)</option>
-              <option value="2">2x de R$ {(ticketPrice / 2).toFixed(2).replace('.', ',')} (Sem Juros)</option>
-              <option value="3">3x de R$ {(ticketPrice / 3).toFixed(2).replace('.', ',')} (Sem Juros)</option>
-            </select>
+            <div className="mkt2-select-wrapper">
+              <select 
+                required={selectedBilling === 'CREDIT_CARD'}
+                value={cardInstallments}
+                onChange={(e) => setCardInstallments(e.target.value)}
+                className="mkt2-checkout-input"
+              >
+                <option value="1">1x de R$ {displayPrice.toFixed(2).replace('.', ',')} (Sem Juros)</option>
+                <option value="2">2x de R$ {(displayPrice / 2).toFixed(2).replace('.', ',')} (Sem Juros)</option>
+                <option value="3">3x de R$ {(displayPrice / 3).toFixed(2).replace('.', ',')} (Sem Juros)</option>
+              </select>
+              <ChevronDown className="mkt2-select-chevron" size={16} />
+            </div>
           </div>
         </div>
       </div>
@@ -603,130 +553,421 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({
           
           {/* COLUMN LEFT: FORM AND SECTIONS */}
           <div className="mkt2-checkout-col-left">
-            {checkoutStep === 'form' && (
-              <div className="mkt2-checkout-panel animate-slide-up">
-                {!needProfileDetails && (
-                  <div className="mkt2-checkout-tabs">
-                    <button 
-                      onClick={() => { setActiveTab('register'); setErrorMsg(''); }} 
-                      className={`mkt2-checkout-tab-btn ${activeTab === 'register' ? 'active' : ''}`}
-                    >
-                      Cadastrar
-                    </button>
-                    <button 
-                      onClick={() => { setActiveTab('login'); setErrorMsg(''); }} 
-                      className={`mkt2-checkout-tab-btn ${activeTab === 'login' ? 'active' : ''}`}
-                    >
-                      Entrar
-                    </button>
+            <AnimatePresence mode="wait">
+              {checkoutStep === 'form' && (
+                <motion.div
+                  key="step-form"
+                  initial={{ opacity: 0, y: 15 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -15 }}
+                  transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
+                  className="mkt2-checkout-panel"
+                >
+                  {!needProfileDetails && (
+                    <div className="mkt2-checkout-tabs">
+                      <button 
+                        onClick={() => { setActiveTab('register'); setErrorMsg(''); }} 
+                        className={`mkt2-checkout-tab-btn ${activeTab === 'register' ? 'active' : ''}`}
+                      >
+                        Cadastrar
+                      </button>
+                      <button 
+                        onClick={() => { setActiveTab('login'); setErrorMsg(''); }} 
+                        className={`mkt2-checkout-tab-btn ${activeTab === 'login' ? 'active' : ''}`}
+                      >
+                        Entrar
+                      </button>
+                    </div>
+                  )}
+
+                  {errorMsg && (
+                    <div className="mkt2-checkout-error">
+                      <AlertCircle size={16} style={{ flexShrink: 0 }} />
+                      <span>{errorMsg}</span>
+                    </div>
+                  )}
+
+                  {needProfileDetails ? (
+                    /* COMPLETE PROFILE FORM */
+                    <form onSubmit={handleCompleteProfileAndSubmit} className="mkt2-checkout-form">
+                      <div className="mkt2-form-title-wrap">
+                        <span className="mkt2-form-label-code">[ COMPLEMENTO DE CADASTRO ]</span>
+                        <h2 className="mkt2-form-title">Complete seus dados para continuar</h2>
+                        <p className="mkt2-form-desc">Precisamos de algumas informações obrigatórias para emitir a cobrança no Asaas.</p>
+                      </div>
+
+                      <div className="mkt2-form-row">
+                        <div className="mkt2-form-group">
+                          <label>NOME COMPLETO *</label>
+                          <input 
+                            type="text" 
+                            required 
+                            value={name}
+                            onChange={(e) => setName(e.target.value)}
+                            placeholder="Nome Completo"
+                            className="mkt2-checkout-input"
+                          />
+                        </div>
+                      </div>
+
+                      <div className="mkt2-form-row mkt2-form-row--two">
+                        <div className="mkt2-form-group">
+                          <label>CPF *</label>
+                          <input 
+                            type="text" 
+                            required 
+                            value={cpf}
+                            onChange={handleCpfChange}
+                            placeholder="000.000.000-00"
+                            className="mkt2-checkout-input"
+                          />
+                        </div>
+                        <div className="mkt2-form-group">
+                          <label>WHATSAPP *</label>
+                          <input 
+                            type="text" 
+                            required 
+                            value={phone}
+                            onChange={handlePhoneChange}
+                            placeholder="(00) 00000-0000"
+                            className="mkt2-checkout-input"
+                          />
+                        </div>
+                      </div>
+
+                      <div className="mkt2-form-row mkt2-form-row--two">
+                        <div className="mkt2-form-group" style={{ flex: '2' }}>
+                          <label>CIDADE *</label>
+                          <input 
+                            type="text" 
+                            required 
+                            value={city}
+                            onChange={(e) => setCity(e.target.value)}
+                            placeholder="Cidade"
+                            className="mkt2-checkout-input"
+                          />
+                        </div>
+                        <div className="mkt2-form-group" style={{ flex: '1' }}>
+                          <label>UF *</label>
+                          <select 
+                            required 
+                            value={uf}
+                            onChange={(e) => setUf(e.target.value)}
+                            className="mkt2-checkout-input"
+                          >
+                            <option value="">--</option>
+                            {['RS', 'SC', 'PR', 'SP', 'RJ', 'MG', 'ES', 'DF', 'BA', 'PE', 'CE', 'GO', 'MS', 'MT'].map(state => (
+                              <option key={state} value={state}>{state}</option>
+                            ))}
+                          </select>
+                        </div>
+                      </div>
+
+                      <div className="mkt2-form-row">
+                        <div className="mkt2-form-group">
+                          <label>COMO CONHECEU O EVENTO? *</label>
+                          <select 
+                            required 
+                            value={howHeard}
+                            onChange={(e) => setHowHeard(e.target.value)}
+                            className="mkt2-checkout-input"
+                          >
+                            <option value="">Selecione uma opção</option>
+                            <option value="Instagram / Facebook">Instagram / Facebook</option>
+                            <option value="LinkedIn">LinkedIn</option>
+                            <option value="Indicação de Amigo">Indicação de Amigo</option>
+                            <option value="Grupo de Whatsapp">Grupo de Whatsapp</option>
+                            <option value="E-mail">E-mail</option>
+                            <option value="Outros">Outros</option>
+                          </select>
+                        </div>
+                      </div>
+
+                      <button type="submit" disabled={loading} className="mkt2-submit-btn">
+                        {loading ? 'Salvando dados...' : 'CONTINUAR PARA O PAGAMENTO ->'}
+                      </button>
+
+                      <button 
+                        type="button" 
+                        onClick={() => { setNeedProfileDetails(false); setErrorMsg(''); }} 
+                        className="mkt2-btn-secondary" 
+                        style={{ marginTop: '10px', width: '100%', justifyContent: 'center' }}
+                      >
+                        Voltar ao Login
+                      </button>
+                    </form>
+                  ) : activeTab === 'register' ? (
+                    /* REGISTER FORM */
+                    <form onSubmit={handleRegisterSubmit} className="mkt2-checkout-form">
+                      <div className="mkt2-form-title-wrap">
+                        <span className="mkt2-form-label-code">[ ACESSO ]</span>
+                        <h2 className="mkt2-form-title">Para garantir sua vaga em Estância Velha</h2>
+                        <p className="mkt2-form-desc">Crie sua conta ou acesse para prosseguir para o pagamento.</p>
+                      </div>
+
+                      <div className="mkt2-form-row">
+                        <div className="mkt2-form-group">
+                          <label>NOME COMPLETO *</label>
+                          <input 
+                            type="text" 
+                            required 
+                            value={name}
+                            onChange={(e) => setName(e.target.value)}
+                            placeholder="Nome Completo"
+                            className="mkt2-checkout-input"
+                          />
+                        </div>
+                      </div>
+
+                      <div className="mkt2-form-row mkt2-form-row--two">
+                        <div className="mkt2-form-group">
+                          <label>CPF *</label>
+                          <input 
+                            type="text" 
+                            required 
+                            value={cpf}
+                            onChange={handleCpfChange}
+                            placeholder="000.000.000-00"
+                            className="mkt2-checkout-input"
+                          />
+                        </div>
+                        <div className="mkt2-form-group">
+                          <label>WHATSAPP *</label>
+                          <input 
+                            type="text" 
+                            required 
+                            value={phone}
+                            onChange={handlePhoneChange}
+                            placeholder="(00) 00000-0000"
+                            className="mkt2-checkout-input"
+                          />
+                        </div>
+                      </div>
+
+                      <div className="mkt2-form-row mkt2-form-row--two">
+                        <div className="mkt2-form-group flex-date">
+                          <label>DATA DE NASCIMENTO *</label>
+                          <input 
+                            type="date" 
+                            required 
+                            value={birthDate}
+                            onChange={(e) => setBirthDate(e.target.value)}
+                            className="mkt2-checkout-input"
+                          />
+                        </div>
+                        <div className="mkt2-form-group flex-heard">
+                          <label>COMO CONHECEU O EVENTO? *</label>
+                          <select 
+                            required 
+                            value={howHeard}
+                            onChange={(e) => setHowHeard(e.target.value)}
+                            className="mkt2-checkout-input"
+                          >
+                            <option value="">Selecione...</option>
+                            <option value="Instagram / Facebook">Instagram / Facebook</option>
+                            <option value="LinkedIn">LinkedIn</option>
+                            <option value="Indicação de Amigo">Indicação de Amigo</option>
+                            <option value="Grupo de Whatsapp">Grupo de Whatsapp</option>
+                            <option value="E-mail">E-mail</option>
+                            <option value="Outros">Outros</option>
+                          </select>
+                        </div>
+                      </div>
+
+                      <div className="mkt2-form-row mkt2-form-row--two">
+                        <div className="mkt2-form-group" style={{ flex: '2' }}>
+                          <label>CIDADE *</label>
+                          <input 
+                            type="text" 
+                            required 
+                            value={city}
+                            onChange={(e) => setCity(e.target.value)}
+                            placeholder="Cidade"
+                            className="mkt2-checkout-input"
+                          />
+                        </div>
+                        <div className="mkt2-form-group" style={{ flex: '1' }}>
+                          <label>UF *</label>
+                          <select 
+                            required 
+                            value={uf}
+                            onChange={(e) => setUf(e.target.value)}
+                            className="mkt2-checkout-input"
+                          >
+                            <option value="">--</option>
+                            {['RS', 'SC', 'PR', 'SP', 'RJ', 'MG', 'ES', 'DF', 'BA', 'PE', 'CE', 'GO', 'MS', 'MT'].map(state => (
+                              <option key={state} value={state}>{state}</option>
+                            ))}
+                          </select>
+                        </div>
+                      </div>
+
+                      <div className="mkt2-form-row">
+                        <div className="mkt2-form-group">
+                          <label>EMAIL *</label>
+                          <input 
+                            type="email" 
+                            required 
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
+                            placeholder="exemplo@email.com"
+                            className="mkt2-checkout-input"
+                          />
+                        </div>
+                      </div>
+
+                      <div className="mkt2-form-row mkt2-form-row--two">
+                        <div className="mkt2-form-group">
+                          <label>SENHA *</label>
+                          <input 
+                            type="password" 
+                            required 
+                            value={password}
+                            onChange={(e) => setPassword(e.target.value)}
+                            placeholder="Mínimo 8 caracteres"
+                            className="mkt2-checkout-input"
+                          />
+                        </div>
+                        <div className="mkt2-form-group">
+                          <label>CONFIRMAR SENHA *</label>
+                          <input 
+                            type="password" 
+                            required 
+                            value={confirmPassword}
+                            onChange={(e) => setConfirmPassword(e.target.value)}
+                            placeholder="Repita a senha"
+                            className="mkt2-checkout-input"
+                          />
+                        </div>
+                      </div>
+
+                      {/* PASSWORD VALIDATION HINTS */}
+                      <div className="mkt2-password-hints">
+                        <div className={`mkt2-hint ${passwordRules.length ? 'valid' : ''}`}>
+                          <span className="mkt2-hint-bullet">•</span> MÍNIMO 8 CARACTERES
+                        </div>
+                        <div className={`mkt2-hint ${passwordRules.hasUpper ? 'valid' : ''}`}>
+                          <span className="mkt2-hint-bullet">•</span> 1 LETRA MAIÚSCULA
+                        </div>
+                        <div className={`mkt2-hint ${passwordRules.hasNumber ? 'valid' : ''}`}>
+                          <span className="mkt2-hint-bullet">•</span> 1 NÚMERO
+                        </div>
+                      </div>
+
+                      <button type="submit" disabled={loading} className="mkt2-submit-btn">
+                        {loading ? 'Cadastrando...' : 'CRIAR CONTA & IR PARA PAGAMENTO ->'}
+                      </button>
+                    </form>
+                  ) : (
+                    /* LOGIN FORM */
+                    <form onSubmit={handleLoginSubmit} className="mkt2-checkout-form">
+                      <div className="mkt2-form-title-wrap">
+                        <span className="mkt2-form-label-code">[ LOGIN ]</span>
+                        <h2 className="mkt2-form-title">Acesse sua conta para continuar</h2>
+                        <p className="mkt2-form-desc">Caso você já tenha se cadastrado em nosso site, insira seus dados abaixo.</p>
+                      </div>
+
+                      <div className="mkt2-form-row">
+                        <div className="mkt2-form-group">
+                          <label>EMAIL *</label>
+                          <input 
+                            type="email" 
+                            required 
+                            value={loginEmail}
+                            onChange={(e) => setLoginEmail(e.target.value)}
+                            placeholder="exemplo@email.com"
+                            className="mkt2-checkout-input"
+                          />
+                        </div>
+                      </div>
+
+                      <div className="mkt2-form-row">
+                        <div className="mkt2-form-group">
+                          <label>SENHA *</label>
+                          <input 
+                            type="password" 
+                            required 
+                            value={loginPassword}
+                            onChange={(e) => setLoginPassword(e.target.value)}
+                            placeholder="Insira sua senha"
+                            className="mkt2-checkout-input"
+                          />
+                        </div>
+                      </div>
+
+                      <button type="submit" disabled={loading} className="mkt2-submit-btn">
+                        {loading ? 'Acessando...' : 'ENTRAR & SELECIONAR PAGAMENTO ->'}
+                      </button>
+                    </form>
+                  )}
+                </motion.div>
+              )}
+
+              {checkoutStep === 'payment-select' && (
+                <motion.div
+                  key="step-payment-select"
+                  initial={{ opacity: 0, y: 15 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -15 }}
+                  transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
+                  className="mkt2-checkout-panel"
+                >
+                  <div className="mkt2-form-title-wrap" style={{ position: 'relative' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <div>
+                        <span className="mkt2-form-label-code">[ PAGAMENTO ]</span>
+                        <h2 className="mkt2-form-title">Escolha como quer pagar</h2>
+                      </div>
+                      <button 
+                        onClick={async () => {
+                          if (supabase) {
+                            await supabase.auth.signOut();
+                          }
+                          setCheckoutStep('form');
+                          setEmail('');
+                          setName('');
+                        }}
+                        className="mkt2-logout-btn-header"
+                        title="Sair da Conta"
+                      >
+                        <LogOut size={16} /> Sair
+                      </button>
+                    </div>
+                    <p className="mkt2-form-desc" style={{ marginTop: '8px' }}>
+                      Identificado como: <strong>{name || email || loginEmail}</strong>
+                    </p>
                   </div>
-                )}
 
-                {errorMsg && (
-                  <div className="mkt2-checkout-error">
-                    <AlertCircle size={16} style={{ flexShrink: 0 }} />
-                    <span>{errorMsg}</span>
-                  </div>
-                )}
-
-                {needProfileDetails ? (
-                  /* COMPLETE PROFILE FORM */
-                  <form onSubmit={handleCompleteProfileAndSubmit} className="mkt2-checkout-form">
-                    <div className="mkt2-form-title-wrap">
-                      <span className="mkt2-form-label-code">[ COMPLEMENTO DE CADASTRO ]</span>
-                      <h2 className="mkt2-form-title">Complete seus dados para continuar</h2>
-                      <p className="mkt2-form-desc">Precisamos de algumas informações obrigatórias para emitir a cobrança no Asaas.</p>
+                  {errorMsg && (
+                    <div className="mkt2-checkout-error">
+                      <AlertCircle size={16} style={{ flexShrink: 0 }} />
+                      <span>{errorMsg}</span>
                     </div>
+                  )}
 
-                    <div className="mkt2-form-row">
-                      <div className="mkt2-form-group">
-                        <label>NOME COMPLETO *</label>
+                  {/* ADMIN TEST CARD CONTROL */}
+                  {isAdmin && (
+                    <div className="mkt2-admin-test-toggle-card">
+                      <div className="mkt2-admin-badge-wrap">
+                        <Settings size={14} className="mkt2-admin-icon-spin" />
+                        <span>ADMINISTRADOR</span>
+                      </div>
+                      <label className="mkt2-admin-checkbox-label">
                         <input 
-                          type="text" 
-                          required 
-                          value={name}
-                          onChange={(e) => setName(e.target.value)}
-                          placeholder="Nome Completo"
-                          className="mkt2-checkout-input"
+                          type="checkbox" 
+                          checked={adminTestMode}
+                          onChange={(e) => setAdminTestMode(e.target.checked)}
+                          className="mkt2-admin-checkbox"
                         />
-                      </div>
+                        <span>
+                          Ativar Modo de Teste Asaas (PIX: R$ 0,03 / Cartão: R$ 5,00)
+                        </span>
+                      </label>
                     </div>
+                  )}
 
-                    <div className="mkt2-form-row mkt2-form-row--two">
-                      <div className="mkt2-form-group">
-                        <label>CPF *</label>
-                        <input 
-                          type="text" 
-                          required 
-                          value={cpf}
-                          onChange={handleCpfChange}
-                          placeholder="000.000.000-00"
-                          className="mkt2-checkout-input"
-                        />
-                      </div>
-                      <div className="mkt2-form-group">
-                        <label>WHATSAPP *</label>
-                        <input 
-                          type="text" 
-                          required 
-                          value={phone}
-                          onChange={handlePhoneChange}
-                          placeholder="(00) 00000-0000"
-                          className="mkt2-checkout-input"
-                        />
-                      </div>
-                    </div>
-
-                    <div className="mkt2-form-row mkt2-form-row--two">
-                      <div className="mkt2-form-group" style={{ flex: '2' }}>
-                        <label>CIDADE *</label>
-                        <input 
-                          type="text" 
-                          required 
-                          value={city}
-                          onChange={(e) => setCity(e.target.value)}
-                          placeholder="Cidade"
-                          className="mkt2-checkout-input"
-                        />
-                      </div>
-                      <div className="mkt2-form-group" style={{ flex: '1' }}>
-                        <label>UF *</label>
-                        <select 
-                          required 
-                          value={uf}
-                          onChange={(e) => setUf(e.target.value)}
-                          className="mkt2-checkout-input"
-                        >
-                          <option value="">--</option>
-                          {['RS', 'SC', 'PR', 'SP', 'RJ', 'MG', 'ES', 'DF', 'BA', 'PE', 'CE', 'GO', 'MS', 'MT'].map(state => (
-                            <option key={state} value={state}>{state}</option>
-                          ))}
-                        </select>
-                      </div>
-                    </div>
-
-                    <div className="mkt2-form-row">
-                      <div className="mkt2-form-group">
-                        <label>COMO CONHECEU O EVENTO? *</label>
-                        <select 
-                          required 
-                          value={howHeard}
-                          onChange={(e) => setHowHeard(e.target.value)}
-                          className="mkt2-checkout-input"
-                        >
-                          <option value="">Selecione uma opção</option>
-                          <option value="Instagram / Facebook">Instagram / Facebook</option>
-                          <option value="LinkedIn">LinkedIn</option>
-                          <option value="Indicação de Amigo">Indicação de Amigo</option>
-                          <option value="Grupo de Whatsapp">Grupo de Whatsapp</option>
-                          <option value="E-mail">E-mail</option>
-                          <option value="Outros">Outros</option>
-                        </select>
-                      </div>
-                    </div>
-
-                    {/* BILLING TYPE SELECTOR */}
-                    <div className="mkt2-form-group" style={{ marginTop: '12px' }}>
+                  <form onSubmit={handlePaymentSubmit} className="mkt2-checkout-form">
+                    <div className="mkt2-form-group">
                       <label>MÉTODO DE PAGAMENTO *</label>
                       <div className="mkt2-payment-selectors">
                         <button
@@ -757,285 +998,12 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({
                     {renderCardFields()}
 
                     <button type="submit" disabled={loading} className="mkt2-submit-btn">
-                      {loading ? 'Processando e Gerando Cobrança...' : 'CONFIRMAR DADOS & PAGAR ->'}
-                    </button>
-
-                    <button 
-                      type="button" 
-                      onClick={() => { setNeedProfileDetails(false); setErrorMsg(''); }} 
-                      className="mkt2-btn-secondary" 
-                      style={{ marginTop: '10px', width: '100%', justifyContent: 'center' }}
-                    >
-                      Voltar ao Login
+                      {loading ? 'Processando transação...' : `FINALIZAR PAGAMENTO DE R$ ${displayPrice.toFixed(2).replace('.', ',')} ->`}
                     </button>
                   </form>
-                ) : activeTab === 'register' ? (
-                  /* REGISTER FORM */
-                  <form onSubmit={handleRegisterSubmit} className="mkt2-checkout-form">
-                    <div className="mkt2-form-title-wrap">
-                      <span className="mkt2-form-label-code">[ ACESSO ]</span>
-                      <h2 className="mkt2-form-title">Para garantir sua vaga em Estância Velha</h2>
-                      <p className="mkt2-form-desc">Crie sua conta ou acesse para prosseguir para o pagamento.</p>
-                    </div>
-
-                    <div className="mkt2-form-row">
-                      <div className="mkt2-form-group">
-                        <label>NOME COMPLETO *</label>
-                        <input 
-                          type="text" 
-                          required 
-                          value={name}
-                          onChange={(e) => setName(e.target.value)}
-                          placeholder="Nome Completo"
-                          className="mkt2-checkout-input"
-                        />
-                      </div>
-                    </div>
-
-                    <div className="mkt2-form-row mkt2-form-row--two">
-                      <div className="mkt2-form-group">
-                        <label>CPF *</label>
-                        <input 
-                          type="text" 
-                          required 
-                          value={cpf}
-                          onChange={handleCpfChange}
-                          placeholder="000.000.000-00"
-                          className="mkt2-checkout-input"
-                        />
-                      </div>
-                      <div className="mkt2-form-group">
-                        <label>WHATSAPP *</label>
-                        <input 
-                          type="text" 
-                          required 
-                          value={phone}
-                          onChange={handlePhoneChange}
-                          placeholder="(00) 00000-0000"
-                          className="mkt2-checkout-input"
-                        />
-                      </div>
-                    </div>
-
-                    <div className="mkt2-form-row mkt2-form-row--two">
-                      <div className="mkt2-form-group flex-date">
-                        <label>DATA DE NASCIMENTO *</label>
-                        <input 
-                          type="date" 
-                          required 
-                          value={birthDate}
-                          onChange={(e) => setBirthDate(e.target.value)}
-                          className="mkt2-checkout-input"
-                        />
-                      </div>
-                      <div className="mkt2-form-group flex-heard">
-                        <label>COMO CONHECEU O EVENTO? *</label>
-                        <select 
-                          required 
-                          value={howHeard}
-                          onChange={(e) => setHowHeard(e.target.value)}
-                          className="mkt2-checkout-input"
-                        >
-                          <option value="">Selecione...</option>
-                          <option value="Instagram / Facebook">Instagram / Facebook</option>
-                          <option value="LinkedIn">LinkedIn</option>
-                          <option value="Indicação de Amigo">Indicação de Amigo</option>
-                          <option value="Grupo de Whatsapp">Grupo de Whatsapp</option>
-                          <option value="E-mail">E-mail</option>
-                          <option value="Outros">Outros</option>
-                        </select>
-                      </div>
-                    </div>
-
-                    <div className="mkt2-form-row mkt2-form-row--two">
-                      <div className="mkt2-form-group" style={{ flex: '2' }}>
-                        <label>CIDADE *</label>
-                        <input 
-                          type="text" 
-                          required 
-                          value={city}
-                          onChange={(e) => setCity(e.target.value)}
-                          placeholder="Cidade"
-                          className="mkt2-checkout-input"
-                        />
-                      </div>
-                      <div className="mkt2-form-group" style={{ flex: '1' }}>
-                        <label>UF *</label>
-                        <select 
-                          required 
-                          value={uf}
-                          onChange={(e) => setUf(e.target.value)}
-                          className="mkt2-checkout-input"
-                        >
-                          <option value="">--</option>
-                          {['RS', 'SC', 'PR', 'SP', 'RJ', 'MG', 'ES', 'DF', 'BA', 'PE', 'CE', 'GO', 'MS', 'MT'].map(state => (
-                            <option key={state} value={state}>{state}</option>
-                          ))}
-                        </select>
-                      </div>
-                    </div>
-
-                    <div className="mkt2-form-row">
-                      <div className="mkt2-form-group">
-                        <label>EMAIL *</label>
-                        <input 
-                          type="email" 
-                          required 
-                          value={email}
-                          onChange={(e) => setEmail(e.target.value)}
-                          placeholder="exemplo@email.com"
-                          className="mkt2-checkout-input"
-                        />
-                      </div>
-                    </div>
-
-                    <div className="mkt2-form-row mkt2-form-row--two">
-                      <div className="mkt2-form-group">
-                        <label>SENHA *</label>
-                        <input 
-                          type="password" 
-                          required 
-                          value={password}
-                          onChange={(e) => setPassword(e.target.value)}
-                          placeholder="Mínimo 8 caracteres"
-                          className="mkt2-checkout-input"
-                        />
-                      </div>
-                      <div className="mkt2-form-group">
-                        <label>CONFIRMAR SENHA *</label>
-                        <input 
-                          type="password" 
-                          required 
-                          value={confirmPassword}
-                          onChange={(e) => setConfirmPassword(e.target.value)}
-                          placeholder="Repita a senha"
-                          className="mkt2-checkout-input"
-                        />
-                      </div>
-                    </div>
-
-                    {/* PASSWORD VALIDATION HINTS */}
-                    <div className="mkt2-password-hints">
-                      <div className={`mkt2-hint ${passwordRules.length ? 'valid' : ''}`}>
-                        <span className="mkt2-hint-bullet">•</span> MÍNIMO 8 CARACTERES
-                      </div>
-                      <div className={`mkt2-hint ${passwordRules.hasUpper ? 'valid' : ''}`}>
-                        <span className="mkt2-hint-bullet">•</span> 1 LETRA MAIÚSCULA
-                      </div>
-                      <div className={`mkt2-hint ${passwordRules.hasNumber ? 'valid' : ''}`}>
-                        <span className="mkt2-hint-bullet">•</span> 1 NÚMERO
-                      </div>
-                    </div>
-
-                    {/* BILLING TYPE SELECTOR */}
-                    <div className="mkt2-form-group" style={{ marginTop: '12px' }}>
-                      <label>MÉTODO DE PAGAMENTO *</label>
-                      <div className="mkt2-payment-selectors">
-                        <button
-                          type="button"
-                          onClick={() => setSelectedBilling('PIX')}
-                          className={`mkt2-payment-select-btn ${selectedBilling === 'PIX' ? 'active' : ''}`}
-                        >
-                          <QrCode size={16} /> Pagar com PIX
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => setSelectedBilling('CREDIT_CARD')}
-                          className={`mkt2-payment-select-btn ${selectedBilling === 'CREDIT_CARD' ? 'active' : ''}`}
-                        >
-                          <CreditCard size={16} /> Cartão de Crédito
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => setSelectedBilling('BOLETO')}
-                          className={`mkt2-payment-select-btn ${selectedBilling === 'BOLETO' ? 'active' : ''}`}
-                        >
-                          <MapPin size={16} /> Boleto Bancário
-                        </button>
-                      </div>
-                    </div>
-
-                    {/* Conditional CC inputs */}
-                    {renderCardFields()}
-
-                    <button type="submit" disabled={loading} className="mkt2-submit-btn">
-                      {loading ? 'Cadastrando e Gerando Cobrança...' : 'CRIAR CONTA & PAGAR ->'}
-                    </button>
-                  </form>
-                ) : (
-                  /* LOGIN FORM */
-                  <form onSubmit={handleLoginSubmit} className="mkt2-checkout-form">
-                    <div className="mkt2-form-title-wrap">
-                      <span className="mkt2-form-label-code">[ LOGIN ]</span>
-                      <h2 className="mkt2-form-title">Acesse sua conta para continuar</h2>
-                      <p className="mkt2-form-desc">Caso você já tenha se cadastrado em nosso site, insira seus dados abaixo.</p>
-                    </div>
-
-                    <div className="mkt2-form-row">
-                      <div className="mkt2-form-group">
-                        <label>EMAIL *</label>
-                        <input 
-                          type="email" 
-                          required 
-                          value={loginEmail}
-                          onChange={(e) => setLoginEmail(e.target.value)}
-                          placeholder="exemplo@email.com"
-                          className="mkt2-checkout-input"
-                        />
-                      </div>
-                    </div>
-
-                    <div className="mkt2-form-row">
-                      <div className="mkt2-form-group">
-                        <label>SENHA *</label>
-                        <input 
-                          type="password" 
-                          required 
-                          value={loginPassword}
-                          onChange={(e) => setLoginPassword(e.target.value)}
-                          placeholder="Insira sua senha"
-                          className="mkt2-checkout-input"
-                        />
-                      </div>
-                    </div>
-
-                    <div className="mkt2-form-group" style={{ marginTop: '12px' }}>
-                      <label>MÉTODO DE PAGAMENTO *</label>
-                      <div className="mkt2-payment-selectors">
-                        <button
-                          type="button"
-                          onClick={() => setSelectedBilling('PIX')}
-                          className={`mkt2-payment-select-btn ${selectedBilling === 'PIX' ? 'active' : ''}`}
-                        >
-                          <QrCode size={16} /> Pagar com PIX
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => setSelectedBilling('CREDIT_CARD')}
-                          className={`mkt2-payment-select-btn ${selectedBilling === 'CREDIT_CARD' ? 'active' : ''}`}
-                        >
-                          <CreditCard size={16} /> Cartão de Crédito
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => setSelectedBilling('BOLETO')}
-                          className={`mkt2-payment-select-btn ${selectedBilling === 'BOLETO' ? 'active' : ''}`}
-                        >
-                          <MapPin size={16} /> Boleto Bancário
-                        </button>
-                      </div>
-                    </div>
-
-                    {/* Conditional CC inputs */}
-                    {renderCardFields()}
-
-                    <button type="submit" disabled={loading} className="mkt2-submit-btn">
-                      {loading ? 'Acessando e Gerando Cobrança...' : 'ENTRAR & CONFIRMAR PAGAMENTO ->'}
-                    </button>
-                  </form>
-                )}
-              </div>
-            )}
+                </motion.div>
+              )}
+            </AnimatePresence>
 
             {checkoutStep === 'payment' && (
               /* TRANSPARENT PAYMENT RESULTS STEP */
@@ -1046,7 +1014,7 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({
                     <span className="mkt2-form-label-code">// Pagamento Pendente</span>
                     <h2 className="mkt2-payment-title">Escaneie o QR Code do Pix</h2>
                     <p className="mkt2-payment-subtitle">
-                      Para finalizar a sua vaga, realize o Pix de <strong>R$ {ticketPrice.toFixed(2).replace('.', ',')}</strong>. A vaga é confirmada na hora!
+                      Para finalizar a sua vaga, realize o Pix de <strong>R$ {displayPrice.toFixed(2).replace('.', ',')}</strong>. A vaga é confirmada na hora!
                     </p>
 
                     {/* QR CODE DISPLAY */}
@@ -1094,7 +1062,7 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({
                     <span className="mkt2-form-label-code" style={{ color: '#E2A110' }}>// Boleto Gerado com Sucesso</span>
                     <h2 className="mkt2-payment-title">Copie o Código de Barras</h2>
                     <p className="mkt2-payment-subtitle">
-                      Pague o Boleto de <strong>R$ {ticketPrice.toFixed(2).replace('.', ',')}</strong> no aplicativo do seu banco para confirmar a vaga.
+                      Pague o Boleto de <strong>R$ {displayPrice.toFixed(2).replace('.', ',')}</strong> no aplicativo do seu banco para confirmar a vaga.
                     </p>
 
                     {/* COPIA E COLA BOLETO */}
@@ -1198,8 +1166,8 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({
               <span className="mkt2-lot-badge">LOTE 01 / 03</span>
               <div className="mkt2-lot-price-container">
                 <span className="mkt2-lot-currency">R$</span>
-                <span className="mkt2-lot-price">{ticketPrice.toFixed(2).split('.')[0]}</span>
-                <span className="mkt2-lot-cents">,{ticketPrice.toFixed(2).split('.')[1]}</span>
+                <span className="mkt2-lot-price">{displayPrice.toFixed(2).split('.')[0]}</span>
+                <span className="mkt2-lot-cents">,{displayPrice.toFixed(2).split('.')[1]}</span>
               </div>
               <p className="mkt2-lot-price-sub">à vista no Pix ou Boleto; parcelado no cartão de crédito em até 3x sem juros</p>
               
@@ -1208,7 +1176,7 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({
                   <div className="mkt2-lot-indicator"></div>
                   <div className="mkt2-lot-text">
                     <span className="mkt2-lot-label">Lote 01 (Lote Atual)</span>
-                    <span className="mkt2-lot-value">R$ {ticketPrice.toFixed(2).replace('.', ',')}</span>
+                    <span className="mkt2-lot-value">R$ {displayPrice.toFixed(2).replace('.', ',')}</span>
                   </div>
                 </div>
                 <div className="mkt2-lot-item">
