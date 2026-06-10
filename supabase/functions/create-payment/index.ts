@@ -6,6 +6,9 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 }
 
+const ADMIN_EMAIL = 'eduardo@esquadriasmoradadosol.com.br'
+const DEFAULT_TICKET_PRICE = 350 // R$ 350,00
+
 serve(async (req) => {
   // Handle CORS preflight
   if (req.method === 'OPTIONS') {
@@ -13,26 +16,71 @@ serve(async (req) => {
   }
 
   try {
-    const { name, email, cpf, phone, city, uf, howHeard, billingType, value, card } = await req.json()
+    const { billingType, card, adminTestMode } = await req.json()
 
-    // 1. Initialize Supabase Client with Service Role Key (to bypass RLS for secure insertion)
+    // 1. Initialize Supabase Clients
     const supabaseUrl = Deno.env.get('SUPABASE_URL') ?? ''
     const supabaseServiceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
-    const supabase = createClient(supabaseUrl, supabaseServiceRoleKey)
+    const supabaseAdmin = createClient(supabaseUrl, supabaseServiceRoleKey)
 
-    // 2. Generate unique ID for the participant row
+    // 2. Get authenticated user from the JWT in the Authorization header
+    const authHeader = req.headers.get('Authorization') ?? ''
+    const token = authHeader.replace('Bearer ', '')
+
+    const { data: { user }, error: userError } = await supabaseAdmin.auth.getUser(token)
+    if (userError || !user) {
+      throw new Error('Usuário não autenticado. Faça login novamente.')
+    }
+
+    // 3. Extract user data from auth metadata
+    const meta = user.user_metadata || {}
+    const name = meta.name || user.email?.split('@')[0] || 'Participante'
+    const email = user.email || ''
+    const cpf = (meta.cpf || '').replace(/\D/g, '')
+    const phone = (meta.phone || '').replace(/\D/g, '')
+    const city = meta.city || ''
+    const uf = meta.uf || ''
+    const howHeard = meta.howHeard || ''
+
+    if (!cpf || cpf.length !== 11) {
+      throw new Error('CPF inválido no cadastro. Atualize seu perfil antes de pagar.')
+    }
+
+    // 4. Determine payment value (admin test mode support)
+    const isAdminUser = email.toLowerCase().trim() === ADMIN_EMAIL
+    let paymentValue = DEFAULT_TICKET_PRICE
+
+    try {
+      const { data: finSettingsData, error: finSettingsError } = await supabaseAdmin
+        .from('financial_settings')
+        .select('ticket_price_default')
+        .limit(1)
+        .maybeSingle()
+
+      if (!finSettingsError && finSettingsData?.ticket_price_default) {
+        paymentValue = Number(finSettingsData.ticket_price_default)
+      }
+    } catch (err) {
+      console.error('Failed to fetch financial_settings:', err)
+    }
+
+    if (adminTestMode && isAdminUser) {
+      paymentValue = billingType === 'CREDIT_CARD' ? 5.00 : 0.03
+    }
+
+    // 5. Generate unique ID for the participant row
     const participantId = 'part_' + Date.now() + Math.random().toString(36).substring(2, 6)
 
-    // 3. Insert participant into database with status 'Interessado' (Aguardando Pagamento)
-    const { error: dbError } = await supabase
+    // 6. Insert participant into database with status 'Interessado' (Aguardando Pagamento)
+    const { error: dbError } = await supabaseAdmin
       .from('participants')
       .insert({
         id: participantId,
         name: name,
         whatsapp: phone,
-        city: city + ' - ' + uf,
-        company: '', // optional
-        role: '',    // optional
+        city: city ? city + (uf ? ' - ' + uf : '') : '',
+        company: '',
+        role: '',
         observations: `CPF: ${cpf} | Como Conheceu: ${howHeard}`,
         status: 'Interessado',
         date_added: new Date().toISOString().split('T')[0]
@@ -42,7 +90,7 @@ serve(async (req) => {
       throw new Error(`Error saving participant: ${dbError.message}`)
     }
 
-    // 4. Connect to Asaas API using Token from environment
+    // 7. Connect to Asaas API using Token from environment
     const asaasToken = Deno.env.get('ASAAS_API_KEY')
     if (!asaasToken) {
       throw new Error('ASAAS_API_KEY environment variable is not set in Supabase.')
@@ -61,7 +109,7 @@ serve(async (req) => {
         name,
         email,
         phone,
-        cpfCnpj: cpf.replace(/\D/g, '') // remove mask formatting
+        cpfCnpj: cpf
       })
     })
 
@@ -74,8 +122,6 @@ serve(async (req) => {
     const customerId = customerData.id
 
     // B. Create Payment in Asaas
-    // Due date set to 2 days from now or event date (which is 2026-08-16)
-    // To ensure they pay promptly, set payment due date to 3 days from registration.
     const dueDate = new Date()
     dueDate.setDate(dueDate.getDate() + 3)
     const formattedDueDate = dueDate.toISOString().split('T')[0]
@@ -94,10 +140,10 @@ serve(async (req) => {
       const installments = Number(card.installments || 1)
       
       if (installments > 1) {
-        bodyPayload.totalValue = Number(value)
+        bodyPayload.totalValue = paymentValue
         bodyPayload.installmentCount = installments
       } else {
-        bodyPayload.value = Number(value)
+        bodyPayload.value = paymentValue
       }
       
       bodyPayload.creditCard = {
@@ -110,14 +156,14 @@ serve(async (req) => {
       bodyPayload.creditCardHolderInfo = {
         name: name,
         email: email,
-        cpfCnpj: cpf.replace(/\D/g, ''),
+        cpfCnpj: cpf,
         postalCode: card.cep.replace(/\D/g, ''),
         addressNumber: card.addressNumber,
-        phone: phone.replace(/\D/g, '')
+        phone: phone
       }
       bodyPayload.remoteIp = remoteIp
     } else {
-      bodyPayload.value = Number(value)
+      bodyPayload.value = paymentValue
     }
 
     let paymentResponse = await fetch(`${asaasUrl}/payments`, {
@@ -146,7 +192,7 @@ serve(async (req) => {
           body: JSON.stringify({
             customer: customerId,
             billingType: 'CREDIT_CARD',
-            value: Number(value),
+            value: paymentValue,
             dueDate: formattedDueDate,
             description: `AI Experience Estância Velha - Ingresso`,
             externalReference: participantId
@@ -167,7 +213,7 @@ serve(async (req) => {
 
     // Update DB status immediately to 'Pago' if transparent credit card checkout was approved/confirmed
     if (billingType === 'CREDIT_CARD' && card && (paymentData.status === 'CONFIRMED' || paymentData.status === 'RECEIVED')) {
-      const { error: updateError } = await supabase
+      const { error: updateError } = await supabaseAdmin
         .from('participants')
         .update({ status: 'Pago' })
         .eq('id', participantId)
