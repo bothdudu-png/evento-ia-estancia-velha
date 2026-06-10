@@ -96,7 +96,7 @@ const DEFAULT_EVENT_SETTINGS: EventSettings = {
 const DEFAULT_FINANCIAL_SETTINGS: FinancialSettings = {
   id: 'fin_1',
   targetParticipants: 50,
-  ticketPriceDefault: 350,
+  ticketPriceDefault: 400,
   targetProfit: 10000,
   extraCostsDefault: 1200
 };

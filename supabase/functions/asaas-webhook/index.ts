@@ -14,11 +14,11 @@ serve(async (req) => {
 
   try {
     // 1. Verify Asaas Webhook Secret Token
-    const webhookToken = Deno.env.get('ASAAS_WEBHOOK_TOKEN')
-    const receivedToken = req.headers.get('asaas-access-token')
+    const webhookToken = Deno.env.get('ASAAS_WEBHOOK_TOKEN')?.trim()
+    const receivedToken = req.headers.get('asaas-access-token')?.trim()
 
     if (webhookToken && receivedToken !== webhookToken) {
-      console.warn('Unauthorized webhook request received (token mismatch).')
+      console.warn(`Unauthorized webhook request received (token mismatch). Received: ${receivedToken ? (receivedToken.substring(0, 4) + '... (len: ' + receivedToken.length + ')') : 'none'}, Expected: ${webhookToken.substring(0, 4) + '... (len: ' + webhookToken.length + ')'}`)
       return new Response(
         JSON.stringify({ success: false, error: 'Unauthorized' }),
         { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }

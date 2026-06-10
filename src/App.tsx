@@ -224,6 +224,32 @@ export default function App() {
     setTempTicketPrice(finSettings.ticketPriceDefault);
     setTempTargetParticipants(finSettings.targetParticipants);
     setTempLocation(settings.location);
+
+    // Sync public data from Cloud (works for anonymous visitors on landing page)
+    if (supabase) {
+      db.fetchAllFromCloud().then((cloudData) => {
+        if (cloudData) {
+          if (cloudData.eventSettings) {
+            setEventSettings(cloudData.eventSettings);
+            setTempName(cloudData.eventSettings.name);
+            setTempDate(cloudData.eventSettings.date);
+            setTempLocation(cloudData.eventSettings.location);
+          }
+          if (cloudData.financialSettings) {
+            setFinancialSettings(cloudData.financialSettings);
+            setTempTicketPrice(cloudData.financialSettings.ticketPriceDefault);
+            setTempTargetParticipants(cloudData.financialSettings.targetParticipants);
+          }
+          if (cloudData.investments) setInvestments(cloudData.investments);
+          if (cloudData.participants) setParticipants(cloudData.participants);
+          if (cloudData.tasks) setTasks(cloudData.tasks);
+          if (cloudData.checklists) setChecklist(cloudData.checklists);
+          if (cloudData.scenarios) setScenarios(cloudData.scenarios);
+        }
+      }).catch(err => {
+        console.error('Failed to sync public data on mount:', err);
+      });
+    }
   }, []);
 
   // --- Auth State and Invite Verification ---
@@ -627,11 +653,28 @@ export default function App() {
     const paidCount = participants.filter(p => ['Pago', 'Participou'].includes(p.status)).length;
     const occupancyRate = (confirmedCount / (target || 1)) * 100;
 
-    const ticketPrice = financialSettings.ticketPriceDefault;
+    // Dynamic tier pricing calculation based on cumulative confirmed slots
+    const calculateCumulativeRevenue = (count: number) => {
+      if (count <= 20) {
+        return count * 400;
+      } else if (count <= 40) {
+        return 20 * 400 + (count - 20) * 450;
+      } else {
+        return 20 * 400 + 20 * 450 + (count - 40) * 500;
+      }
+    };
 
-    // Financial Metrics
-    const expectedRevenue = confirmedCount * ticketPrice;
-    const actualRevenue = paidCount * ticketPrice;
+    const getDynamicPrice = (count: number) => {
+      if (count >= 41) return 500;
+      if (count >= 21) return 450;
+      return 400;
+    };
+
+    const ticketPrice = getDynamicPrice(confirmedCount);
+
+    // Financial Metrics based on cumulative pricing tiers
+    const expectedRevenue = calculateCumulativeRevenue(confirmedCount);
+    const actualRevenue = calculateCumulativeRevenue(paidCount);
 
     // Investment (costs) where status is NOT 'Cancelado'
     const totalInvestment = investments
@@ -679,7 +722,24 @@ export default function App() {
     
     const conversionRate = totalLeads > 0 ? (confirmedAndPaidCount / totalLeads) * 100 : 0;
     
-    const ticketPrice = financialSettings.ticketPriceDefault;
+    // Dynamic tier pricing calculation based on cumulative confirmed slots
+    const calculateCumulativeRevenue = (count: number) => {
+      if (count <= 20) {
+        return count * 400;
+      } else if (count <= 40) {
+        return 20 * 400 + (count - 20) * 450;
+      } else {
+        return 20 * 400 + 20 * 450 + (count - 40) * 500;
+      }
+    };
+
+    const getDynamicPrice = (count: number) => {
+      if (count >= 41) return 500;
+      if (count >= 21) return 450;
+      return 400;
+    };
+
+    const ticketPrice = getDynamicPrice(confirmedAndPaidCount);
     
     // Value in negotiation (Lead, Contatado, Interessado)
     const pipelineValue = participants
@@ -687,7 +747,7 @@ export default function App() {
       .length * ticketPrice;
       
     // Realized/Confirmed revenue from CRM
-    const realizedRevenue = confirmedAndPaidCount * ticketPrice;
+    const realizedRevenue = calculateCumulativeRevenue(confirmedAndPaidCount);
     
     return {
       totalLeads,
@@ -1243,7 +1303,7 @@ export default function App() {
           setMarketingVersion('v2');
           window.history.pushState({}, document.title, '?page=marketing');
         }}
-        ticketPrice={financialSettings.ticketPriceDefault}
+        confirmedCount={metrics.confirmedCount}
       />
     );
   }
@@ -1644,7 +1704,7 @@ export default function App() {
                 <div className="indicator-card accent-pink animate-fadeInUp stagger-4">
                   <div className="indicator-label" style={{ color: 'var(--neon-pink)' }}>Receita Projetada</div>
                   <div className="indicator-value" style={{ color: 'var(--neon-pink)' }}>R$ {metrics.expectedRevenue.toLocaleString('pt-BR')}</div>
-                  <div className="indicator-sub">Confirmados × R$ {financialSettings.ticketPriceDefault}</div>
+                  <div className="indicator-sub">Calculado por lotes acumulativos</div>
                 </div>
 
                 {/* 5. Receita Atual */}
@@ -1690,9 +1750,11 @@ export default function App() {
 
                 {/* 10. Ticket Médio */}
                 <div className="indicator-card accent-blue animate-fadeInUp stagger-10">
-                  <div className="indicator-label">Ticket Padrão</div>
-                  <div className="indicator-value">R$ {metrics.ticketMedio.toLocaleString('pt-BR')}</div>
-                  <div className="indicator-sub">Preço base do lote atual</div>
+                  <div className="indicator-label" style={{ color: 'var(--neon-blue)' }}>Lote Ativo</div>
+                  <div className="indicator-value" style={{ color: 'var(--neon-blue)' }}>R$ {metrics.ticketMedio.toLocaleString('pt-BR')}</div>
+                  <div className="indicator-sub">
+                    {metrics.confirmedCount <= 20 ? 'Lote 1 (0-20 confirmados)' : metrics.confirmedCount <= 40 ? 'Lote 2 (21-40 confirmados)' : 'Lote 3 (41-60 confirmados)'}
+                  </div>
                 </div>
 
                 {/* 11. Lucro por Participante */}
@@ -1712,7 +1774,50 @@ export default function App() {
                   </div>
                   <div className="indicator-sub">Inscrições para cobrir custos</div>
                 </div>
+              </div>
+            </section>
 
+            {/* Lotes Projection Section */}
+            <section className="glass-panel" style={{ padding: '20px', marginBottom: '24px', background: 'rgba(12, 15, 36, 0.4)' }}>
+              <h4 style={{ fontSize: '1rem', fontWeight: 700, marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px', color: '#fff' }}>
+                <TrendingUp size={18} style={{ color: 'var(--neon-cyan)' }} /> Projeção de Lotes e Virada Automática (Asaas Integrado)
+              </h4>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '16px' }}>
+                <div style={{ padding: '16px', background: metrics.confirmedCount <= 20 ? 'rgba(0, 242, 254, 0.05)' : 'rgba(255, 255, 255, 0.01)', border: metrics.confirmedCount <= 20 ? '1px solid var(--neon-cyan)' : '1px solid var(--border-color)', borderRadius: '12px', position: 'relative' }}>
+                  {metrics.confirmedCount <= 20 && <span style={{ position: 'absolute', top: '12px', right: '12px', fontSize: '0.7rem', background: 'var(--neon-cyan)', color: '#06091e', padding: '2px 8px', borderRadius: '20px', fontWeight: 700 }}>LOTE ATIVO</span>}
+                  <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', fontWeight: 600 }}>LOTE 01 (0 a 20 Confirmados)</div>
+                  <div style={{ fontSize: '1.5rem', fontWeight: 800, margin: '8px 0', color: metrics.confirmedCount <= 20 ? 'var(--neon-cyan)' : '#fff' }}>R$ 400,00</div>
+                  <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
+                    Progresso: {Math.min(metrics.confirmedCount, 20)}/20 confirmados ({Math.min(Math.round((metrics.confirmedCount / 20) * 100), 100)}%)
+                  </div>
+                  <div style={{ height: '4px', background: 'rgba(255,255,255,0.05)', borderRadius: '2px', overflow: 'hidden', marginTop: '8px' }}>
+                    <div style={{ width: `${Math.min((metrics.confirmedCount / 20) * 100, 100)}%`, height: '100%', background: 'var(--neon-cyan)' }}></div>
+                  </div>
+                </div>
+
+                <div style={{ padding: '16px', background: (metrics.confirmedCount >= 21 && metrics.confirmedCount <= 40) ? 'rgba(124, 58, 237, 0.05)' : 'rgba(255, 255, 255, 0.01)', border: (metrics.confirmedCount >= 21 && metrics.confirmedCount <= 40) ? '1px solid var(--neon-purple)' : '1px solid var(--border-color)', borderRadius: '12px', position: 'relative' }}>
+                  {(metrics.confirmedCount >= 21 && metrics.confirmedCount <= 40) && <span style={{ position: 'absolute', top: '12px', right: '12px', fontSize: '0.7rem', background: 'var(--neon-purple)', color: '#fff', padding: '2px 8px', borderRadius: '20px', fontWeight: 700 }}>LOTE ATIVO</span>}
+                  <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', fontWeight: 600 }}>LOTE 02 (21 a 40 Confirmados)</div>
+                  <div style={{ fontSize: '1.5rem', fontWeight: 800, margin: '8px 0', color: (metrics.confirmedCount >= 21 && metrics.confirmedCount <= 40) ? 'var(--neon-purple)' : '#fff' }}>R$ 450,00</div>
+                  <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
+                    Progresso: {metrics.confirmedCount <= 20 ? 0 : Math.min(metrics.confirmedCount - 20, 20)}/20 confirmados ({metrics.confirmedCount <= 20 ? 0 : Math.min(Math.round(((metrics.confirmedCount - 20) / 20) * 100), 100)}%)
+                  </div>
+                  <div style={{ height: '4px', background: 'rgba(255,255,255,0.05)', borderRadius: '2px', overflow: 'hidden', marginTop: '8px' }}>
+                    <div style={{ width: `${metrics.confirmedCount <= 20 ? 0 : Math.min(((metrics.confirmedCount - 20) / 20) * 100, 100)}%`, height: '100%', background: 'var(--neon-purple)' }}></div>
+                  </div>
+                </div>
+
+                <div style={{ padding: '16px', background: metrics.confirmedCount >= 41 ? 'rgba(236, 72, 153, 0.05)' : 'rgba(255, 255, 255, 0.01)', border: metrics.confirmedCount >= 41 ? '1px solid var(--neon-pink)' : '1px solid var(--border-color)', borderRadius: '12px', position: 'relative' }}>
+                  {metrics.confirmedCount >= 41 && <span style={{ position: 'absolute', top: '12px', right: '12px', fontSize: '0.7rem', background: 'var(--neon-pink)', color: '#fff', padding: '2px 8px', borderRadius: '20px', fontWeight: 700 }}>LOTE ATIVO</span>}
+                  <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', fontWeight: 600 }}>LOTE 03 (41 a 60 Confirmados)</div>
+                  <div style={{ fontSize: '1.5rem', fontWeight: 800, margin: '8px 0', color: metrics.confirmedCount >= 41 ? 'var(--neon-pink)' : '#fff' }}>R$ 500,00</div>
+                  <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
+                    Progresso: {metrics.confirmedCount <= 40 ? 0 : Math.min(metrics.confirmedCount - 40, 20)}/20 confirmados ({metrics.confirmedCount <= 40 ? 0 : Math.min(Math.round(((metrics.confirmedCount - 40) / 20) * 100), 100)}%)
+                  </div>
+                  <div style={{ height: '4px', background: 'rgba(255,255,255,0.05)', borderRadius: '2px', overflow: 'hidden', marginTop: '8px' }}>
+                    <div style={{ width: `${metrics.confirmedCount <= 40 ? 0 : Math.min(((metrics.confirmedCount - 40) / 20) * 100, 100)}%`, height: '100%', background: 'var(--neon-pink)' }}></div>
+                  </div>
+                </div>
               </div>
             </section>
 

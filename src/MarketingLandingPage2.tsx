@@ -127,6 +127,26 @@ export const MarketingLandingPage2: React.FC<MarketingLandingPage2Props> = ({
 
   const currentSlide = slides[currentSlideIndex];
 
+  // --- Dynamic mentor photo color filter shifting ---
+  const mentorPhotoFilter = useMemo(() => {
+    switch (currentSlideIndex) {
+      case 0: // IA. (Green: #10E27A) - default green image
+        return 'none';
+      case 1: // Claude Code (Orange/Coral: #D97757)
+        return 'hue-rotate(240deg) saturate(1.2)';
+      case 2: // Lovable (Pink: #FF4D8D)
+        return 'hue-rotate(180deg) saturate(1.5)';
+      case 3: // Replit (Orange: #F26207)
+        return 'hue-rotate(250deg) saturate(1.8)';
+      case 4: // Cursor (Light Grey: #E5E7EB)
+        return 'grayscale(1) brightness(1.1)';
+      case 5: // Antigravity (Blue: #4F8BFF)
+        return 'hue-rotate(75deg) saturate(1.4)';
+      default:
+        return 'none';
+    }
+  }, [currentSlideIndex]);
+
   useEffect(() => {
     const targetDate = new Date('2026-08-15T09:00:00-03:00').getTime();
     const interval = setInterval(() => {
@@ -265,10 +285,12 @@ export const MarketingLandingPage2: React.FC<MarketingLandingPage2Props> = ({
           <div className="mkt2-header-actions">
             <button 
               onClick={handleActionClick} 
-              className="mkt2-btn-primary"
+              className="mkt2-btn-primary mkt2-header-btn"
               style={{ background: currentSlide.color, color: '#06091e', boxShadow: `0 4px 15px ${currentSlide.color}30` }}
             >
-              Garantir Minha Vaga <ArrowRight size={14} />
+              <span className="mkt2-header-btn-text-desktop">Garantir Minha Vaga</span>
+              <span className="mkt2-header-btn-text-mobile">Garantir Vaga</span>
+              <ArrowRight size={14} className="mkt2-header-btn-icon" />
             </button>
           </div>
         </div>
@@ -588,7 +610,7 @@ export const MarketingLandingPage2: React.FC<MarketingLandingPage2Props> = ({
             </div>
             <div className="mkt2-result-card accent">
               <span className="mkt2-result-label">Retorno Financeiro Anual Projetado</span>
-              <span className="mkt2-result-value brand" style={{ fontSize: '2.2rem' }}>{calculatedSavings.annual}</span>
+              <span className="mkt2-result-value brand">{calculatedSavings.annual}</span>
             </div>
           </div>
         </div>
@@ -611,7 +633,7 @@ export const MarketingLandingPage2: React.FC<MarketingLandingPage2Props> = ({
         <motion.div className="mkt2-gallery-grid" variants={containerVariants}>
           <motion.div className="mkt2-gallery-card" variants={cardVariants}>
             <img
-              src="/story-room.jpg"
+              src="/auditorium_real_1.jpg"
               alt="Auditório do Evento"
               className="mkt2-gallery-img"
               onError={(e) => {
@@ -629,8 +651,8 @@ export const MarketingLandingPage2: React.FC<MarketingLandingPage2Props> = ({
 
           <motion.div className="mkt2-gallery-card" variants={cardVariants}>
             <img
-              src="/story-stage.jpg"
-              alt="Thiago Diaz no Palco"
+              src="/auditorium_real_2.jpg"
+              alt="Imersão Prática"
               className="mkt2-gallery-img"
               onError={(e) => {
                 (e.target as HTMLImageElement).src = '/event_auditorium.png';
@@ -647,7 +669,7 @@ export const MarketingLandingPage2: React.FC<MarketingLandingPage2Props> = ({
 
           <motion.div className="mkt2-gallery-card" variants={cardVariants}>
             <img
-              src="/story-launch.jpg"
+              src="/auditorium_real_3.jpg"
               alt="Deploy e Lançamento"
               className="mkt2-gallery-img"
               onError={(e) => {
@@ -730,6 +752,7 @@ export const MarketingLandingPage2: React.FC<MarketingLandingPage2Props> = ({
               src="/thiago-diaz.jpg"
               alt="Thiago Diaz"
               className="mkt2-mentor-photo"
+              style={{ filter: mentorPhotoFilter }}
               onError={(e) => {
                 (e.target as HTMLImageElement).src = '/thiago_diaz.png';
               }}

@@ -18,12 +18,12 @@ import './CheckoutPage.css';
 
 interface CheckoutPageProps {
   onNavigateToLanding: () => void;
-  ticketPrice?: number;
+  confirmedCount?: number;
 }
 
 export const CheckoutPage: React.FC<CheckoutPageProps> = ({
   onNavigateToLanding,
-  ticketPrice = 350
+  confirmedCount = 0
 }) => {
   const [activeTab, setActiveTab] = useState<'register' | 'login'>('register');
   const [checkoutStep, setCheckoutStep] = useState<'form' | 'payment-select' | 'payment' | 'success'>('form');
@@ -77,13 +77,15 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({
     return checkEmail === 'eduardo@esquadriasmoradadosol.com.br';
   }, [email, loginEmail]);
 
-  // --- Dynamic price (reflects Admin Test Mode) ---
+  // --- Dynamic price (reflects Admin Test Mode & Lotes) ---
   const displayPrice = useMemo(() => {
     if (adminTestMode && isAdmin) {
       return selectedBilling === 'CREDIT_CARD' ? 5.00 : 0.03;
     }
-    return ticketPrice;
-  }, [adminTestMode, isAdmin, selectedBilling, ticketPrice]);
+    if (confirmedCount >= 41) return 500;
+    if (confirmedCount >= 21) return 450;
+    return 400;
+  }, [adminTestMode, isAdmin, selectedBilling, confirmedCount]);
 
   // --- Check existing user session on mount ---
   useEffect(() => {
@@ -701,7 +703,7 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({
                     <form onSubmit={handleRegisterSubmit} className="mkt2-checkout-form">
                       <div className="mkt2-form-title-wrap">
                         <span className="mkt2-form-label-code">[ ACESSO ]</span>
-                        <h2 className="mkt2-form-title">Para garantir sua vaga em Estância Velha</h2>
+                        <h2 className="mkt2-form-title">Para garantir sua vaga no AI EXPERIENCE</h2>
                         <p className="mkt2-form-desc">Crie sua conta ou acesse para prosseguir para o pagamento.</p>
                       </div>
 
@@ -1138,14 +1140,14 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({
 
                 <div className="mkt2-success-details">
                   <div className="mkt2-success-detail-item">
-                    <Calendar size={18} style={{ color: '#00F2FE' }} />
+                    <Calendar size={18} style={{ color: '#10E27A' }} />
                     <div>
                       <span>DATA</span>
                       <strong>15 de Agosto de 2026</strong>
                     </div>
                   </div>
                   <div className="mkt2-success-detail-item">
-                    <MapPin size={18} style={{ color: '#7C3AED' }} />
+                    <MapPin size={18} style={{ color: '#10E27A' }} />
                     <div>
                       <span>LOCAL</span>
                       <strong>Auditório Müller, Estância Velha - RS</strong>
@@ -1153,7 +1155,7 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({
                   </div>
                 </div>
 
-                <button onClick={onNavigateToLanding} className="mkt2-submit-btn" style={{ background: '#10E27A', color: '#06091e' }}>
+                <button onClick={onNavigateToLanding} className="mkt2-submit-btn" style={{ background: '#10E27A', color: '#06091e', margin: '24px auto 0', justifyContent: 'center' }}>
                   Voltar para a Página Inicial
                 </button>
               </div>
@@ -1172,25 +1174,25 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({
               <p className="mkt2-lot-price-sub">à vista no Pix ou Boleto; parcelado no cartão de crédito em até 3x sem juros</p>
               
               <div className="mkt2-lot-timeline">
-                <div className="mkt2-lot-item active">
+                <div className={`mkt2-lot-item ${confirmedCount <= 20 ? 'active' : ''}`}>
                   <div className="mkt2-lot-indicator"></div>
                   <div className="mkt2-lot-text">
-                    <span className="mkt2-lot-label">Lote 01 (Lote Atual)</span>
-                    <span className="mkt2-lot-value">R$ {displayPrice.toFixed(2).replace('.', ',')}</span>
+                    <span className="mkt2-lot-label">Lote 01 (0 a 20 vagas)</span>
+                    <span className="mkt2-lot-value">R$ 400,00</span>
                   </div>
                 </div>
-                <div className="mkt2-lot-item">
+                <div className={`mkt2-lot-item ${confirmedCount >= 21 && confirmedCount <= 40 ? 'active' : ''}`}>
                   <div className="mkt2-lot-indicator"></div>
                   <div className="mkt2-lot-text">
-                    <span className="mkt2-lot-label">Lote 02</span>
-                    <span className="mkt2-lot-value">R$ {(ticketPrice + 50).toFixed(2).replace('.', ',')}</span>
+                    <span className="mkt2-lot-label">Lote 02 (21 a 40 vagas)</span>
+                    <span className="mkt2-lot-value">R$ 450,00</span>
                   </div>
                 </div>
-                <div className="mkt2-lot-item">
+                <div className={`mkt2-lot-item ${confirmedCount >= 41 ? 'active' : ''}`}>
                   <div className="mkt2-lot-indicator"></div>
                   <div className="mkt2-lot-text">
-                    <span className="mkt2-lot-label">Lote 03</span>
-                    <span className="mkt2-lot-value">R$ {(ticketPrice + 100).toFixed(2).replace('.', ',')}</span>
+                    <span className="mkt2-lot-label">Lote 03 (41 a 60 vagas)</span>
+                    <span className="mkt2-lot-value">R$ 500,00</span>
                   </div>
                 </div>
               </div>

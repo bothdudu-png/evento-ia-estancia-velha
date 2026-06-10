@@ -1,3 +1,10 @@
+html {
+  overflow-y: auto !important;
+}
+body {
+  overflow-y: visible !important;
+}
+
 .mkt2-checkout-container {
   background-color: #06091e;
   color: #F9FAFB;
@@ -297,7 +304,7 @@ select.mkt2-checkout-input {
 }
 
 .mkt2-hint.valid {
-  color: #10E27A;
+  color: #00F2FE;
 }
 
 .mkt2-hint-bullet {

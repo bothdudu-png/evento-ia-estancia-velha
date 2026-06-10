@@ -7,7 +7,7 @@ const corsHeaders = {
 }
 
 const ADMIN_EMAIL = 'eduardo@esquadriasmoradadosol.com.br'
-const DEFAULT_TICKET_PRICE = 350 // R$ 350,00
+const DEFAULT_TICKET_PRICE = 400 // R$ 400,00
 
 serve(async (req) => {
   // Handle CORS preflight
@@ -50,18 +50,36 @@ serve(async (req) => {
     const isAdminUser = email.toLowerCase().trim() === ADMIN_EMAIL
     let paymentValue = DEFAULT_TICKET_PRICE
 
+    // Count participants with status 'Pago' or 'Confirmado' to apply dynamic lot pricing
     try {
-      const { data: finSettingsData, error: finSettingsError } = await supabaseAdmin
-        .from('financial_settings')
-        .select('ticket_price_default')
-        .limit(1)
-        .maybeSingle()
+      const { count, error: countError } = await supabaseAdmin
+        .from('participants')
+        .select('*', { count: 'exact', head: true })
+        .in('status', ['Pago', 'Confirmado'])
 
-      if (!finSettingsError && finSettingsData?.ticket_price_default) {
-        paymentValue = Number(finSettingsData.ticket_price_default)
+      if (!countError && count !== null) {
+        if (count >= 40) {
+          paymentValue = 500
+        } else if (count >= 20) {
+          paymentValue = 450
+        } else {
+          paymentValue = 400
+        }
+        console.log(`Dynamic pricing calculated: count = ${count}, price = R$ ${paymentValue}`)
+      } else {
+        // Fallback to financial_settings if query failed but we can get it
+        const { data: finSettingsData, error: finSettingsError } = await supabaseAdmin
+          .from('financial_settings')
+          .select('ticket_price_default')
+          .limit(1)
+          .maybeSingle()
+
+        if (!finSettingsError && finSettingsData?.ticket_price_default) {
+          paymentValue = Number(finSettingsData.ticket_price_default)
+        }
       }
     } catch (err) {
-      console.error('Failed to fetch financial_settings:', err)
+      console.error('Failed to calculate dynamic pricing from participants:', err)
     }
 
     if (adminTestMode && isAdminUser) {
