@@ -543,7 +543,16 @@ export const db = {
         supabase.from('scenarios').select('*')
       ]);
 
-      if (evtRes.data && evtRes.data.length === 0) {
+      // Check if user is logged in before doing any seed
+      let isLoggedIn = false;
+      try {
+        const { data: authData } = await supabase.auth.getSession();
+        isLoggedIn = !!authData?.session;
+      } catch (authErr) {
+        console.error('Error checking auth session in fetchAllFromCloud:', authErr);
+      }
+
+      if (isLoggedIn && evtRes.data && evtRes.data.length === 0) {
         console.log('Database tables are empty. Seeding defaults to Supabase...');
         try {
           await Promise.all([
@@ -588,23 +597,52 @@ export const db = {
         data.financialSettings = mapFinancialSettings.fromDb(finRes.data[0]);
         localStorage.setItem(KEYS.FINANCIAL_SETTINGS, JSON.stringify(data.financialSettings));
       }
-      if (invRes.data) {
+      if (invRes.data && invRes.data.length > 0) {
         data.investments = invRes.data.map(mapInvestment.fromDb);
         localStorage.setItem(KEYS.INVESTMENTS, JSON.stringify(data.investments));
       }
-      if (partRes.data) {
+      
+      if (partRes.data && partRes.data.length > 0) {
         data.participants = partRes.data.map(mapParticipant.fromDb);
         localStorage.setItem(KEYS.PARTICIPANTS, JSON.stringify(data.participants));
+      } else {
+        // For public/logged-out visitors, fetch only the count of confirmed participants
+        // via the secure public view to protect sensitive contact data
+        try {
+          const { data: countData } = await supabase
+            .from('public_confirmed_count')
+            .select('count')
+            .maybeSingle();
+            
+          if (countData && typeof countData.count === 'number') {
+            const dummyParticipants = Array.from({ length: countData.count }, (_, i) => ({
+              id: `dummy_${i}`,
+              name: '',
+              whatsapp: '',
+              city: '',
+              company: '',
+              role: '',
+              observations: '',
+              status: 'Confirmado' as const,
+              dateAdded: ''
+            }));
+            data.participants = dummyParticipants;
+            localStorage.setItem(KEYS.PARTICIPANTS, JSON.stringify(dummyParticipants));
+          }
+        } catch (countErr) {
+          console.error('Error fetching public confirmed count:', countErr);
+        }
       }
-      if (tskRes.data) {
+      
+      if (tskRes.data && tskRes.data.length > 0) {
         data.tasks = tskRes.data.map(mapTask.fromDb);
         localStorage.setItem(KEYS.TASKS, JSON.stringify(data.tasks));
       }
-      if (chkRes.data) {
+      if (chkRes.data && chkRes.data.length > 0) {
         data.checklists = chkRes.data.map(mapChecklistItem.fromDb);
         localStorage.setItem(KEYS.CHECKLISTS, JSON.stringify(data.checklists));
       }
-      if (scenRes.data) {
+      if (scenRes.data && scenRes.data.length > 0) {
         data.scenarios = scenRes.data.map(mapScenario.fromDb);
         localStorage.setItem(KEYS.SCENARIOS, JSON.stringify(data.scenarios));
       }
