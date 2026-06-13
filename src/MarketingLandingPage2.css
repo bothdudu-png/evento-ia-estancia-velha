@@ -841,11 +841,11 @@
 
 /* Schedule / Cronograma Timeline (Vertical layout) */
 .mkt2-timeline-box {
-  background: var(--surface-b);
-  border: 1px solid var(--border-b);
-  border-radius: 20px;
-  padding: 40px;
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  padding: 0;
+  box-shadow: none;
 }
 
 .mkt2-timeline {
@@ -1696,4 +1696,318 @@
   font-size: 1.2rem;
   line-height: 1;
   transition: color 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* ==========================================
+   METODO GUIDE & TIMETABLE IMPROVEMENTS
+   ========================================== */
+
+.mkt2-split-grid--method {
+  align-items: start;
+}
+
+.mkt2-method-left-side {
+  display: flex;
+  flex-direction: column;
+}
+
+.mkt2-method-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.75rem;
+  color: var(--brand-b);
+  font-weight: 700;
+  margin-bottom: 12px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  transition: color 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.mkt2-method-main-title {
+  font-size: clamp(2.5rem, 5vw, 4.5rem);
+  font-weight: 900;
+  line-height: 0.9;
+  text-transform: uppercase;
+  margin: 0 0 24px;
+  color: var(--fg-b);
+}
+
+.mkt2-method-main-title-highlight {
+  color: var(--brand-b);
+  transition: color 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.mkt2-method-intro-desc {
+  font-size: 0.95rem;
+  line-height: 1.6;
+  color: var(--muted-fg-b);
+  margin: 0 0 40px;
+  max-width: 48ch;
+}
+
+.mkt2-method-steps {
+  display: flex;
+  flex-direction: column;
+}
+
+.mkt2-method-step-row {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 24px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.mkt2-method-step-row:first-child {
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.mkt2-method-step-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.mkt2-method-step-num {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--brand-b);
+  transition: color 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.mkt2-method-step-title {
+  font-size: 0.95rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--fg-b);
+  margin: 0;
+}
+
+.mkt2-method-step-desc {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.78rem;
+  line-height: 1.6;
+  color: var(--muted-fg-b);
+  margin: 0;
+}
+
+/* Right Side - Media, Stats, Quote */
+.mkt2-method-right-side {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.mkt2-method-media-card {
+  position: relative;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  overflow: hidden;
+  background: #070913;
+  aspect-ratio: 16 / 9;
+}
+
+.mkt2-method-media-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.mkt2-method-media-overlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: rgba(0, 0, 0, 0.65);
+  backdrop-filter: blur(4px);
+  padding: 8px 16px;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.mkt2-method-media-overlay span {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.7rem;
+  color: var(--brand-b);
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  transition: color 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.mkt2-method-stats-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.mkt2-method-stat-card {
+  background: #080a13;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 6px;
+  padding: 20px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.mkt2-method-stat-card:hover {
+  border-color: color-mix(in srgb, var(--brand-b) 30%, transparent);
+  box-shadow: 0 4px 20px color-mix(in srgb, var(--brand-b) 4%, transparent);
+}
+
+.mkt2-method-stat-label {
+  color: var(--brand-b);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.65rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  transition: color 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.mkt2-method-stat-val {
+  color: var(--fg-b);
+  font-size: 2.2rem;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.mkt2-method-quote-card {
+  position: relative;
+  border: 1px solid color-mix(in srgb, var(--brand-b) 20%, transparent);
+  background: color-mix(in srgb, var(--brand-b) 2%, transparent);
+  border-radius: 8px;
+  padding: 32px 28px 24px;
+  box-shadow: inset 0 0 15px color-mix(in srgb, var(--brand-b) 1%, transparent);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-top: 8px;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.mkt2-method-quote-card:hover {
+  border-color: var(--brand-b);
+  box-shadow: 0 0 20px color-mix(in srgb, var(--brand-b) 5%, transparent), inset 0 0 15px color-mix(in srgb, var(--brand-b) 2%, transparent);
+}
+
+.mkt2-method-quote-badge {
+  position: absolute;
+  top: -10px;
+  left: 20px;
+  background: #0a0a0a;
+  border: 1px solid color-mix(in srgb, var(--brand-b) 25%, transparent);
+  color: var(--brand-b);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.65rem;
+  font-weight: 700;
+  padding: 2px 8px;
+  letter-spacing: 0.05em;
+  transition: border-color 0.7s cubic-bezier(0.16, 1, 0.3, 1), color 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.mkt2-method-quote-text {
+  color: var(--brand-b);
+  font-family: 'Inter Tight', system-ui, sans-serif;
+  font-size: 1rem;
+  font-weight: 500;
+  line-height: 1.5;
+  font-style: normal;
+  margin: 0;
+  transition: color 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.mkt2-method-quote-author {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--muted-fg-b);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.mkt2-method-quote-bullet {
+  color: var(--brand-b);
+  transition: color 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Timetable Header Section (Roteiro) */
+.mkt2-timetable-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 40px;
+  margin-bottom: 48px;
+  border-bottom: 1px solid var(--border-b);
+  padding-bottom: 32px;
+  transition: border-color 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.mkt2-timetable-header-left {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.mkt2-timetable-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.75rem;
+  color: var(--brand-b);
+  font-weight: 700;
+  margin-bottom: 12px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  transition: color 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.mkt2-timetable-title {
+  font-size: clamp(2.5rem, 5vw, 4.5rem);
+  font-weight: 900;
+  line-height: 0.9;
+  text-transform: uppercase;
+  margin: 0;
+  color: var(--fg-b);
+}
+
+.mkt2-timetable-title-outline {
+  color: transparent;
+  -webkit-text-stroke: 1.5px var(--brand-b);
+  font-style: italic;
+  display: block;
+  transition: -webkit-text-stroke 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.mkt2-timetable-header-right {
+  max-width: 250px;
+  text-align: right;
+  margin-bottom: 6px;
+}
+
+.mkt2-timetable-desc {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.8rem;
+  color: var(--muted-fg-b);
+  line-height: 1.6;
+  margin: 0;
+}
+
+/* Responsiveness adjustments */
+@media (max-width: 768px) {
+  .mkt2-timetable-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 24px;
+  }
+  .mkt2-timetable-header-right {
+    text-align: left;
+    max-width: 100%;
+    margin-bottom: 0;
+  }
 }

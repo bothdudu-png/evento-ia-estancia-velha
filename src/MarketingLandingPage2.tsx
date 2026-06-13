@@ -127,25 +127,7 @@ export const MarketingLandingPage2: React.FC<MarketingLandingPage2Props> = ({
 
   const currentSlide = slides[currentSlideIndex];
 
-  // --- Dynamic mentor photo color filter shifting ---
-  const mentorPhotoFilter = useMemo(() => {
-    switch (currentSlideIndex) {
-      case 0: // IA. (Green: #10E27A) - default green image
-        return 'none';
-      case 1: // Claude Code (Orange/Coral: #D97757)
-        return 'hue-rotate(240deg) saturate(1.2)';
-      case 2: // Lovable (Pink: #FF4D8D)
-        return 'hue-rotate(180deg) saturate(1.5)';
-      case 3: // Replit (Orange: #F26207)
-        return 'hue-rotate(250deg) saturate(1.8)';
-      case 4: // Cursor (Light Grey: #E5E7EB)
-        return 'grayscale(1) brightness(1.1)';
-      case 5: // Antigravity (Blue: #4F8BFF)
-        return 'hue-rotate(75deg) saturate(1.4)';
-      default:
-        return 'none';
-    }
-  }, [currentSlideIndex]);
+
 
   useEffect(() => {
     const targetDate = new Date('2026-08-15T09:00:00-03:00').getTime();
@@ -487,46 +469,91 @@ export const MarketingLandingPage2: React.FC<MarketingLandingPage2Props> = ({
         whileInView="visible"
         viewport={{ once: true, margin: "-80px" }}
       >
-        <span className="mkt2-section-label">// O Método GUIDE</span>
-        <h2 className="mkt2-section-title">Construa e publique em tempo real</h2>
-        <p className="mkt2-section-desc">
-          Abandonamos a teoria tradicional dos cursos. Durante a imersão você acompanhará o fluxo prático e mentorado para desenhar, conectar e publicar um aplicativo completo.
-        </p>
+        <div className="mkt2-split-grid mkt2-split-grid--method">
+          <div className="mkt2-method-left-side">
+            <span className="mkt2-method-label">[ 04 ] · O MÉTODO</span>
+            <h2 className="mkt2-method-main-title">
+              O MÉTODO <br />
+              <span className="mkt2-method-main-title-highlight">GUIDE</span>
+            </h2>
+            <p className="mkt2-method-intro-desc">
+              Abandonamos a teoria tradicional dos cursos. Durante a imersão você acompanhará o fluxo prático e mentorado para desenhar, conectar e publicar um aplicativo completo.
+            </p>
 
-        <div className="mkt2-split-grid">
-          <motion.div className="mkt2-steps-list" variants={containerVariants}>
-            <motion.div className="mkt2-step-item" variants={cardVariants}>
-              <div className="mkt2-step-num">01</div>
-              <h3 className="mkt2-step-title">Arquitetura Visual</h3>
-              <p className="mkt2-step-desc">
-                Crie e esboce telas de forma intuitiva. Você aprende a modelar fluxos e layouts comerciais que engajam usuários, convertendo ideias em interfaces em poucos minutos.
-              </p>
+            <motion.div className="mkt2-method-steps" variants={containerVariants}>
+              <motion.div className="mkt2-method-step-row" variants={cardVariants}>
+                <div className="mkt2-method-step-header">
+                  <span className="mkt2-method-step-num">01</span>
+                  <h3 className="mkt2-method-step-title">Arquitetura Visual</h3>
+                </div>
+                <p className="mkt2-method-step-desc">
+                  Crie e esboce telas de forma intuitiva. Você aprende a modelar fluxos e layouts comerciais que engajam usuários, convertendo ideias em interfaces em poucos minutos.
+                </p>
+              </motion.div>
+              <motion.div className="mkt2-method-step-row" variants={cardVariants}>
+                <div className="mkt2-method-step-header">
+                  <span className="mkt2-method-step-num">02</span>
+                  <h3 className="mkt2-method-step-title">Logic Injection</h3>
+                </div>
+                <p className="mkt2-method-step-desc">
+                  A Inteligência Artificial atua como seu desenvolvedor dedicado. Suas regras e ideias operacionais são injetadas em bancos de dados reais de forma automatizada e segura.
+                </p>
+              </motion.div>
+              <motion.div className="mkt2-method-step-row" variants={cardVariants}>
+                <div className="mkt2-method-step-header">
+                  <span className="mkt2-method-step-num">03</span>
+                  <h3 className="mkt2-method-step-title">Instant Deploy</h3>
+                </div>
+                <p className="mkt2-method-step-desc">
+                  Publique seu app diretamente na nuvem em tempo real com link utilizável em computadores e celulares. Ao final do dia, seu projeto estará ativo e funcional.
+                </p>
+              </motion.div>
             </motion.div>
-            <motion.div className="mkt2-step-item" variants={cardVariants}>
-              <div className="mkt2-step-num">02</div>
-              <h3 className="mkt2-step-title">Logic Injection</h3>
-              <p className="mkt2-step-desc">
-                A Inteligência Artificial atua como seu desenvolvedor dedicado. Suas regras e ideias operacionais são injetadas em bancos de dados reais de forma automatizada e segura.
-              </p>
-            </motion.div>
-            <motion.div className="mkt2-step-item" variants={cardVariants}>
-              <div className="mkt2-step-num">03</div>
-              <h3 className="mkt2-step-title">Instant Deploy</h3>
-              <p className="mkt2-step-desc">
-                Publique seu app diretamente na nuvem em tempo real com link utilizável em computadores e celulares. Ao final do dia, seu projeto estará ativo e funcional.
-              </p>
-            </motion.div>
-          </motion.div>
+          </div>
 
-          <div className="mkt2-photo-panel">
-            <img
-              src="/method-coding.jpg"
-              alt="Hands-on coding session"
-              className="mkt2-photo-img"
-              onError={(e) => {
-                (e.target as HTMLImageElement).src = '/event_auditorium.png';
-              }}
-            />
+          <div className="mkt2-method-right-side">
+            <div className="mkt2-method-media-card">
+              <img
+                src="/method-coding.jpg"
+                alt="Hands-on coding session"
+                className="mkt2-method-media-img"
+                onError={(e) => {
+                  (e.target as HTMLImageElement).src = '/event_auditorium.png';
+                }}
+              />
+              <div className="mkt2-method-media-overlay">
+                <span>REC - 14:32 - LIVE</span>
+              </div>
+            </div>
+
+            <div className="mkt2-method-stats-grid">
+              <div className="mkt2-method-stat-card">
+                <span className="mkt2-method-stat-label">Mais rápido</span>
+                <span className="mkt2-method-stat-val">10x</span>
+              </div>
+              <div className="mkt2-method-stat-card">
+                <span className="mkt2-method-stat-label">Hands-on</span>
+                <span className="mkt2-method-stat-val">100%</span>
+              </div>
+              <div className="mkt2-method-stat-card">
+                <span className="mkt2-method-stat-label">App no ar</span>
+                <span className="mkt2-method-stat-val">01</span>
+              </div>
+              <div className="mkt2-method-stat-card">
+                <span className="mkt2-method-stat-label">Ideias</span>
+                <span className="mkt2-method-stat-val">∞</span>
+              </div>
+            </div>
+
+            <div className="mkt2-method-quote-card">
+              <span className="mkt2-method-quote-badge">' QUOTE</span>
+              <p className="mkt2-method-quote-text">
+                "A gente não ensina ferramenta. A gente ensina uma forma nova de pensar a criação de software - menos fricção, mais lançamento."
+              </p>
+              <div className="mkt2-method-quote-author">
+                <span className="mkt2-method-quote-bullet">■</span> THIAGO DIAZ - FOUNDER @ BUILDERZ
+              </div>
+            </div>
           </div>
         </div>
       </motion.section>
@@ -698,11 +725,20 @@ export const MarketingLandingPage2: React.FC<MarketingLandingPage2Props> = ({
         whileInView="visible"
         viewport={{ once: true, margin: "-80px" }}
       >
-        <span className="mkt2-section-label">// Roteiro do Dia</span>
-        <h2 className="mkt2-section-title">Estrutura de Blocos</h2>
-        <p className="mkt2-section-desc">
-          Cronograma prático desenhado com 10 blocos de aprendizagem focada, distribuídos ao longo do dia da imersão.
-        </p>
+        <div className="mkt2-timetable-header">
+          <div className="mkt2-timetable-header-left">
+            <span className="mkt2-timetable-label">[ 06 ] · THE DAY</span>
+            <h2 className="mkt2-timetable-title">
+              8 HORAS. <br />
+              <span className="mkt2-timetable-title-outline">SEM TEORIA MORTA.</span>
+            </h2>
+          </div>
+          <div className="mkt2-timetable-header-right">
+            <p className="mkt2-timetable-desc">
+              8 horas de imersão. O horário de início varia por cidade – a sequência é a mesma.
+            </p>
+          </div>
+        </div>
 
         <div className="mkt2-timeline-box">
           <motion.div className="mkt2-timeline" variants={containerVariants} initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-60px" }}>
@@ -752,7 +788,6 @@ export const MarketingLandingPage2: React.FC<MarketingLandingPage2Props> = ({
               src="/thiago-diaz.jpg"
               alt="Thiago Diaz"
               className="mkt2-mentor-photo"
-              style={{ filter: mentorPhotoFilter }}
               onError={(e) => {
                 (e.target as HTMLImageElement).src = '/thiago_diaz.png';
               }}
