@@ -345,11 +345,21 @@ export const MarketingLandingPage2: React.FC<MarketingLandingPage2Props> = ({
               </span>
             </h1>
 
-          <p className="mkt2-subtitle">
+          <motion.p
+            className="mkt2-subtitle"
+            initial={{ opacity: 0, y: 15 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.4, ease: [0.16, 1, 0.3, 1] }}
+          >
             Um dia inteiro e presencial, hands-on, focado em ensinar você a construir e lançar sistemas, automações e softwares corporativos com Inteligência Artificial. Sem teoria inútil.
-          </p>
+          </motion.p>
 
-          <div className="mkt2-hero-buttons">
+          <motion.div
+            className="mkt2-hero-buttons"
+            initial={{ opacity: 0, y: 15 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.5, ease: [0.16, 1, 0.3, 1] }}
+          >
             <button 
               onClick={handleActionClick} 
               className="mkt2-btn-primary"
@@ -368,9 +378,14 @@ export const MarketingLandingPage2: React.FC<MarketingLandingPage2Props> = ({
                 </>
               )}
             </button>
-          </div>
+          </motion.div>
 
-          <div className="mkt2-details-row">
+          <motion.div
+            className="mkt2-details-row"
+            initial={{ opacity: 0, y: 15 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.6, ease: [0.16, 1, 0.3, 1] }}
+          >
             <div className="mkt2-detail-card">
               <Calendar size={20} className="mkt2-detail-icon" style={{ color: currentSlide.color }} />
               <div>
@@ -409,7 +424,7 @@ export const MarketingLandingPage2: React.FC<MarketingLandingPage2Props> = ({
                 </div>
               </div>
             )}
-          </div>
+          </motion.div>
         </div>
 
         <div className="mkt2-hero-graphic">
