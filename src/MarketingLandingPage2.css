@@ -2011,3 +2011,31 @@
     margin-bottom: 0;
   }
 }
+
+/* Layered Mentor Photo Styling */
+.mkt2-mentor-photo--bg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: 1;
+}
+
+.mkt2-mentor-photo--fg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: 2;
+  pointer-events: none;
+}
+
+.mkt2-mentor-photo-wrapper:hover .mkt2-mentor-photo--bg {
+  filter: grayscale(1) !important;
+}
+
+.mkt2-mentor-photo-wrapper:hover .mkt2-mentor-photo--fg {
+  filter: grayscale(1) !important;
+}

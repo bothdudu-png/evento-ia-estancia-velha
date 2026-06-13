@@ -126,9 +126,25 @@ export const MarketingLandingPage2: React.FC<MarketingLandingPage2Props> = ({
   }, []);
 
   const currentSlide = slides[currentSlideIndex];
-
-
-
+  // --- Dynamic mentor photo color filter shifting ---
+  const mentorPhotoFilter = useMemo(() => {
+    switch (currentSlideIndex) {
+      case 0: // IA. (Green: #10E27A) - default green image
+        return 'none';
+      case 1: // Claude Code (Orange/Coral: #D97757)
+        return 'hue-rotate(240deg) saturate(1.2)';
+      case 2: // Lovable (Pink: #FF4D8D)
+        return 'hue-rotate(180deg) saturate(1.5)';
+      case 3: // Replit (Orange: #F26207)
+        return 'hue-rotate(250deg) saturate(1.8)';
+      case 4: // Cursor (Light Grey: #E5E7EB)
+        return 'grayscale(1) brightness(1.1)';
+      case 5: // Antigravity (Blue: #4F8BFF)
+        return 'hue-rotate(75deg) saturate(1.4)';
+      default:
+        return 'none';
+    }
+  }, [currentSlideIndex]);
   useEffect(() => {
     const targetDate = new Date('2026-08-15T09:00:00-03:00').getTime();
     const interval = setInterval(() => {
@@ -471,7 +487,7 @@ export const MarketingLandingPage2: React.FC<MarketingLandingPage2Props> = ({
       >
         <div className="mkt2-split-grid mkt2-split-grid--method">
           <div className="mkt2-method-left-side">
-            <span className="mkt2-method-label">[ 04 ] · O MÉTODO</span>
+            <span className="mkt2-method-label">O MÉTODO</span>
             <h2 className="mkt2-method-main-title">
               O MÉTODO <br />
               <span className="mkt2-method-main-title-highlight">GUIDE</span>
@@ -727,16 +743,11 @@ export const MarketingLandingPage2: React.FC<MarketingLandingPage2Props> = ({
       >
         <div className="mkt2-timetable-header">
           <div className="mkt2-timetable-header-left">
-            <span className="mkt2-timetable-label">[ 06 ] · THE DAY</span>
+            <span className="mkt2-timetable-label">THE DAY</span>
             <h2 className="mkt2-timetable-title">
               8 HORAS. <br />
               <span className="mkt2-timetable-title-outline">SEM TEORIA MORTA.</span>
             </h2>
-          </div>
-          <div className="mkt2-timetable-header-right">
-            <p className="mkt2-timetable-desc">
-              8 horas de imersão. O horário de início varia por cidade – a sequência é a mesma.
-            </p>
           </div>
         </div>
 
@@ -786,8 +797,14 @@ export const MarketingLandingPage2: React.FC<MarketingLandingPage2Props> = ({
             <div className="mkt2-mentor-tag">MENTOR_01</div>
             <img
               src="/thiago-diaz.jpg"
+              alt=""
+              className="mkt2-mentor-photo mkt2-mentor-photo--bg"
+              style={{ filter: mentorPhotoFilter }}
+            />
+            <img
+              src="/thiago_diaz.png"
               alt="Thiago Diaz"
-              className="mkt2-mentor-photo"
+              className="mkt2-mentor-photo mkt2-mentor-photo--fg"
               onError={(e) => {
                 (e.target as HTMLImageElement).src = '/thiago_diaz.png';
               }}
@@ -799,7 +816,7 @@ export const MarketingLandingPage2: React.FC<MarketingLandingPage2Props> = ({
           </div>
 
           <div className="mkt2-mentor-info">
-            <span className="mkt2-section-label">[ 07 ] · QUEM TE GUIA</span>
+            <span className="mkt2-section-label">QUEM TE GUIA</span>
             <h2 className="mkt2-mentor-name">
               THIAGO <br />
               <span className="mkt2-mentor-name-outline">DIAZ.</span>
