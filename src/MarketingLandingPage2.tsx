@@ -64,7 +64,7 @@ export const MarketingLandingPage2: React.FC<MarketingLandingPage2Props> = ({
 
   // --- Interactive Calculator State ---
   const [hoursSaved, setHoursSaved] = useState(8);
-  const [hourlyCost, setHourlyCost] = useState(45);
+  const [automationRate, setAutomationRate] = useState(60);
   const [employees, setEmployees] = useState(5);
 
   // --- Countdown State ---
@@ -168,17 +168,18 @@ export const MarketingLandingPage2: React.FC<MarketingLandingPage2Props> = ({
 
   // --- Calculator Calculations ---
   const calculatedSavings = useMemo(() => {
-    const weeklySavings = hoursSaved * hourlyCost * employees;
-    const monthlySavings = Math.round(weeklySavings * 4.33);
-    const annualSavings = Math.round(monthlySavings * 12);
-    const totalHoursSaved = Math.round(hoursSaved * 4.33 * employees);
-
+    const weeklyHours = hoursSaved * (automationRate / 100) * employees;
+    const monthlyHours = Math.round(weeklyHours * 4.33);
+    const annualHours = Math.round(weeklyHours * 52);
+    const annualDays = Math.round(annualHours / 8); // Assumindo dia útil de 8h
+    
     return {
-      monthly: monthlySavings.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }),
-      annual: annualSavings.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }),
-      hours: totalHoursSaved
+      weekly: Math.round(weeklyHours),
+      monthly: monthlyHours,
+      annual: annualHours,
+      days: annualDays
     };
-  }, [hoursSaved, hourlyCost, employees]);
+  }, [hoursSaved, automationRate, employees]);
 
   const toggleFaq = (index: number) => {
     setOpenFaq(openFaq === index ? null : index);
@@ -549,7 +550,7 @@ export const MarketingLandingPage2: React.FC<MarketingLandingPage2Props> = ({
           <div className="mkt2-calc-sliders">
             <div className="mkt2-slider-group">
               <div className="mkt2-slider-header">
-                <span className="mkt2-slider-label">Horas economizadas (por funcionário/semana)</span>
+                <span className="mkt2-slider-label">Horas gastas em tarefas repetitivas (por pessoa/semana)</span>
                 <span className="mkt2-slider-val">{hoursSaved}h</span>
               </div>
               <input
@@ -564,22 +565,23 @@ export const MarketingLandingPage2: React.FC<MarketingLandingPage2Props> = ({
 
             <div className="mkt2-slider-group">
               <div className="mkt2-slider-header">
-                <span className="mkt2-slider-label">Custo médio por hora (Salário + Encargos)</span>
-                <span className="mkt2-slider-val">R$ {hourlyCost}</span>
+                <span className="mkt2-slider-label">Potencial de automação com IA</span>
+                <span className="mkt2-slider-val">{automationRate}%</span>
               </div>
               <input
                 type="range"
-                min="15"
-                max="150"
-                value={hourlyCost}
-                onChange={(e) => setHourlyCost(Number(e.target.value))}
+                min="10"
+                max="100"
+                step="5"
+                value={automationRate}
+                onChange={(e) => setAutomationRate(Number(e.target.value))}
                 className="mkt2-slider-input"
               />
             </div>
 
             <div className="mkt2-slider-group">
               <div className="mkt2-slider-header">
-                <span className="mkt2-slider-label">Número de funcionários impactados</span>
+                <span className="mkt2-slider-label">Quantidade de pessoas impactadas</span>
                 <span className="mkt2-slider-val">{employees}</span>
               </div>
               <input
@@ -592,25 +594,25 @@ export const MarketingLandingPage2: React.FC<MarketingLandingPage2Props> = ({
               />
             </div>
             <p className="mkt2-calc-footer">
-              * Estimativa com base em ferramentas comuns de IA (Chatbots comerciais, triagem de leads, relatórios automatizados de CRM e preenchimento de planilhas).
+              * Estimativa de ganho de eficiência ao automatizar fluxos repetitivos, planilhas, relatórios, triagem de mensagens ou emails com agentes inteligentes de IA.
             </p>
           </div>
 
           <div className="mkt2-calc-results">
-            <h4 className="mkt2-calc-headline">Retorno Estimado Operacional</h4>
+            <h4 className="mkt2-calc-headline">Foco & Tempo Recuperados</h4>
             <div className="mkt2-result-row">
               <div className="mkt2-result-card">
-                <span className="mkt2-result-label">Horas Livres / Mês</span>
-                <span className="mkt2-result-value">{calculatedSavings.hours}h</span>
+                <span className="mkt2-result-label">Horas Livres / Semana</span>
+                <span className="mkt2-result-value">{calculatedSavings.weekly}h</span>
               </div>
               <div className="mkt2-result-card">
-                <span className="mkt2-result-label">Economia Mensal</span>
-                <span className="mkt2-result-value brand">{calculatedSavings.monthly}</span>
+                <span className="mkt2-result-label">Horas Livres / Mês</span>
+                <span className="mkt2-result-value brand">{calculatedSavings.monthly}h</span>
               </div>
             </div>
             <div className="mkt2-result-card accent">
-              <span className="mkt2-result-label">Retorno Financeiro Anual Projetado</span>
-              <span className="mkt2-result-value brand">{calculatedSavings.annual}</span>
+              <span className="mkt2-result-label">Dias de Trabalho Recuperados / Ano (Base 8h/dia)</span>
+              <span className="mkt2-result-value brand">{calculatedSavings.days} dias <span style={{ fontSize: '1rem', color: 'var(--muted-fg-b)', fontWeight: 500 }}>({calculatedSavings.annual}h/ano)</span></span>
             </div>
           </div>
         </div>
@@ -699,23 +701,21 @@ export const MarketingLandingPage2: React.FC<MarketingLandingPage2Props> = ({
         <span className="mkt2-section-label">// Roteiro do Dia</span>
         <h2 className="mkt2-section-title">Estrutura de Blocos</h2>
         <p className="mkt2-section-desc">
-          Cronograma prático desenhado com 11 blocos de aprendizagem focada, distribuídos ao longo do dia da imersão.
+          Cronograma prático desenhado com 10 blocos de aprendizagem focada, distribuídos ao longo do dia da imersão.
         </p>
 
         <div className="mkt2-timeline-box">
           <motion.div className="mkt2-timeline" variants={containerVariants} initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-60px" }}>
             {[
-              { time: '08:30', duration: '30min', title: 'Check-in', desc: 'Abertura oficial, recepção dos computadores, setup de rede e kit de boas-vindas.', shift: 'morning' },
-              { time: '09:00', duration: '20min', title: 'IA First', desc: 'Como estruturar o raciocínio de automação e comandos inteligentes.', shift: 'morning' },
-              { time: '09:20', duration: '20min', title: 'A Era do Selfware', desc: 'Construa sob medida: ferramentas, bots e scripts que poupam horas de tarefas diárias.', shift: 'morning' },
-              { time: '09:40', duration: '20min', title: 'Plataformas de IA', desc: 'Visão geral do ecossistema de ferramentas e builders automatizados.', shift: 'morning' },
-              { time: '10:00', duration: '40min', title: 'Princípios de Design', desc: 'Noções básicas de design visual prático e Design Systems eficientes.', shift: 'morning' },
-              { time: '10:40', duration: '20min', title: 'O Framework Guide', desc: 'Introdução técnica ao método de Discovery Driven e deploy ágil.', shift: 'morning' },
-              { time: '11:00', duration: '30min', title: 'Coffee Break & Networking', desc: 'Pausa com coffee break premium e conexões estratégicas entre os participantes.', shift: 'morning' },
-              { time: '11:30', duration: '30min', title: 'Live Build I — Front-end & Telas', desc: 'Criação estruturada das interfaces e fluxo visual do zero no telão.', shift: 'morning' },
+              { time: '08:30', duration: '30min', title: 'Check-in', desc: 'Abertura oficial, recepção dos computadores e kit de boas-vindas.', shift: 'morning' },
+              { time: '09:00', duration: '30min', title: 'IA First & A Era do Selfware', desc: 'Como estruturar o raciocínio de automação e criar ferramentas, bots e scripts sob medida.', shift: 'morning' },
+              { time: '09:30', duration: '30min', title: 'Plataformas de IA & Design', desc: 'Visão geral do ecossistema de builders e noções básicas de design visual prático.', shift: 'morning' },
+              { time: '10:00', duration: '30min', title: 'Coffee Break & Networking', desc: 'Pausa com coffee break premium e conexões estratégicas entre os participantes.', shift: 'morning' },
+              { time: '10:30', duration: '30min', title: 'O Framework Guide', desc: 'Roteiro prático do método Discovery Driven e planejamento das bancadas de desenvolvimento.', shift: 'morning' },
+              { time: '11:00', duration: '1h 00m', title: 'Live Build I — Front-end & Telas', desc: 'Criação estruturada das interfaces e fluxo visual do zero no telão.', shift: 'morning' },
               { time: '12:00', duration: '1h 30m', title: 'Almoço — Intervalo Livre', desc: 'Pausa para almoço por conta de cada participante. Retorno às 13:30. Ótimo momento para networking informal.', shift: 'lunch' },
-              { time: '13:30', duration: '1h 00m', title: 'Live Build II — Banco de Dados', desc: 'Conexão e segurança, lógicas de acesso (RLS) e integrações.', shift: 'afternoon' },
-              { time: '14:30', duration: '2h 00m', title: 'Hands-on Mentorado', desc: 'Bancada aberta de desenvolvimento individual sob mentoria 1:1 direta.', shift: 'afternoon' },
+              { time: '13:30', duration: '1h 00m', title: 'Live Build II — Banco de Dados', desc: 'Conexão estruturada, lógicas de segurança (RLS) e integrações.', shift: 'afternoon' },
+              { time: '14:30', duration: '2h 00m', title: 'Hands-on Mentorado', desc: 'Bancada aberta de desenvolvimento individual sob mentoria 1:1 direta do mentor.', shift: 'afternoon' },
               { time: '16:30', duration: '1h 00m', title: 'Encerramento & Deploy', desc: 'Deploy final com apps no ar e fechamento de conexões locais. Encerramento às 17:30.', shift: 'evening' }
             ].map((item, idx) => (
               <motion.div className="mkt2-timeline-item" key={idx} variants={cardVariants}>
