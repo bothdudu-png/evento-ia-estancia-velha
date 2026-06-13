@@ -89,18 +89,27 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({
 
   // --- Prevent double scrollbars on mount/unmount ---
   useEffect(() => {
-    document.documentElement.style.overflow = 'hidden';
-    document.documentElement.style.height = '100%';
-    document.body.style.overflowY = 'auto';
-    document.body.style.overflowX = 'hidden';
-    document.body.style.height = '100%';
+    // Save original styles
+    const origHtmlOverflow = document.documentElement.style.overflow;
+    const origHtmlHeight = document.documentElement.style.height;
+    const origBodyOverflowY = document.body.style.overflowY;
+    const origBodyOverflowX = document.body.style.overflowX;
+    const origBodyHeight = document.body.style.height;
+
+    // Apply strict overflow locks
+    document.documentElement.style.setProperty('overflow', 'hidden', 'important');
+    document.documentElement.style.setProperty('height', '100%', 'important');
+    document.body.style.setProperty('overflow-y', 'auto', 'important');
+    document.body.style.setProperty('overflow-x', 'hidden', 'important');
+    document.body.style.setProperty('height', '100%', 'important');
 
     return () => {
-      document.documentElement.style.overflow = '';
-      document.documentElement.style.height = '';
-      document.body.style.overflowY = '';
-      document.body.style.overflowX = '';
-      document.body.style.height = '';
+      // Restore original styles
+      document.documentElement.style.overflow = origHtmlOverflow;
+      document.documentElement.style.height = origHtmlHeight;
+      document.body.style.overflowY = origBodyOverflowY;
+      document.body.style.overflowX = origBodyOverflowX;
+      document.body.style.height = origBodyHeight;
     };
   }, []);
 
