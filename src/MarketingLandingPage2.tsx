@@ -85,12 +85,12 @@ export const MarketingLandingPage2: React.FC<MarketingLandingPage2Props> = ({
   const isHeroVisible = useRef(true); // tracks visibility without re-render
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
-  // Start/stop slide cycling based on hero visibility
+  // Start/stop slide cycling
   const startCycling = useCallback(() => {
     if (intervalRef.current) clearInterval(intervalRef.current);
     intervalRef.current = setInterval(() => {
       if (typeof document !== 'undefined' && document.visibilityState === 'hidden') return;
-      if (!isHeroVisible.current) return; // paused when hero is off-screen
+      // Keep cycling color presets continuously so neon details match active slide theme even when scrolled down
       setCurrentSlideIndex(prev => (prev + 1) % slides.length);
     }, 3600);
   }, [slides.length]);
@@ -126,43 +126,29 @@ export const MarketingLandingPage2: React.FC<MarketingLandingPage2Props> = ({
   }, []);
 
   const currentSlide = slides[currentSlideIndex];
-  // --- Dynamic mentor photo color filter shifting ---
-  const mentorPhotoFilter = useMemo(() => {
+  // --- Dynamic mentor photo src based on active slide ---
+  const mentorPhotoSrc = useMemo(() => {
     switch (currentSlideIndex) {
-      case 0: // IA. (Green: #10E27A)
-        return 'url(#mentor-filter-green)';
-      case 1: // Claude Code (Orange/Coral: #D97757)
-        return 'url(#mentor-filter-orange)';
-      case 2: // Lovable (Pink: #FF4D8D)
-        return 'none';
-      case 3: // Replit (Orange: #F26207)
-        return 'url(#mentor-filter-replit)';
-      case 4: // Cursor (Light Grey: #E5E7EB)
-        return 'url(#mentor-filter-cursor)';
-      case 5: // Antigravity (Blue: #4F8BFF)
-        return 'url(#mentor-filter-blue)';
-      default:
-        return 'none';
+      case 0: return '/mentor-green.jpg';
+      case 1: return '/mentor-orange.jpg';
+      case 2: return '/mentor-pink.jpg';
+      case 3: return '/mentor-replit.jpg';
+      case 4: return '/mentor-cursor.jpg';
+      case 5: return '/mentor-blue.jpg';
+      default: return '/thiago-diaz.jpg';
     }
   }, [currentSlideIndex]);
 
-  // --- Dynamic keyboard color filter shifting ---
-  const keyboardPhotoFilter = useMemo(() => {
+  // --- Dynamic keyboard photo src based on active slide ---
+  const keyboardPhotoSrc = useMemo(() => {
     switch (currentSlideIndex) {
-      case 0: // IA. (Green: #10E27A)
-        return 'none';
-      case 1: // Claude Code (Orange/Coral: #D97757)
-        return 'url(#keyboard-filter-orange)';
-      case 2: // Lovable (Pink: #FF4D8D)
-        return 'url(#keyboard-filter-pink)';
-      case 3: // Replit (Orange: #F26207)
-        return 'url(#keyboard-filter-replit)';
-      case 4: // Cursor (Light Grey: #E5E7EB)
-        return 'url(#keyboard-filter-cursor)';
-      case 5: // Antigravity (Blue: #4F8BFF)
-        return 'url(#keyboard-filter-blue)';
-      default:
-        return 'none';
+      case 0: return '/keyboard-green.jpg';
+      case 1: return '/keyboard-orange.jpg';
+      case 2: return '/keyboard-pink.jpg';
+      case 3: return '/keyboard-replit.jpg';
+      case 4: return '/keyboard-cursor.jpg';
+      case 5: return '/keyboard-blue.jpg';
+      default: return '/method-coding.jpg';
     }
   }, [currentSlideIndex]);
   useEffect(() => {
@@ -550,10 +536,9 @@ export const MarketingLandingPage2: React.FC<MarketingLandingPage2Props> = ({
           <div className="mkt2-method-right-side">
             <div className="mkt2-method-media-card">
               <img
-                src="/method-coding.jpg"
+                src={keyboardPhotoSrc}
                 alt="Hands-on coding session"
                 className="mkt2-method-media-img"
-                style={{ filter: keyboardPhotoFilter }}
                 onError={(e) => {
                   (e.target as HTMLImageElement).src = '/event_auditorium.png';
                 }}
@@ -817,10 +802,9 @@ export const MarketingLandingPage2: React.FC<MarketingLandingPage2Props> = ({
           <div className="mkt2-mentor-photo-wrapper">
             <div className="mkt2-mentor-tag">MENTOR_01</div>
             <img
-              src="/thiago-diaz.jpg"
+              src={mentorPhotoSrc}
               alt="Thiago Diaz"
               className="mkt2-mentor-photo"
-              style={{ filter: mentorPhotoFilter }}
             />
             <div className="mkt2-mentor-photo-info">
               <span>ISO 400 · 50MM</span>
@@ -1038,84 +1022,7 @@ export const MarketingLandingPage2: React.FC<MarketingLandingPage2Props> = ({
         </div>
       </footer>
 
-      {/* Hidden SVG for dynamic neon shifting filters */}
-      <svg style={{ position: 'absolute', width: 0, height: 0, overflow: 'hidden' }} aria-hidden="true">
-        <defs>
-          {/* Mentor Filters (Original background is pink/purple. Mask shifts it to other colors) */}
-          <filter id="mentor-filter-green" colorInterpolationFilters="sRGB">
-            <feColorMatrix type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 -8 8 0 -0.8" result="mask"/>
-            <feColorMatrix type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 -1 1" in="mask" result="invmask"/>
-            <feComposite operator="in" in="SourceGraphic" in2="invmask" result="cleared"/>
-            <feColorMatrix type="matrix" values="0 0 0 0.08 0  0 0 0 1.15 0  0 0 0 0.62 0  0 0 0 1 0" in="mask" result="colorized"/>
-            <feComposite operator="over" in="colorized" in2="cleared"/>
-          </filter>
-          <filter id="mentor-filter-orange" colorInterpolationFilters="sRGB">
-            <feColorMatrix type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 -8 8 0 -0.8" result="mask"/>
-            <feColorMatrix type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 -1 1" in="mask" result="invmask"/>
-            <feComposite operator="in" in="SourceGraphic" in2="invmask" result="cleared"/>
-            <feColorMatrix type="matrix" values="0 0 0 1.10 0  0 0 0 0.60 0  0 0 0 0.44 0  0 0 0 1 0" in="mask" result="colorized"/>
-            <feComposite operator="over" in="colorized" in2="cleared"/>
-          </filter>
-          <filter id="mentor-filter-replit" colorInterpolationFilters="sRGB">
-            <feColorMatrix type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 -8 8 0 -0.8" result="mask"/>
-            <feColorMatrix type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 -1 1" in="mask" result="invmask"/>
-            <feComposite operator="in" in="SourceGraphic" in2="invmask" result="cleared"/>
-            <feColorMatrix type="matrix" values="0 0 0 1.23 0  0 0 0 0.50 0  0 0 0 0.04 0  0 0 0 1 0" in="mask" result="colorized"/>
-            <feComposite operator="over" in="colorized" in2="cleared"/>
-          </filter>
-          <filter id="mentor-filter-cursor" colorInterpolationFilters="sRGB">
-            <feColorMatrix type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 -8 8 0 -0.8" result="mask"/>
-            <feColorMatrix type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 -1 1" in="mask" result="invmask"/>
-            <feComposite operator="in" in="SourceGraphic" in2="invmask" result="cleared"/>
-            <feColorMatrix type="matrix" values="0 0 0 1.16 0  0 0 0 1.17 0  0 0 0 1.20 0  0 0 0 1 0" in="mask" result="colorized"/>
-            <feComposite operator="over" in="colorized" in2="cleared"/>
-          </filter>
-          <filter id="mentor-filter-blue" colorInterpolationFilters="sRGB">
-            <feColorMatrix type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 -8 8 0 -0.8" result="mask"/>
-            <feColorMatrix type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 -1 1" in="mask" result="invmask"/>
-            <feComposite operator="in" in="SourceGraphic" in2="invmask" result="cleared"/>
-            <feColorMatrix type="matrix" values="0 0 0 0.40 0  0 0 0 0.70 0  0 0 0 1.30 0  0 0 0 1 0" in="mask" result="colorized"/>
-            <feComposite operator="over" in="colorized" in2="cleared"/>
-          </filter>
 
-          {/* Keyboard Filters (Original background is green/cyan. Mask shifts it to other colors) */}
-          <filter id="keyboard-filter-orange" colorInterpolationFilters="sRGB">
-            <feColorMatrix type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  -8 8 0 0 -0.8" result="mask"/>
-            <feColorMatrix type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 -1 1" in="mask" result="invmask"/>
-            <feComposite operator="in" in="SourceGraphic" in2="invmask" result="cleared"/>
-            <feColorMatrix type="matrix" values="0 0 0 1.10 0  0 0 0 0.60 0  0 0 0 0.44 0  0 0 0 1 0" in="mask" result="colorized"/>
-            <feComposite operator="over" in="colorized" in2="cleared"/>
-          </filter>
-          <filter id="keyboard-filter-pink" colorInterpolationFilters="sRGB">
-            <feColorMatrix type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  -8 8 0 0 -0.8" result="mask"/>
-            <feColorMatrix type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 -1 1" in="mask" result="invmask"/>
-            <feComposite operator="in" in="SourceGraphic" in2="invmask" result="cleared"/>
-            <feColorMatrix type="matrix" values="0 0 0 1.30 0  0 0 0 0.40 0  0 0 0 0.72 0  0 0 0 1 0" in="mask" result="colorized"/>
-            <feComposite operator="over" in="colorized" in2="cleared"/>
-          </filter>
-          <filter id="keyboard-filter-replit" colorInterpolationFilters="sRGB">
-            <feColorMatrix type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  -8 8 0 0 -0.8" result="mask"/>
-            <feColorMatrix type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 -1 1" in="mask" result="invmask"/>
-            <feComposite operator="in" in="SourceGraphic" in2="invmask" result="cleared"/>
-            <feColorMatrix type="matrix" values="0 0 0 1.23 0  0 0 0 0.50 0  0 0 0 0.04 0  0 0 0 1 0" in="mask" result="colorized"/>
-            <feComposite operator="over" in="colorized" in2="cleared"/>
-          </filter>
-          <filter id="keyboard-filter-cursor" colorInterpolationFilters="sRGB">
-            <feColorMatrix type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  -8 8 0 0 -0.8" result="mask"/>
-            <feColorMatrix type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 -1 1" in="mask" result="invmask"/>
-            <feComposite operator="in" in="SourceGraphic" in2="invmask" result="cleared"/>
-            <feColorMatrix type="matrix" values="0 0 0 1.16 0  0 0 0 1.17 0  0 0 0 1.20 0  0 0 0 1 0" in="mask" result="colorized"/>
-            <feComposite operator="over" in="colorized" in2="cleared"/>
-          </filter>
-          <filter id="keyboard-filter-blue" colorInterpolationFilters="sRGB">
-            <feColorMatrix type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  -8 8 0 0 -0.8" result="mask"/>
-            <feColorMatrix type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 -1 1" in="mask" result="invmask"/>
-            <feComposite operator="in" in="SourceGraphic" in2="invmask" result="cleared"/>
-            <feColorMatrix type="matrix" values="0 0 0 0.40 0  0 0 0 0.70 0  0 0 0 1.30 0  0 0 0 1 0" in="mask" result="colorized"/>
-            <feComposite operator="over" in="colorized" in2="cleared"/>
-          </filter>
-        </defs>
-      </svg>
     </div>
   );
 };
