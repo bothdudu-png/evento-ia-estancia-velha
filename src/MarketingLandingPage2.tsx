@@ -823,7 +823,7 @@ export const MarketingLandingPage2: React.FC<MarketingLandingPage2Props> = ({
               style={{ filter: mentorPhotoFilter }}
             />
             <img
-              src="/thiago_diaz.png"
+              src="/thiago_diaz_cutout.png"
               alt="Thiago Diaz"
               className="mkt2-mentor-photo mkt2-mentor-photo--fg"
               onError={(e) => {
