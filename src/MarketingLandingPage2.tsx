@@ -463,7 +463,7 @@ export const MarketingLandingPage2: React.FC<MarketingLandingPage2Props> = ({
           animate={{ x: [0, '-50%'] }}
           transition={{
             ease: "linear",
-            duration: 25,
+            duration: 75,
             repeat: Infinity,
           }}
         >
