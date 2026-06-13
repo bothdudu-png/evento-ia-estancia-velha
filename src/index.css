@@ -73,7 +73,7 @@ body::after {
   content: "";
   position: fixed;
   inset: 0;
-  z-index: 9998;
+  z-index: 9; /* Lowered from 9998 so it stays behind checkout container and inputs */
   background: linear-gradient(rgba(18, 16, 24, 0) 50%, rgba(0, 0, 0, 0.15) 50%);
   background-size: 100% 4px;
   opacity: 0.06;
