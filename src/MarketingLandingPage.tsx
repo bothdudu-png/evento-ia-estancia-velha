@@ -189,7 +189,7 @@ Apenas para quem possui o convite exclusivo. Acesse o painel e confirme sua insc
               boxShadow: '0 6px 20px rgba(124, 58, 237, 0.45)'
             }}
           >
-            Inscrever-se com Token <ArrowRight size={16} />
+            Garantir Minha Vaga <ArrowRight size={16} />
           </button>
           <a
             href="#cronograma"

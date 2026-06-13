@@ -351,7 +351,7 @@ export const MarketingLandingPage2: React.FC<MarketingLandingPage2Props> = ({
               className="mkt2-btn-primary"
               style={{ background: currentSlide.color, color: '#06091e', boxShadow: `0 4px 15px ${currentSlide.color}30` }}
             >
-              Inscrever-se com Token <ArrowRight size={16} />
+              Garantir Minha Vaga <ArrowRight size={16} />
             </button>
             <button className="mkt2-btn-secondary" onClick={handleCopyLink}>
               {copied ? (
