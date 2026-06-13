@@ -129,18 +129,38 @@ export const MarketingLandingPage2: React.FC<MarketingLandingPage2Props> = ({
   // --- Dynamic mentor photo color filter shifting ---
   const mentorPhotoFilter = useMemo(() => {
     switch (currentSlideIndex) {
-      case 0: // IA. (Green: #10E27A) - default green image
+      case 0: // IA. (Green: #10E27A)
+        return 'hue-rotate(180deg) saturate(1.4)';
+      case 1: // Claude Code (Orange/Coral: #D97757)
+        return 'hue-rotate(80deg) saturate(1.4)';
+      case 2: // Lovable (Pink: #FF4D8D)
+        return 'none';
+      case 3: // Replit (Orange: #F26207)
+        return 'hue-rotate(70deg) saturate(1.6)';
+      case 4: // Cursor (Light Grey: #E5E7EB)
+        return 'grayscale(1) brightness(1.2)';
+      case 5: // Antigravity (Blue: #4F8BFF)
+        return 'hue-rotate(280deg) saturate(1.4)';
+      default:
+        return 'none';
+    }
+  }, [currentSlideIndex]);
+
+  // --- Dynamic keyboard color filter shifting ---
+  const keyboardPhotoFilter = useMemo(() => {
+    switch (currentSlideIndex) {
+      case 0: // IA. (Green: #10E27A)
         return 'none';
       case 1: // Claude Code (Orange/Coral: #D97757)
-        return 'hue-rotate(240deg) saturate(1.2)';
+        return 'hue-rotate(260deg) saturate(1.4)';
       case 2: // Lovable (Pink: #FF4D8D)
-        return 'hue-rotate(180deg) saturate(1.5)';
+        return 'hue-rotate(180deg) saturate(1.4)';
       case 3: // Replit (Orange: #F26207)
-        return 'hue-rotate(250deg) saturate(1.8)';
+        return 'hue-rotate(250deg) saturate(1.6)';
       case 4: // Cursor (Light Grey: #E5E7EB)
-        return 'grayscale(1) brightness(1.1)';
+        return 'grayscale(1) brightness(1.2)';
       case 5: // Antigravity (Blue: #4F8BFF)
-        return 'hue-rotate(75deg) saturate(1.4)';
+        return 'hue-rotate(100deg) saturate(1.4)';
       default:
         return 'none';
     }
@@ -533,6 +553,7 @@ export const MarketingLandingPage2: React.FC<MarketingLandingPage2Props> = ({
                 src="/method-coding.jpg"
                 alt="Hands-on coding session"
                 className="mkt2-method-media-img"
+                style={{ filter: keyboardPhotoFilter }}
                 onError={(e) => {
                   (e.target as HTMLImageElement).src = '/event_auditorium.png';
                 }}
