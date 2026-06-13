@@ -408,7 +408,8 @@
 }
 
 @keyframes slideUpWord {
-  to { transform: translateY(0); }
+  0% { transform: translateY(110%); opacity: 0; }
+  100% { transform: translateY(0); opacity: 1; }
 }
 
 .mkt2-subtitle {
