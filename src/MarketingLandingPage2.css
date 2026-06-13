@@ -1648,10 +1648,10 @@
 /* Decorative Marquee Strip */
 .mkt2-marquee-strip {
   overflow: hidden;
-  background: #000000;
+  background: transparent;
   border-top: 1px solid rgba(255, 255, 255, 0.04);
   border-bottom: 1px solid rgba(255, 255, 255, 0.04);
-  padding: 16px 0;
+  padding: 20px 0;
   display: flex;
   user-select: none;
   pointer-events: none;
