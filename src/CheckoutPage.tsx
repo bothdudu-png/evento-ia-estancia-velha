@@ -87,6 +87,23 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({
     return 400;
   }, [adminTestMode, isAdmin, selectedBilling, confirmedCount]);
 
+  // --- Prevent double scrollbars on mount/unmount ---
+  useEffect(() => {
+    document.documentElement.style.overflow = 'hidden';
+    document.documentElement.style.height = '100%';
+    document.body.style.overflowY = 'auto';
+    document.body.style.overflowX = 'hidden';
+    document.body.style.height = '100%';
+
+    return () => {
+      document.documentElement.style.overflow = '';
+      document.documentElement.style.height = '';
+      document.body.style.overflowY = '';
+      document.body.style.overflowX = '';
+      document.body.style.height = '';
+    };
+  }, []);
+
   // --- Check existing user session on mount ---
   useEffect(() => {
     const checkUserSession = async () => {

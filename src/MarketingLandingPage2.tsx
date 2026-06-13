@@ -126,31 +126,7 @@ export const MarketingLandingPage2: React.FC<MarketingLandingPage2Props> = ({
   }, []);
 
   const currentSlide = slides[currentSlideIndex];
-  // --- Dynamic mentor photo src based on active slide ---
-  const mentorPhotoSrc = useMemo(() => {
-    switch (currentSlideIndex) {
-      case 0: return '/mentor-green.jpg';
-      case 1: return '/mentor-orange.jpg';
-      case 2: return '/mentor-pink.jpg';
-      case 3: return '/mentor-replit.jpg';
-      case 4: return '/mentor-cursor.jpg';
-      case 5: return '/mentor-blue.jpg';
-      default: return '/thiago-diaz.jpg';
-    }
-  }, [currentSlideIndex]);
 
-  // --- Dynamic keyboard photo src based on active slide ---
-  const keyboardPhotoSrc = useMemo(() => {
-    switch (currentSlideIndex) {
-      case 0: return '/keyboard-green.jpg';
-      case 1: return '/keyboard-orange.jpg';
-      case 2: return '/keyboard-pink.jpg';
-      case 3: return '/keyboard-replit.jpg';
-      case 4: return '/keyboard-cursor.jpg';
-      case 5: return '/keyboard-blue.jpg';
-      default: return '/method-coding.jpg';
-    }
-  }, [currentSlideIndex]);
   useEffect(() => {
     const targetDate = new Date('2026-08-15T09:00:00-03:00').getTime();
     const interval = setInterval(() => {
@@ -345,11 +321,21 @@ export const MarketingLandingPage2: React.FC<MarketingLandingPage2Props> = ({
               </span>
             </h1>
 
-          <p className="mkt2-subtitle">
+          <motion.p
+            className="mkt2-subtitle"
+            initial={{ opacity: 0, y: 15 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.4, ease: [0.16, 1, 0.3, 1] }}
+          >
             Um dia inteiro e presencial, hands-on, focado em ensinar você a construir e lançar sistemas, automações e softwares corporativos com Inteligência Artificial. Sem teoria inútil.
-          </p>
+          </motion.p>
 
-          <div className="mkt2-hero-buttons">
+          <motion.div
+            className="mkt2-hero-buttons"
+            initial={{ opacity: 0, y: 15 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.5, ease: [0.16, 1, 0.3, 1] }}
+          >
             <button 
               onClick={handleActionClick} 
               className="mkt2-btn-primary"
@@ -368,9 +354,14 @@ export const MarketingLandingPage2: React.FC<MarketingLandingPage2Props> = ({
                 </>
               )}
             </button>
-          </div>
+          </motion.div>
 
-          <div className="mkt2-details-row">
+          <motion.div
+            className="mkt2-details-row"
+            initial={{ opacity: 0, y: 15 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.6, ease: [0.16, 1, 0.3, 1] }}
+          >
             <div className="mkt2-detail-card">
               <Calendar size={20} className="mkt2-detail-icon" style={{ color: currentSlide.color }} />
               <div>
@@ -409,7 +400,7 @@ export const MarketingLandingPage2: React.FC<MarketingLandingPage2Props> = ({
                 </div>
               </div>
             )}
-          </div>
+          </motion.div>
         </div>
 
         <div className="mkt2-hero-graphic">
@@ -536,7 +527,7 @@ export const MarketingLandingPage2: React.FC<MarketingLandingPage2Props> = ({
           <div className="mkt2-method-right-side">
             <div className="mkt2-method-media-card">
               <img
-                src={keyboardPhotoSrc}
+                src="/method-coding.jpg"
                 alt="Hands-on coding session"
                 className="mkt2-method-media-img"
                 onError={(e) => {
@@ -802,7 +793,7 @@ export const MarketingLandingPage2: React.FC<MarketingLandingPage2Props> = ({
           <div className="mkt2-mentor-photo-wrapper">
             <div className="mkt2-mentor-tag">MENTOR_01</div>
             <img
-              src={mentorPhotoSrc}
+              src="/thiago-diaz.jpg"
               alt="Thiago Diaz"
               className="mkt2-mentor-photo"
             />
