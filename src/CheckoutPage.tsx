@@ -97,10 +97,12 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({
     const origBodyOverflowX = document.body.style.overflowX;
     const origBodyHeight = document.body.style.height;
 
-    // Reset zoom to 1 to avoid browser/scroll discrepancy at 80% zoom
-    document.documentElement.style.zoom = '1';
+    // Apply zoom 0.8 on desktop to match landing page proportion
+    if (window.innerWidth > 992) {
+      document.documentElement.style.zoom = '0.8';
+    }
 
-    // Apply strict overflow locks
+    // Apply strict overflow locks to hide html scrollbar and delegate it to body
     document.documentElement.style.setProperty('overflow', 'hidden', 'important');
     document.documentElement.style.setProperty('height', '100%', 'important');
     document.body.style.setProperty('overflow-y', 'auto', 'important');
