@@ -89,34 +89,22 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({
 
   // --- Prevent double scrollbars on mount/unmount ---
   useEffect(() => {
-    // Save original styles
-    const origHtmlOverflow = document.documentElement.style.overflow;
-    const origHtmlHeight = document.documentElement.style.height;
-    const origHtmlZoom = document.documentElement.style.zoom;
-    const origBodyOverflowY = document.body.style.overflowY;
-    const origBodyOverflowX = document.body.style.overflowX;
-    const origBodyHeight = document.body.style.height;
-
     // Apply zoom 0.8 on desktop to match landing page proportion
     if (window.innerWidth > 992) {
       document.documentElement.style.zoom = '0.8';
     }
 
-    // Apply strict overflow locks to hide html scrollbar and delegate it to body
+    // Completely disable body/html level scrollbars to delegate strictly to container
+    const origHtmlOverflow = document.documentElement.style.overflow;
+    const origBodyOverflow = document.body.style.overflow;
+
     document.documentElement.style.setProperty('overflow', 'hidden', 'important');
-    document.documentElement.style.setProperty('height', '100%', 'important');
-    document.body.style.setProperty('overflow-y', 'auto', 'important');
-    document.body.style.setProperty('overflow-x', 'hidden', 'important');
-    document.body.style.setProperty('height', '100%', 'important');
+    document.body.style.setProperty('overflow', 'hidden', 'important');
 
     return () => {
-      // Restore original styles
+      document.documentElement.style.zoom = '';
       document.documentElement.style.overflow = origHtmlOverflow;
-      document.documentElement.style.height = origHtmlHeight;
-      document.documentElement.style.zoom = origHtmlZoom;
-      document.body.style.overflowY = origBodyOverflowY;
-      document.body.style.overflowX = origBodyOverflowX;
-      document.body.style.height = origBodyHeight;
+      document.body.style.overflow = origBodyOverflow;
     };
   }, []);
 

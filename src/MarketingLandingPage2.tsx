@@ -305,27 +305,32 @@ export const MarketingLandingPage2: React.FC<MarketingLandingPage2Props> = ({
       <section id="hero" className="mkt2-hero" ref={heroRef}>
         <div className="mkt2-hero-inner">
           <div className="mkt2-hero-info">
-            <div className="mkt2-badge-host">
+            <motion.div
+              className="mkt2-badge-host"
+              initial={{ opacity: 0, y: 15 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+            >
               <span className="mkt2-badge-live"></span>
               IMERSÃO IA · ESTÂNCIA VELHA · 2026
-            </div>
+            </motion.div>
           
             <h1 className="mkt2-title">
               <span className="mkt2-title-block">
-                <span className="mkt2-title-inner animate-slide-up-word">CONSTRUA</span>
+                <span className="mkt2-title-inner animate-slide-up-word" style={{ animationDelay: '0.1s' }}>CONSTRUA</span>
               </span>
               <span className="mkt2-title-block">
-                <span className="mkt2-title-inner animate-slide-up-word" style={{ animationDelay: '0.1s' }}>
+                <span className="mkt2-title-inner animate-slide-up-word" style={{ animationDelay: '0.2s' }}>
                   O <span className="mkt2-title-outline-bold">FUTURO</span>
                 </span>
               </span>
               <span className="mkt2-title-block">
-                <span className="mkt2-title-inner animate-slide-up-word" style={{ animationDelay: '0.2s' }}>
+                <span className="mkt2-title-inner animate-slide-up-word" style={{ animationDelay: '0.3s' }}>
                   COM {currentSlide.article}
                 </span>
               </span>
               <span className="mkt2-title-block mkt2-title-block--last">
-                <span className="mkt2-title-inner animate-slide-up-word" style={{ animationDelay: '0.3s' }}>
+                <span className="mkt2-title-inner animate-slide-up-word" style={{ animationDelay: '0.4s' }}>
                   <span className="mkt2-title-brand-wrap">
                     <AnimatePresence mode="wait">
                       <motion.span
@@ -349,7 +354,7 @@ export const MarketingLandingPage2: React.FC<MarketingLandingPage2Props> = ({
             className="mkt2-subtitle"
             initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.4, ease: [0.16, 1, 0.3, 1] }}
+            transition={{ duration: 0.8, delay: 0.5, ease: [0.16, 1, 0.3, 1] }}
           >
             Um dia inteiro e presencial, hands-on, focado em ensinar você a construir e lançar sistemas, automações e softwares corporativos com Inteligência Artificial. Sem teoria inútil.
           </motion.p>
@@ -358,7 +363,7 @@ export const MarketingLandingPage2: React.FC<MarketingLandingPage2Props> = ({
             className="mkt2-hero-buttons"
             initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.5, ease: [0.16, 1, 0.3, 1] }}
+            transition={{ duration: 0.8, delay: 0.6, ease: [0.16, 1, 0.3, 1] }}
           >
             <button 
               onClick={handleActionClick} 
@@ -384,7 +389,7 @@ export const MarketingLandingPage2: React.FC<MarketingLandingPage2Props> = ({
             className="mkt2-details-row"
             initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.6, ease: [0.16, 1, 0.3, 1] }}
+            transition={{ duration: 0.8, delay: 0.7, ease: [0.16, 1, 0.3, 1] }}
           >
             <div className="mkt2-detail-card">
               <Calendar size={20} className="mkt2-detail-icon" style={{ color: currentSlide.color }} />
