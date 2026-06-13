@@ -85,12 +85,12 @@ export const MarketingLandingPage2: React.FC<MarketingLandingPage2Props> = ({
   const isHeroVisible = useRef(true); // tracks visibility without re-render
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
-  // Start/stop slide cycling
+  // Start/stop slide cycling based on hero visibility
   const startCycling = useCallback(() => {
     if (intervalRef.current) clearInterval(intervalRef.current);
     intervalRef.current = setInterval(() => {
       if (typeof document !== 'undefined' && document.visibilityState === 'hidden') return;
-      // Keep cycling color presets continuously so neon details match active slide theme even when scrolled down
+      if (!isHeroVisible.current) return; // paused when hero is off-screen
       setCurrentSlideIndex(prev => (prev + 1) % slides.length);
     }, 3600);
   }, [slides.length]);
