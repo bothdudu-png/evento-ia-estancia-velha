@@ -1,10 +1,3 @@
-html {
-  overflow-y: auto !important;
-}
-body {
-  overflow-y: visible !important;
-}
-
 .mkt2-checkout-container {
   background-color: #06091e;
   color: #F9FAFB;
