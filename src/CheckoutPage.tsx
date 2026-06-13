@@ -92,9 +92,13 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({
     // Save original styles
     const origHtmlOverflow = document.documentElement.style.overflow;
     const origHtmlHeight = document.documentElement.style.height;
+    const origHtmlZoom = document.documentElement.style.zoom;
     const origBodyOverflowY = document.body.style.overflowY;
     const origBodyOverflowX = document.body.style.overflowX;
     const origBodyHeight = document.body.style.height;
+
+    // Reset zoom to 1 to avoid browser/scroll discrepancy at 80% zoom
+    document.documentElement.style.zoom = '1';
 
     // Apply strict overflow locks
     document.documentElement.style.setProperty('overflow', 'hidden', 'important');
@@ -107,6 +111,7 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({
       // Restore original styles
       document.documentElement.style.overflow = origHtmlOverflow;
       document.documentElement.style.height = origHtmlHeight;
+      document.documentElement.style.zoom = origHtmlZoom;
       document.body.style.overflowY = origBodyOverflowY;
       document.body.style.overflowX = origBodyOverflowX;
       document.body.style.height = origBodyHeight;
