@@ -9,6 +9,12 @@
   min-height: 100vh;
 }
 
+@media (min-width: 993px) {
+  .mkt2-checkout-container {
+    min-height: 125vh; /* Compensates for zoom: 0.8 height reduction, ensuring it fills the viewport */
+  }
+}
+
 /* Background fade-in Awwwards animation wrapper */
 .mkt2-bg-wrapper {
   animation: bgFadeIn 1s cubic-bezier(0.16, 1, 0.3, 1) both;

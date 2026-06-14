@@ -559,15 +559,17 @@ export default function App() {
   // --- Anime.js Page & Stagger Transitions ---
   useEffect(() => {
     // 1. Transition the main tab container
-    animate('.tab-content-container', {
-      opacity: [0, 1],
-      translateY: [15, 0],
-      duration: 350,
-      ease: 'outQuad'
-    });
+    if (document.querySelector('.tab-content-container')) {
+      animate('.tab-content-container', {
+        opacity: [0, 1],
+        translateY: [15, 0],
+        duration: 350,
+        ease: 'outQuad'
+      });
+    }
 
     // 2. If transitioning to Dashboard, stagger indicators
-    if (activeTab === 'dashboard') {
+    if (activeTab === 'dashboard' && document.querySelector('.indicator-card')) {
       animate('.indicator-card', {
         scale: [0.92, 1],
         opacity: [0, 1],
@@ -579,7 +581,7 @@ export default function App() {
     }
 
     // 3. If transitioning to CRM, stagger cards in each column
-    if (activeTab === 'crm') {
+    if (activeTab === 'crm' && document.querySelector('.kanban-card')) {
       animate('.kanban-card', {
         scale: [0.95, 1],
         opacity: [0, 1],
@@ -591,7 +593,7 @@ export default function App() {
     }
 
     // 4. If transitioning to Planning, stagger checklist items
-    if (activeTab === 'planejamento') {
+    if (activeTab === 'planejamento' && document.querySelector('.checklist-item')) {
       animate('.checklist-item', {
         opacity: [0, 1],
         translateX: [-10, 0],
@@ -602,7 +604,7 @@ export default function App() {
     }
 
     // 5. If transitioning to Timeline/Schedule, stagger timeline items
-    if (activeTab === 'programacao') {
+    if (activeTab === 'programacao' && document.querySelector('.timeline-item')) {
       animate('.timeline-item', {
         opacity: [0, 1],
         translateX: [-20, 0],
@@ -1354,7 +1356,7 @@ export default function App() {
         <div className="ambient-glow-1"></div>
         <div className="ambient-glow-2"></div>
 
-        <div className="glass-panel" style={{ width: '100%', maxWidth: '440px', padding: '40px 30px', zIndex: 10, display: 'flex', flexDirection: 'column', gap: '24px', boxShadow: '0 20px 40px rgba(0,0,0,0.5), inset 0 0 1px rgba(255,255,255,0.1)' }}>
+        <div className="glass-panel animate-slide-up-fade" style={{ width: '100%', maxWidth: '440px', padding: '40px 30px', zIndex: 10, display: 'flex', flexDirection: 'column', gap: '24px', boxShadow: '0 20px 40px rgba(0,0,0,0.5), inset 0 0 1px rgba(255,255,255,0.1)', animationDelay: '0.3s' }}>
           <div style={{ textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px' }}>
             <h1 style={{ fontSize: '1.4rem', fontWeight: 900, letterSpacing: '-0.03em', fontFamily: "'Inter Tight', system-ui, sans-serif", color: '#fff', display: 'flex', alignItems: 'center', gap: '8px', margin: 0 }}>
               AI EXPERIENCE
