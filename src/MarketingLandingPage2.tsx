@@ -261,7 +261,13 @@ export const MarketingLandingPage2: React.FC<MarketingLandingPage2Props> = ({
       </div>
 
       {/* FIXED HEADER */}
-      <header className="mkt2-header" style={{ borderBottomColor: `${currentSlide.color}15` }}>
+      <motion.header
+        className="mkt2-header"
+        style={{ borderBottomColor: `${currentSlide.color}15` }}
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+      >
         <div className="mkt2-header-wrap">
           <button
             className="mkt2-logo"
@@ -299,7 +305,7 @@ export const MarketingLandingPage2: React.FC<MarketingLandingPage2Props> = ({
             </button>
           </div>
         </div>
-      </header>
+      </motion.header>
 
       {/* HERO SECTION */}
       <section id="hero" className="mkt2-hero" ref={heroRef}>
@@ -440,8 +446,8 @@ export const MarketingLandingPage2: React.FC<MarketingLandingPage2Props> = ({
                 className="mkt2-graphic-image-container"
                 initial={{
                   opacity: 0,
-                  scale: 0.85,
-                  y: 20,
+                  scale: 0.9,
+                  y: 40,
                 }}
                 animate={{
                   opacity: 0.95,
@@ -450,11 +456,12 @@ export const MarketingLandingPage2: React.FC<MarketingLandingPage2Props> = ({
                 }}
                 exit={{
                   opacity: 0,
-                  scale: 1.1,
-                  y: -20,
+                  scale: 1.05,
+                  y: -30,
                 }}
                 transition={{
-                  duration: 1,
+                  duration: 1.2,
+                  delay: 0.3,
                   ease: [0.16, 1, 0.3, 1]
                 }}
               >

@@ -93,21 +93,8 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({
     if (window.innerWidth > 992) {
       document.documentElement.style.zoom = '0.8';
     }
-
-    // Force strict single scrollbar layout
-    document.documentElement.style.overflow = 'hidden';
-    document.documentElement.style.height = '100%';
-    document.body.style.overflowY = 'auto';
-    document.body.style.overflowX = 'hidden';
-    document.body.style.height = '100%';
-
     return () => {
       document.documentElement.style.zoom = '';
-      document.documentElement.style.overflow = '';
-      document.documentElement.style.height = '';
-      document.body.style.overflowY = '';
-      document.body.style.overflowX = '';
-      document.body.style.height = '';
     };
   }, []);
 
