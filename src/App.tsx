@@ -1355,11 +1355,30 @@ export default function App() {
         <div className="ambient-glow-2"></div>
 
         <div className="glass-panel" style={{ width: '100%', maxWidth: '440px', padding: '40px 30px', zIndex: 10, display: 'flex', flexDirection: 'column', gap: '24px', boxShadow: '0 20px 40px rgba(0,0,0,0.5), inset 0 0 1px rgba(255,255,255,0.1)' }}>
-          <div style={{ textAlign: 'center' }}>
-            <h1 style={{ fontSize: '1.5rem', fontWeight: 800, letterSpacing: '-0.02em', margin: 0 }}>
-              <span className="gradient-text-blue-purple">AI EXPERIENCE</span>
+          <div style={{ textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px' }}>
+            <h1 style={{ fontSize: '1.4rem', fontWeight: 900, letterSpacing: '-0.03em', fontFamily: "'Inter Tight', system-ui, sans-serif", color: '#fff', display: 'flex', alignItems: 'center', gap: '8px', margin: 0 }}>
+              AI EXPERIENCE
+              <span 
+                className="mkt2-logo-sub"
+                style={{ 
+                  color: 'var(--neon-cyan)', 
+                  borderColor: 'rgba(0, 242, 254, 0.3)', 
+                  textShadow: '0 0 10px rgba(0, 242, 254, 0.2)',
+                  background: 'rgba(0, 242, 254, 0.04)',
+                  padding: '2px 6px',
+                  borderRadius: '4px',
+                  fontSize: '0.75rem',
+                  fontFamily: "'JetBrains Mono', monospace",
+                  fontWeight: 500,
+                  border: '1px solid rgba(0, 242, 254, 0.3)',
+                  display: 'inline-block',
+                  textTransform: 'uppercase'
+                }}
+              >
+                ESTÂNCIA VELHA
+              </span>
             </h1>
-            <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginTop: '6px' }}>
+            <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginTop: '4px', margin: 0 }}>
               Painel Executivo • Acesso Restrito
             </p>
           </div>
@@ -1530,7 +1549,7 @@ export default function App() {
       <div className="ambient-glow-2"></div>
 
       {/* STICKY HEADER & NAVBAR with Progressive Blur */}
-      <header style={{ borderBottom: '1px solid var(--border-color)', padding: '14px 0', background: 'rgba(6, 9, 30, 0.45)', position: 'sticky', top: 0, zIndex: 100 }}>
+      <header className="animate-slide-down-fade" style={{ borderBottom: '1px solid var(--border-color)', padding: '14px 0', background: 'rgba(6, 9, 30, 0.45)', position: 'sticky', top: 0, zIndex: 100, animationDelay: '0.2s' }}>
         <div className="gradient-blur">
           <div></div><div></div><div></div><div></div><div></div><div></div>
         </div>
@@ -1540,15 +1559,28 @@ export default function App() {
           <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
             <div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
-                <h1 style={{ fontSize: '1.3rem', fontWeight: 800, letterSpacing: '-0.02em', display: 'flex', alignItems: 'center', gap: '2px' }}>
-                  <span style={{ color: 'var(--neon-cyan)', textShadow: '0 0 10px rgba(0, 242, 254, 0.2)' }}>AI</span>
-                  <span style={{ color: 'var(--neon-purple)', textShadow: '0 0 10px rgba(124, 58, 237, 0.2)' }}>EXPERIENCE</span>
-                </h1>
-                {parsedEventNameHeader.sub && (
-                  <span className="badge" style={{ background: 'rgba(0, 242, 254, 0.04)', color: 'var(--neon-cyan)', fontSize: '0.7rem', border: '1px solid var(--neon-cyan)', borderRadius: '20px', padding: '2px 10px', fontWeight: 700 }}>
-                    {parsedEventNameHeader.sub}
+                <h1 style={{ fontSize: '1.25rem', fontWeight: 900, letterSpacing: '-0.03em', fontFamily: "'Inter Tight', system-ui, sans-serif", color: '#fff', display: 'flex', alignItems: 'center', gap: '8px', margin: 0 }}>
+                  AI EXPERIENCE
+                  <span 
+                    className="mkt2-logo-sub"
+                    style={{ 
+                      color: 'var(--neon-cyan)', 
+                      borderColor: 'rgba(0, 242, 254, 0.3)', 
+                      textShadow: '0 0 10px rgba(0, 242, 254, 0.2)',
+                      background: 'rgba(0, 242, 254, 0.04)',
+                      padding: '2px 6px',
+                      borderRadius: '4px',
+                      fontSize: '0.75rem',
+                      fontFamily: "'JetBrains Mono', monospace",
+                      fontWeight: 500,
+                      border: '1px solid rgba(0, 242, 254, 0.3)',
+                      display: 'inline-block',
+                      textTransform: 'uppercase'
+                    }}
+                  >
+                    {parsedEventNameHeader.sub || "ESTÂNCIA VELHA"}
                   </span>
-                )}
+                </h1>
                 <span className="badge hide-mobile" style={{ background: 'rgba(124, 58, 237, 0.04)', color: 'var(--neon-purple)', fontSize: '0.7rem', border: '1px solid var(--neon-purple)', borderRadius: '20px', padding: '2px 10px', fontWeight: 700 }}>
                   {eventSettings.location.toUpperCase()}
                 </span>
@@ -1628,10 +1660,10 @@ export default function App() {
         </div>
       </header>
 
-      <main style={{ maxWidth: '1280px', margin: '20px auto 0', padding: '0 20px' }}>
+      <main className="animate-slide-up-fade" style={{ maxWidth: '1280px', margin: '20px auto 0', padding: '0 20px', animationDelay: '0.6s' }}>
 
         {/* NAVIGATION TABS */}
-        <nav style={{ marginBottom: '24px' }}>
+        <nav className="animate-slide-up-fade" style={{ marginBottom: '24px', animationDelay: '0.4s' }}>
           <div className="tab-nav">
             {[
               { id: 'dashboard', label: 'Dashboard Executivo', icon: <Layers size={16} /> },

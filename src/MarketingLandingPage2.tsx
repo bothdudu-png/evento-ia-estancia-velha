@@ -61,6 +61,14 @@ export const MarketingLandingPage2: React.FC<MarketingLandingPage2Props> = ({
 }) => {
   const [openFaq, setOpenFaq] = useState<number | null>(null);
   const [copied, setCopied] = useState(false);
+  const [isInitialMount, setIsInitialMount] = useState(true);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsInitialMount(false);
+    }, 2000);
+    return () => clearTimeout(timer);
+  }, []);
 
   // --- Interactive Calculator State ---
   const [hoursSaved, setHoursSaved] = useState(8);
@@ -230,34 +238,36 @@ export const MarketingLandingPage2: React.FC<MarketingLandingPage2Props> = ({
       } as React.CSSProperties}
     >
       {/* BACKGROUND GRAPHICS & TEXT (REF. GOBUILDERZ) */}
-      <div 
-        className="mkt2-circuit-grid"
-        style={{ backgroundImage: `radial-gradient(circle at 1px 1px, ${currentSlide.color}0c 1px, transparent 0)` }}
-      ></div>
-      <div className="mkt2-noise-overlay"></div>
-      <div 
-        className="mkt2-glow-radial-1"
-        style={{ background: `radial-gradient(circle, ${currentSlide.color}08 0%, rgba(6, 9, 30, 0) 70%)` }}
-      ></div>
-      <div 
-        className="mkt2-glow-radial-2"
-        style={{ background: `radial-gradient(circle, ${currentSlide.color}05 0%, rgba(6, 9, 30, 0) 70%)` }}
-      ></div>
+      <div className="mkt2-bg-wrapper">
+        <div 
+          className="mkt2-circuit-grid"
+          style={{ backgroundImage: `radial-gradient(circle at 1px 1px, ${currentSlide.color}0c 1px, transparent 0)` }}
+        ></div>
+        <div className="mkt2-noise-overlay"></div>
+        <div 
+          className="mkt2-glow-radial-1"
+          style={{ background: `radial-gradient(circle, ${currentSlide.color}08 0%, rgba(6, 9, 30, 0) 70%)` }}
+        ></div>
+        <div 
+          className="mkt2-glow-radial-2"
+          style={{ background: `radial-gradient(circle, ${currentSlide.color}05 0%, rgba(6, 9, 30, 0) 70%)` }}
+        ></div>
 
-      <div className="mkt2-hero-bg-media">
-        <img 
-          src="/hero-circuit.jpg" 
-          alt="" 
-          className="mkt2-hero-bg-img"
-          onError={(e) => {
-            (e.target as HTMLImageElement).style.display = 'none';
-          }}
-        />
-        <div className="mkt2-hero-bg-overlay"></div>
-      </div>
-      
-      <div className="mkt2-hero-bg-text-wrap" aria-hidden="true">
-        <div className="mkt2-hero-bg-text">EVENTS26</div>
+        <div className="mkt2-hero-bg-media">
+          <img 
+            src="/hero-circuit.jpg" 
+            alt="" 
+            className="mkt2-hero-bg-img"
+            onError={(e) => {
+              (e.target as HTMLImageElement).style.display = 'none';
+            }}
+          />
+          <div className="mkt2-hero-bg-overlay"></div>
+        </div>
+        
+        <div className="mkt2-hero-bg-text-wrap" aria-hidden="true">
+          <div className="mkt2-hero-bg-text">EVENTS26</div>
+        </div>
       </div>
 
       {/* FIXED HEADER */}
@@ -266,7 +276,7 @@ export const MarketingLandingPage2: React.FC<MarketingLandingPage2Props> = ({
         style={{ borderBottomColor: `${currentSlide.color}15` }}
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+        transition={{ duration: 0.8, delay: 0.3, ease: [0.16, 1, 0.3, 1] }}
       >
         <div className="mkt2-header-wrap">
           <button
@@ -315,7 +325,7 @@ export const MarketingLandingPage2: React.FC<MarketingLandingPage2Props> = ({
               className="mkt2-badge-host"
               initial={{ opacity: 0, y: 15 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+              transition={{ duration: 0.8, delay: 0.5, ease: [0.16, 1, 0.3, 1] }}
             >
               <span className="mkt2-badge-live"></span>
               IMERSÃO IA · ESTÂNCIA VELHA · 2026
@@ -323,20 +333,20 @@ export const MarketingLandingPage2: React.FC<MarketingLandingPage2Props> = ({
           
             <h1 className="mkt2-title">
               <span className="mkt2-title-block">
-                <span className="mkt2-title-inner animate-slide-up-word" style={{ animationDelay: '0.1s' }}>CONSTRUA</span>
+                <span className="mkt2-title-inner animate-slide-up-word" style={{ animationDelay: '0.6s' }}>CONSTRUA</span>
               </span>
               <span className="mkt2-title-block">
-                <span className="mkt2-title-inner animate-slide-up-word" style={{ animationDelay: '0.2s' }}>
+                <span className="mkt2-title-inner animate-slide-up-word" style={{ animationDelay: '0.75s' }}>
                   O <span className="mkt2-title-outline-bold">FUTURO</span>
                 </span>
               </span>
               <span className="mkt2-title-block">
-                <span className="mkt2-title-inner animate-slide-up-word" style={{ animationDelay: '0.3s' }}>
+                <span className="mkt2-title-inner animate-slide-up-word" style={{ animationDelay: '0.9s' }}>
                   COM {currentSlide.article}
                 </span>
               </span>
               <span className="mkt2-title-block mkt2-title-block--last">
-                <span className="mkt2-title-inner animate-slide-up-word" style={{ animationDelay: '0.4s' }}>
+                <span className="mkt2-title-inner animate-slide-up-word" style={{ animationDelay: '1.05s' }}>
                   <span className="mkt2-title-brand-wrap">
                     <AnimatePresence mode="wait">
                       <motion.span
@@ -346,7 +356,11 @@ export const MarketingLandingPage2: React.FC<MarketingLandingPage2Props> = ({
                         initial={{ y: '0.6em', opacity: 0 }}
                         animate={{ y: 0, opacity: 1 }}
                         exit={{ y: '-0.6em', opacity: 0 }}
-                        transition={{ duration: 0.75, ease: [0.16, 1, 0.3, 1] }}
+                        transition={{ 
+                          duration: 0.75, 
+                          ease: [0.16, 1, 0.3, 1],
+                          delay: isInitialMount ? 1.05 : 0
+                        }}
                       >
                         {currentSlide.label}
                       </motion.span>
@@ -360,7 +374,7 @@ export const MarketingLandingPage2: React.FC<MarketingLandingPage2Props> = ({
             className="mkt2-subtitle"
             initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.5, ease: [0.16, 1, 0.3, 1] }}
+            transition={{ duration: 0.8, delay: 1.2, ease: [0.16, 1, 0.3, 1] }}
           >
             Um dia inteiro e presencial, hands-on, focado em ensinar você a construir e lançar sistemas, automações e softwares corporativos com Inteligência Artificial. Sem teoria inútil.
           </motion.p>
@@ -369,7 +383,7 @@ export const MarketingLandingPage2: React.FC<MarketingLandingPage2Props> = ({
             className="mkt2-hero-buttons"
             initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.6, ease: [0.16, 1, 0.3, 1] }}
+            transition={{ duration: 0.8, delay: 1.35, ease: [0.16, 1, 0.3, 1] }}
           >
             <button 
               onClick={handleActionClick} 
@@ -395,7 +409,7 @@ export const MarketingLandingPage2: React.FC<MarketingLandingPage2Props> = ({
             className="mkt2-details-row"
             initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.7, ease: [0.16, 1, 0.3, 1] }}
+            transition={{ duration: 0.8, delay: 1.5, ease: [0.16, 1, 0.3, 1] }}
           >
             <div className="mkt2-detail-card">
               <Calendar size={20} className="mkt2-detail-icon" style={{ color: currentSlide.color }} />
@@ -461,7 +475,7 @@ export const MarketingLandingPage2: React.FC<MarketingLandingPage2Props> = ({
                 }}
                 transition={{
                   duration: 1.2,
-                  delay: 0.3,
+                  delay: isInitialMount ? 0.9 : 0.2,
                   ease: [0.16, 1, 0.3, 1]
                 }}
               >

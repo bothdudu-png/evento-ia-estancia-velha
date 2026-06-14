@@ -542,13 +542,20 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({
   return (
     <div className="mkt2-checkout-container">
       {/* BACKGROUND GRAPHICS & BLURS */}
-      <div className="mkt2-circuit-grid"></div>
-      <div className="mkt2-noise-overlay"></div>
-      <div className="mkt2-glow-radial-1"></div>
-      <div className="mkt2-glow-radial-2"></div>
+      <div className="mkt2-bg-wrapper">
+        <div className="mkt2-circuit-grid"></div>
+        <div className="mkt2-noise-overlay"></div>
+        <div className="mkt2-glow-radial-1"></div>
+        <div className="mkt2-glow-radial-2"></div>
+      </div>
 
       {/* HEADER BAR */}
-      <header className="mkt2-checkout-header">
+      <motion.header 
+        className="mkt2-checkout-header"
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.8, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
+      >
         <div className="mkt2-checkout-header-inner">
           <button onClick={onNavigateToLanding} className="mkt2-back-btn">
             <ChevronLeft size={16} /> Voltar
@@ -558,14 +565,19 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({
           </div>
           <div style={{ width: '64px' }} className="hide-mobile"></div>
         </div>
-      </header>
+      </motion.header>
 
       {/* MAIN LAYOUT */}
       <main className="mkt2-checkout-main">
         <div className="mkt2-checkout-grid">
           
           {/* COLUMN LEFT: FORM AND SECTIONS */}
-          <div className="mkt2-checkout-col-left">
+          <motion.div 
+            className="mkt2-checkout-col-left"
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.4, ease: [0.16, 1, 0.3, 1] }}
+          >
             <AnimatePresence mode="wait">
               {checkoutStep === 'form' && (
                 <motion.div
@@ -1171,10 +1183,15 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({
                 </button>
               </div>
             )}
-          </div>
+          </motion.div>
 
           {/* COLUMN RIGHT: LOTS INFO */}
-          <div className="mkt2-checkout-col-right">
+          <motion.div 
+            className="mkt2-checkout-col-right"
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.6, ease: [0.16, 1, 0.3, 1] }}
+          >
             <div className="mkt2-lot-summary-card">
               <span className="mkt2-lot-badge">LOTE 01 / 03</span>
               <div className="mkt2-lot-price-container">
@@ -1212,7 +1229,7 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({
                 * Processamento de pagamentos seguro e encriptado via **Asaas**. Sua compra e dados pessoais estão 100% protegidos em conformidade com a LGPD e as normas bancárias vigentes.
               </div>
             </div>
-          </div>
+          </motion.div>
 
         </div>
       </main>

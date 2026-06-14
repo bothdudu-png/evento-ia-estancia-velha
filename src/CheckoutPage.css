@@ -6,10 +6,21 @@
   display: flex;
   flex-direction: column;
   width: 100%;
+  min-height: 100vh;
+}
+
+/* Background fade-in Awwwards animation wrapper */
+.mkt2-bg-wrapper {
+  animation: bgFadeIn 1s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes bgFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
 .mkt2-checkout-container .mkt2-circuit-grid {
-  position: absolute;
+  position: fixed;
   inset: 0;
   z-index: 1;
   background-image: radial-gradient(circle at 1px 1px, rgba(0, 242, 254, 0.05) 1px, transparent 0);
@@ -18,7 +29,7 @@
 }
 
 .mkt2-checkout-container .mkt2-noise-overlay {
-  position: absolute;
+  position: fixed;
   inset: 0;
   z-index: 2;
   pointer-events: none;
@@ -28,7 +39,7 @@
 }
 
 .mkt2-checkout-container .mkt2-glow-radial-1 {
-  position: absolute;
+  position: fixed;
   top: -10%;
   left: -10%;
   width: 50vw;
@@ -39,7 +50,7 @@
 }
 
 .mkt2-checkout-container .mkt2-glow-radial-2 {
-  position: absolute;
+  position: fixed;
   bottom: -10%;
   right: -10%;
   width: 60vw;

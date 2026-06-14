@@ -181,6 +181,35 @@ body::after {
   animation: fadeInUp 0.5s var(--ease-out-expo) both;
 }
 
+/* Background wrapper fade-in */
+.mkt2-bg-wrapper {
+  animation: bgFadeIn 1.2s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes bgFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* Custom staggered page entry animations */
+.animate-slide-down-fade {
+  animation: slideDownFade 0.8s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes slideDownFade {
+  0% { transform: translateY(-20px); opacity: 0; }
+  100% { transform: translateY(0); opacity: 1; }
+}
+
+.animate-slide-up-fade {
+  animation: slideUpFade 0.8s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes slideUpFade {
+  0% { transform: translateY(20px); opacity: 0; }
+  100% { transform: translateY(0); opacity: 1; }
+}
+
 .stagger-1 { animation-delay: 30ms; }
 .stagger-2 { animation-delay: 60ms; }
 .stagger-3 { animation-delay: 90ms; }
