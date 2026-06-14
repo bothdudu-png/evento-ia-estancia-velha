@@ -1545,7 +1545,7 @@ export default function App() {
   }
 
   return (
-    <div style={{ minHeight: '100vh', position: 'relative', overflow: 'hidden', paddingBottom: '40px' }}>
+    <div className="animate-fade-in" style={{ minHeight: '100vh', position: 'relative', overflow: 'hidden', paddingBottom: '40px' }}>
       {/* Background Glows */}
       <div className="ambient-glow-1"></div>
       <div className="ambient-glow-2"></div>

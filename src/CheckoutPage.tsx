@@ -612,9 +612,18 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({
                     </div>
                   )}
 
-                  {needProfileDetails ? (
-                    /* COMPLETE PROFILE FORM */
-                    <form onSubmit={handleCompleteProfileAndSubmit} className="mkt2-checkout-form">
+                  <AnimatePresence mode="wait">
+                    {needProfileDetails ? (
+                      /* COMPLETE PROFILE FORM */
+                      <motion.form 
+                        key="complete-profile"
+                        initial={{ opacity: 0, y: 15 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -15 }}
+                        transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
+                        onSubmit={handleCompleteProfileAndSubmit} 
+                        className="mkt2-checkout-form"
+                      >
                       <div className="mkt2-form-title-wrap">
                         <span className="mkt2-form-label-code">[ COMPLEMENTO DE CADASTRO ]</span>
                         <h2 className="mkt2-form-title">Complete seus dados para continuar</h2>
@@ -720,10 +729,18 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({
                       >
                         Voltar ao Login
                       </button>
-                    </form>
-                  ) : activeTab === 'register' ? (
-                    /* REGISTER FORM */
-                    <form onSubmit={handleRegisterSubmit} className="mkt2-checkout-form">
+                      </motion.form>
+                    ) : activeTab === 'register' ? (
+                      /* REGISTER FORM */
+                      <motion.form 
+                        key="register"
+                        initial={{ opacity: 0, y: 15 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -15 }}
+                        transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
+                        onSubmit={handleRegisterSubmit} 
+                        className="mkt2-checkout-form"
+                      >
                       <div className="mkt2-form-title-wrap">
                         <span className="mkt2-form-label-code">[ ACESSO ]</span>
                         <h2 className="mkt2-form-title">Para garantir sua vaga no AI EXPERIENCE</h2>
@@ -882,10 +899,18 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({
                       <button type="submit" disabled={loading} className="mkt2-submit-btn">
                         {loading ? 'Cadastrando...' : 'CRIAR CONTA & IR PARA PAGAMENTO ->'}
                       </button>
-                    </form>
-                  ) : (
-                    /* LOGIN FORM */
-                    <form onSubmit={handleLoginSubmit} className="mkt2-checkout-form">
+                      </motion.form>
+                    ) : (
+                      /* LOGIN FORM */
+                      <motion.form 
+                        key="login"
+                        initial={{ opacity: 0, y: 15 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -15 }}
+                        transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
+                        onSubmit={handleLoginSubmit} 
+                        className="mkt2-checkout-form"
+                      >
                       <div className="mkt2-form-title-wrap">
                         <span className="mkt2-form-label-code">[ LOGIN ]</span>
                         <h2 className="mkt2-form-title">Acesse sua conta para continuar</h2>
@@ -923,8 +948,9 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({
                       <button type="submit" disabled={loading} className="mkt2-submit-btn">
                         {loading ? 'Acessando...' : 'ENTRAR & SELECIONAR PAGAMENTO ->'}
                       </button>
-                    </form>
-                  )}
+                      </motion.form>
+                    )}
+                  </AnimatePresence>
                 </motion.div>
               )}
 

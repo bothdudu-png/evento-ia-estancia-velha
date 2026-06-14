@@ -210,6 +210,15 @@ body::after {
   100% { transform: translateY(0); opacity: 1; }
 }
 
+.animate-fade-in {
+  animation: fadeIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes fadeIn {
+  0% { opacity: 0; }
+  100% { opacity: 1; }
+}
+
 .stagger-1 { animation-delay: 30ms; }
 .stagger-2 { animation-delay: 60ms; }
 .stagger-3 { animation-delay: 90ms; }
