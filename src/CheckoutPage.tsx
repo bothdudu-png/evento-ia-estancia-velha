@@ -87,16 +87,7 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({
     return 400;
   }, [adminTestMode, isAdmin, selectedBilling, confirmedCount]);
 
-  // --- Prevent double scrollbars on mount/unmount ---
-  useEffect(() => {
-    // Apply zoom 0.8 on desktop to match landing page proportion
-    if (window.innerWidth > 992) {
-      document.documentElement.style.zoom = '0.8';
-    }
-    return () => {
-      document.documentElement.style.zoom = '';
-    };
-  }, []);
+
 
   // --- Check existing user session on mount ---
   useEffect(() => {
@@ -718,7 +709,7 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({
                       </div>
 
                       <button type="submit" disabled={loading} className="mkt2-submit-btn">
-                        {loading ? 'Salvando dados...' : 'Continuar Para o Pagamento ->'}
+                        {loading ? 'SALVANDO DADOS...' : 'CONTINUAR PARA O PAGAMENTO'}
                       </button>
 
                       <button 
@@ -897,7 +888,7 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({
                       </div>
 
                       <button type="submit" disabled={loading} className="mkt2-submit-btn">
-                        {loading ? 'Cadastrando...' : 'Criar Conta e Ir Para Pagamento ->'}
+                        {loading ? 'CADASTRANDO...' : 'CRIAR CONTA E IR PARA PAGAMENTO'}
                       </button>
                       </motion.form>
                     ) : (
@@ -946,7 +937,7 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({
                       </div>
 
                       <button type="submit" disabled={loading} className="mkt2-submit-btn">
-                        {loading ? 'Acessando...' : 'Entrar e Selecionar Pagamento ->'}
+                        {loading ? 'ACESSANDO...' : 'ENTRAR E SELECIONAR PAGAMENTO'}
                       </button>
                       </motion.form>
                     )}
@@ -1049,7 +1040,7 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({
                     {renderCardFields()}
 
                     <button type="submit" disabled={loading} className="mkt2-submit-btn">
-                      {loading ? 'Processando transação...' : `Finalizar Pagamento de R$ ${displayPrice.toFixed(2).replace('.', ',')} ->`}
+                      {loading ? 'PROCESSANDO TRANSAÇÃO...' : `FINALIZAR PAGAMENTO DE R$ ${displayPrice.toFixed(2).replace('.', ',')}`}
                     </button>
                   </form>
                 </motion.div>

@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
+import { motion } from 'framer-motion';
 import {
   Clock,
   TrendingUp,
@@ -55,6 +56,44 @@ import type { Session } from '@supabase/supabase-js';
 import { MarketingLandingPage } from './MarketingLandingPage';
 import { MarketingLandingPage2 } from './MarketingLandingPage2';
 import { CheckoutPage } from './CheckoutPage';
+
+const dashboardPageVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.08,
+      delayChildren: 0.1
+    }
+  }
+};
+
+const dashboardHeaderVariants = {
+  hidden: { opacity: 0, y: -25 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.8, ease: [0.16, 1, 0.3, 1] as const }
+  }
+};
+
+const dashboardNavVariants = {
+  hidden: { opacity: 0, y: 15 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.8, ease: [0.16, 1, 0.3, 1] as const }
+  }
+};
+
+const dashboardItemVariants = {
+  hidden: { opacity: 0, y: 20 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.7, ease: [0.16, 1, 0.3, 1] as const }
+  }
+};
 
 export default function App() {
   // --- States ---
@@ -555,6 +594,23 @@ export default function App() {
     const timer = setInterval(calculateTimeLeft, 1000);
     return () => clearInterval(timer);
   }, [eventSettings.date]);
+
+  // --- Global Zoom 0.8 on Desktop ---
+  useEffect(() => {
+    const handleZoom = () => {
+      if (window.innerWidth > 992) {
+        document.documentElement.style.zoom = '0.8';
+      } else {
+        document.documentElement.style.zoom = '';
+      }
+    };
+    handleZoom();
+    window.addEventListener('resize', handleZoom);
+    return () => {
+      window.removeEventListener('resize', handleZoom);
+      document.documentElement.style.zoom = '';
+    };
+  }, []);
 
   // --- Anime.js Page & Stagger Transitions ---
   useEffect(() => {
@@ -1356,8 +1412,19 @@ export default function App() {
         <div className="ambient-glow-1"></div>
         <div className="ambient-glow-2"></div>
 
-        <div className="glass-panel animate-slide-up-fade" style={{ width: '100%', maxWidth: '440px', padding: '40px 30px', zIndex: 10, display: 'flex', flexDirection: 'column', gap: '24px', boxShadow: '0 20px 40px rgba(0,0,0,0.5), inset 0 0 1px rgba(255,255,255,0.1)', animationDelay: '0.3s' }}>
-          <div style={{ textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px' }}>
+        <motion.div 
+          className="glass-panel" 
+          style={{ width: '100%', maxWidth: '440px', padding: '40px 30px', zIndex: 10, display: 'flex', flexDirection: 'column', gap: '24px', boxShadow: '0 20px 40px rgba(0,0,0,0.5), inset 0 0 1px rgba(255,255,255,0.1)' }}
+          initial={{ opacity: 0, y: 50, scale: 0.95 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          transition={{ duration: 1.0, ease: [0.16, 1, 0.3, 1], delay: 0.2 }}
+        >
+          <motion.div 
+            style={{ textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px' }}
+            initial={{ opacity: 0, y: -15 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.5, ease: [0.16, 1, 0.3, 1] }}
+          >
             <h1 style={{ fontSize: '1.4rem', fontWeight: 900, letterSpacing: '-0.03em', fontFamily: "'Inter Tight', system-ui, sans-serif", color: '#fff', display: 'flex', alignItems: 'center', gap: '8px', margin: 0 }}>
               AI EXPERIENCE
               <span 
@@ -1383,13 +1450,18 @@ export default function App() {
             <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginTop: '4px', margin: 0 }}>
               Painel Executivo • Acesso Restrito
             </p>
-          </div>
+          </motion.div>
 
           {errorMsg && (
-            <div style={{ background: 'rgba(239, 68, 68, 0.1)', border: '1px solid rgba(239, 68, 68, 0.2)', color: '#F87171', borderRadius: '8px', padding: '12px', fontSize: '0.8rem', display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <motion.div 
+              style={{ background: 'rgba(239, 68, 68, 0.1)', border: '1px solid rgba(239, 68, 68, 0.2)', color: '#F87171', borderRadius: '8px', padding: '12px', fontSize: '0.8rem', display: 'flex', alignItems: 'center', gap: '8px' }}
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.4 }}
+            >
               <AlertCircle size={16} style={{ flexShrink: 0 }} />
               <div>{errorMsg}</div>
-            </div>
+            </motion.div>
           )}
 
           {checkingInvite ? (
@@ -1421,7 +1493,13 @@ export default function App() {
             </div>
           ) : inviteToken && inviteValid === true ? (
             /* Formulário de Cadastro (Signup) com convite validado */
-            <form onSubmit={handleSignUpSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+            <motion.form 
+              onSubmit={handleSignUpSubmit} 
+              style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.6, ease: [0.16, 1, 0.3, 1] }}
+            >
               <div style={{ background: 'rgba(52, 211, 153, 0.08)', border: '1px solid rgba(52, 211, 153, 0.2)', borderRadius: '8px', padding: '10px 12px', fontSize: '0.78rem', color: '#34D399', display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <CheckCircle2 size={16} style={{ flexShrink: 0 }} />
                 <div>Convite validado! Crie sua senha de acesso.</div>
@@ -1502,10 +1580,16 @@ export default function App() {
                   Cancelar e voltar para o Login
                 </button>
               </div>
-            </form>
+            </motion.form>
           ) : (
             /* Formulário de Login padrão */
-            <form onSubmit={handleLoginSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+            <motion.form 
+              onSubmit={handleLoginSubmit} 
+              style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.6, ease: [0.16, 1, 0.3, 1] }}
+            >
               <div>
                 <label style={{ display: 'block', fontSize: '0.8rem', color: 'var(--text-secondary)', marginBottom: '6px' }}>E-mail:</label>
                 <input 
@@ -1537,21 +1621,29 @@ export default function App() {
               <div style={{ textAlign: 'center', fontSize: '0.72rem', color: 'var(--text-muted)', lineHeight: '1.4', marginTop: '10px' }}>
                 * Novos acessos exigem convite. O cadastro de novos usuários é restrito à liberação por link do administrador.
               </div>
-            </form>
+            </motion.form>
           )}
-        </div>
+        </motion.div>
       </div>
     );
   }
 
   return (
-    <div className="animate-fade-in" style={{ minHeight: '100vh', position: 'relative', overflow: 'hidden', paddingBottom: '40px' }}>
+    <motion.div
+      initial="hidden"
+      animate="visible"
+      variants={dashboardPageVariants}
+      style={{ minHeight: '100vh', position: 'relative', overflow: 'hidden', paddingBottom: '40px' }}
+    >
       {/* Background Glows */}
       <div className="ambient-glow-1"></div>
       <div className="ambient-glow-2"></div>
 
       {/* STICKY HEADER & NAVBAR with Progressive Blur */}
-      <header className="animate-slide-down-fade" style={{ borderBottom: '1px solid var(--border-color)', padding: '14px 0', background: 'rgba(6, 9, 30, 0.45)', position: 'sticky', top: 0, zIndex: 100, animationDelay: '0.2s' }}>
+      <motion.header
+        variants={dashboardHeaderVariants}
+        style={{ borderBottom: '1px solid var(--border-color)', padding: '14px 0', background: 'rgba(6, 9, 30, 0.45)', position: 'sticky', top: 0, zIndex: 100 }}
+      >
         <div className="gradient-blur">
           <div></div><div></div><div></div><div></div><div></div><div></div>
         </div>
@@ -1561,7 +1653,25 @@ export default function App() {
           <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
             <div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
-                <h1 style={{ fontSize: '1.25rem', fontWeight: 900, letterSpacing: '-0.03em', fontFamily: "'Inter Tight', system-ui, sans-serif", color: '#fff', display: 'flex', alignItems: 'center', gap: '8px', margin: 0 }}>
+                <button
+                  className="mkt2-logo"
+                  onClick={() => window.location.reload()}
+                  style={{
+                    fontSize: '1.25rem',
+                    fontWeight: 900,
+                    letterSpacing: '-0.03em',
+                    fontFamily: "'Inter Tight', system-ui, sans-serif",
+                    color: '#fff',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '8px',
+                    margin: 0,
+                    background: 'none',
+                    border: 'none',
+                    padding: 0,
+                    cursor: 'pointer'
+                  }}
+                >
                   AI EXPERIENCE
                   <span 
                     className="mkt2-logo-sub"
@@ -1582,7 +1692,7 @@ export default function App() {
                   >
                     {parsedEventNameHeader.sub || "ESTÂNCIA VELHA"}
                   </span>
-                </h1>
+                </button>
                 <span className="badge hide-mobile" style={{ background: 'rgba(124, 58, 237, 0.04)', color: 'var(--neon-purple)', fontSize: '0.7rem', border: '1px solid var(--neon-purple)', borderRadius: '20px', padding: '2px 10px', fontWeight: 700 }}>
                   {eventSettings.location.toUpperCase()}
                 </span>
@@ -1660,12 +1770,15 @@ export default function App() {
           </div>
 
         </div>
-      </header>
+      </motion.header>
 
-      <main className="animate-slide-up-fade" style={{ maxWidth: '1280px', margin: '20px auto 0', padding: '0 20px', animationDelay: '0.6s' }}>
+      <main style={{ maxWidth: '1280px', margin: '20px auto 0', padding: '0 20px' }}>
 
         {/* NAVIGATION TABS */}
-        <nav className="animate-slide-up-fade" style={{ marginBottom: '24px', animationDelay: '0.4s' }}>
+        <motion.nav
+          variants={dashboardNavVariants}
+          style={{ marginBottom: '24px' }}
+        >
           <div className="tab-nav">
             {[
               { id: 'dashboard', label: 'Dashboard Executivo', icon: <Layers size={16} /> },
@@ -1686,16 +1799,21 @@ export default function App() {
               </button>
             ))}
           </div>
-        </nav>
+        </motion.nav>
 
         {/* TAB CONTENTS */}
         <div className="tab-content-container">
           {/* TAB 1: EXECUTIVE DASHBOARD */}
           {activeTab === 'dashboard' && (
-            <div className="animate-fadeInUp" style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+            <motion.div 
+              variants={dashboardPageVariants}
+              initial="hidden"
+              animate="visible"
+              style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}
+            >
             
             {/* Real-time Indicators Grid (12 indicators) */}
-            <section className="glass-panel" style={{ padding: '24px' }}>
+            <motion.section variants={dashboardItemVariants} className="glass-panel" style={{ padding: '24px' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
                 <h3 style={{ fontSize: '1.1rem', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '8px' }}>
                   <Sparkles size={16} className="gradient-text-blue-purple" /> Indicadores de Saúde Financeira e Viabilidade (Tempo Real)
@@ -1705,24 +1823,34 @@ export default function App() {
                 </span>
               </div>
               
-              <div className="indicators-grid">
+              <motion.div 
+                className="indicators-grid"
+                variants={{
+                  hidden: {},
+                  visible: {
+                    transition: {
+                      staggerChildren: 0.04
+                    }
+                  }
+                }}
+              >
                 
                 {/* 1. Participantes Meta */}
-                <div className="indicator-card accent-blue animate-fadeInUp stagger-1">
+                <motion.div variants={dashboardItemVariants} className="indicator-card accent-blue">
                   <div className="indicator-label">Participantes Meta</div>
                   <div className="indicator-value">{metrics.targetParticipants}</div>
                   <div className="indicator-sub">Almejado no planejamento</div>
-                </div>
-
-                {/* 2. Participantes Confirmados */}
-                <div className="indicator-card accent-blue animate-fadeInUp stagger-2">
+                </motion.div>
+ 
+                 {/* 2. Participantes Confirmados */}
+                <motion.div variants={dashboardItemVariants} className="indicator-card accent-blue">
                   <div className="indicator-label" style={{ color: 'var(--neon-blue)' }}>Confirmados</div>
                   <div className="indicator-value" style={{ color: 'var(--neon-blue)' }}>{metrics.confirmedCount}</div>
                   <div className="indicator-sub">Inscritos ou já confirmados</div>
-                </div>
-
-                {/* 3. Taxa de Ocupação */}
-                <div className="indicator-card accent-cyan animate-fadeInUp stagger-3">
+                </motion.div>
+ 
+                 {/* 3. Taxa de Ocupação */}
+                <motion.div variants={dashboardItemVariants} className="indicator-card accent-cyan">
                   <div className="indicator-label" style={{ color: 'var(--neon-cyan)' }}>Taxa de Ocupação</div>
                   <div className="indicator-value" style={{ color: 'var(--neon-cyan)' }}>
                     {metrics.occupancyRate.toFixed(1)}%
@@ -1732,87 +1860,87 @@ export default function App() {
                       <div style={{ width: `${Math.min(metrics.occupancyRate, 100)}%`, height: '100%', background: 'linear-gradient(90deg, var(--neon-cyan), var(--neon-blue))' }}></div>
                     </div>
                   </div>
-                </div>
-
-                {/* 4. Receita Prevista */}
-                <div className="indicator-card accent-pink animate-fadeInUp stagger-4">
+                </motion.div>
+ 
+                 {/* 4. Receita Prevista */}
+                <motion.div variants={dashboardItemVariants} className="indicator-card accent-pink">
                   <div className="indicator-label" style={{ color: 'var(--neon-pink)' }}>Receita Projetada</div>
                   <div className="indicator-value" style={{ color: 'var(--neon-pink)' }}>R$ {metrics.expectedRevenue.toLocaleString('pt-BR')}</div>
                   <div className="indicator-sub">Calculado por lotes acumulativos</div>
-                </div>
-
-                {/* 5. Receita Atual */}
-                <div className="indicator-card accent-emerald animate-fadeInUp stagger-5">
+                </motion.div>
+ 
+                 {/* 5. Receita Atual */}
+                <motion.div variants={dashboardItemVariants} className="indicator-card accent-emerald">
                   <div className="indicator-label" style={{ color: '#34D399' }}>Receita Recebida</div>
                   <div className="indicator-value" style={{ color: '#34D399' }}>R$ {metrics.actualRevenue.toLocaleString('pt-BR')}</div>
                   <div className="indicator-sub">Comprovadamente paga</div>
-                </div>
-
-                {/* 6. Investimento Total */}
-                <div className="indicator-card accent-rose animate-fadeInUp stagger-6">
+                </motion.div>
+ 
+                 {/* 6. Investimento Total */}
+                <motion.div variants={dashboardItemVariants} className="indicator-card accent-rose">
                   <div className="indicator-label" style={{ color: '#F87171' }}>Custo do Evento</div>
                   <div className="indicator-value" style={{ color: '#F87171' }}>R$ {metrics.totalInvestment.toLocaleString('pt-BR')}</div>
                   <div className="indicator-sub">Previstos e Pagos</div>
-                </div>
-
-                {/* 7. Lucro Projetado */}
-                <div className="indicator-card accent-purple animate-fadeInUp stagger-7">
+                </motion.div>
+ 
+                 {/* 7. Lucro Projetado */}
+                <motion.div variants={dashboardItemVariants} className="indicator-card accent-purple">
                   <div className="indicator-label" style={{ color: 'var(--neon-purple)' }}>Lucro Projetado</div>
                   <div className="indicator-value" style={{ color: 'var(--neon-purple)' }}>
                     R$ {metrics.projectedProfit.toLocaleString('pt-BR')}
                   </div>
                   <div className="indicator-sub">Com todos os confirmados</div>
-                </div>
-
-                {/* 8. Lucro Atual */}
-                <div className={`indicator-card ${metrics.actualProfit >= 0 ? 'accent-emerald' : 'accent-rose'} animate-fadeInUp stagger-8`}>
+                </motion.div>
+ 
+                 {/* 8. Lucro Atual */}
+                <motion.div variants={dashboardItemVariants} className={`indicator-card ${metrics.actualProfit >= 0 ? 'accent-emerald' : 'accent-rose'}`}>
                   <div className="indicator-label">Lucro Líquido Atual</div>
                   <div className="indicator-value" style={{ color: metrics.actualProfit >= 0 ? '#34D399' : '#F87171' }}>
                     R$ {metrics.actualProfit.toLocaleString('pt-BR')}
                   </div>
                   <div className="indicator-sub">Receita paga - Investimento pago</div>
-                </div>
-
-                {/* 9. ROI Projetado */}
-                <div className="indicator-card accent-amber animate-fadeInUp stagger-9">
+                </motion.div>
+ 
+                 {/* 9. ROI Projetado */}
+                <motion.div variants={dashboardItemVariants} className="indicator-card accent-amber">
                   <div className="indicator-label" style={{ color: '#FBBF24' }}>ROI Projetado</div>
                   <div className="indicator-value" style={{ color: '#FBBF24' }}>
                     {metrics.roi.toFixed(0)}%
                   </div>
                   <div className="indicator-sub">Retorno sobre o Investimento</div>
-                </div>
-
-                {/* 10. Ticket Médio */}
-                <div className="indicator-card accent-blue animate-fadeInUp stagger-10">
+                </motion.div>
+ 
+                 {/* 10. Ticket Médio */}
+                <motion.div variants={dashboardItemVariants} className="indicator-card accent-blue">
                   <div className="indicator-label" style={{ color: 'var(--neon-blue)' }}>Lote Ativo</div>
                   <div className="indicator-value" style={{ color: 'var(--neon-blue)' }}>R$ {metrics.ticketMedio.toLocaleString('pt-BR')}</div>
                   <div className="indicator-sub">
                     {metrics.confirmedCount <= 20 ? 'Lote 1 (0-20 confirmados)' : metrics.confirmedCount <= 40 ? 'Lote 2 (21-40 confirmados)' : 'Lote 3 (41-60 confirmados)'}
                   </div>
-                </div>
-
-                {/* 11. Lucro por Participante */}
-                <div className="indicator-card accent-purple animate-fadeInUp stagger-11">
+                </motion.div>
+ 
+                 {/* 11. Lucro por Participante */}
+                <motion.div variants={dashboardItemVariants} className="indicator-card accent-purple">
                   <div className="indicator-label">Lucro p/ Confirmado</div>
                   <div className="indicator-value">
                     R$ {metrics.profitPerParticipant.toFixed(0)}
                   </div>
                   <div className="indicator-sub">Margem média individual</div>
-                </div>
-
-                {/* 12. Ponto de Equilíbrio */}
-                <div className="indicator-card accent-rose animate-fadeInUp stagger-12">
+                </motion.div>
+ 
+                 {/* 12. Ponto de Equilíbrio */}
+                <motion.div variants={dashboardItemVariants} className="indicator-card accent-rose">
                   <div className="indicator-label" style={{ color: '#F87171' }}>Breakeven</div>
                   <div className="indicator-value" style={{ color: '#F87171' }}>
                     {metrics.breakevenParticipants}
                   </div>
                   <div className="indicator-sub">Inscrições para cobrir custos</div>
-                </div>
-              </div>
-            </section>
+                </motion.div>
+              </motion.div>
+            </motion.section>
 
             {/* Lotes Projection Section */}
-            <section className="glass-panel" style={{ padding: '20px', marginBottom: '24px', background: 'rgba(12, 15, 36, 0.4)' }}>
+            <motion.section variants={dashboardItemVariants} className="glass-panel" style={{ padding: '20px', marginBottom: '24px', background: 'rgba(12, 15, 36, 0.4)' }}>
               <h4 style={{ fontSize: '1rem', fontWeight: 700, marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px', color: '#fff' }}>
                 <TrendingUp size={18} style={{ color: 'var(--neon-cyan)' }} /> Projeção de Lotes e Virada Automática (Asaas Integrado)
               </h4>
@@ -1853,10 +1981,10 @@ export default function App() {
                   </div>
                 </div>
               </div>
-            </section>
+            </motion.section>
 
             {/* CHARTS CONTAINER SECTION (4 CHARTS) */}
-            <section style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(500px, 1fr))', gap: '24px' }}>
+            <motion.section variants={dashboardItemVariants} style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(500px, 1fr))', gap: '24px' }}>
               
               {/* Graph 1: Receita vs Custos */}
               <div className="glass-panel">
@@ -1976,14 +2104,19 @@ export default function App() {
                 </div>
               </div>
 
-            </section>
+            </motion.section>
 
-          </div>
+          </motion.div>
         )}
 
         {/* TAB 2: SCENARIO SIMULATOR */}
         {activeTab === 'simulador' && (
-          <div className="animate-fadeInUp" style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+          <motion.div 
+            variants={dashboardItemVariants}
+            initial="hidden"
+            animate="visible"
+            style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}
+          >
             
             {/* Top Description Alert */}
             <div className="glass-panel" style={{ borderLeft: '4px solid var(--neon-cyan)', background: 'rgba(0, 212, 255, 0.02)' }}>
@@ -2179,12 +2312,17 @@ export default function App() {
               </div>
             </section>
 
-          </div>
+          </motion.div>
         )}
 
         {/* TAB 3: INVESTMENTS (CRUD) */}
         {activeTab === 'investimentos' && (
-          <div className="animate-fadeInUp" style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+          <motion.div 
+            variants={dashboardItemVariants}
+            initial="hidden"
+            animate="visible"
+            style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}
+          >
             
             {/* Header Control row */}
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px' }}>
@@ -2333,12 +2471,17 @@ export default function App() {
               </div>
             </div>
 
-          </div>
+          </motion.div>
         )}
 
         {/* TAB 4: CRM KANBAN BOARD */}
         {activeTab === 'crm' && (
-          <div className="animate-fadeInUp" style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+          <motion.div 
+            variants={dashboardItemVariants}
+            initial="hidden"
+            animate="visible"
+            style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}
+          >
             
             {/* Control header row */}
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px' }}>
@@ -2753,12 +2896,17 @@ export default function App() {
               </div>
             )}
 
-          </div>
+          </motion.div>
         )}
 
         {/* TAB 5: PLANNING & CHECKLIST */}
         {activeTab === 'planejamento' && (
-          <div className="animate-fadeInUp" style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+          <motion.div 
+            variants={dashboardItemVariants}
+            initial="hidden"
+            animate="visible"
+            style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}
+          >
             
             {/* Interactive Checklist and Tasks Grid */}
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))', gap: '24px' }}>
@@ -2905,12 +3053,17 @@ export default function App() {
 
             </div>
 
-          </div>
+          </motion.div>
         )}
 
         {/* TAB 6: PROGRAMAÇÃO E CONFIGURAÇÃO */}
         {activeTab === 'programacao' && (
-          <div className="animate-fadeInUp" style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+          <motion.div 
+            variants={dashboardItemVariants}
+            initial="hidden"
+            animate="visible"
+            style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}
+          >
             
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(360px, 1fr))', gap: '24px' }}>
               
@@ -3103,12 +3256,17 @@ export default function App() {
 
             </div>
 
-          </div>
+          </motion.div>
         )}
 
         {/* TAB 7: USER & INVITE MANAGEMENT (ADMIN ONLY) */}
         {activeTab === 'usuarios' && profile?.role === 'admin' && (
-          <div className="animate-fadeInUp" style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+          <motion.div 
+            variants={dashboardItemVariants}
+            initial="hidden"
+            animate="visible"
+            style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}
+          >
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <div>
                 <h3 style={{ fontSize: '1.2rem', fontWeight: 700 }}>Controle de Usuários e Convites</h3>
@@ -3295,7 +3453,7 @@ export default function App() {
                 </table>
               </div>
             </div>
-          </div>
+          </motion.div>
         )}
         </div>
       </main>
@@ -3609,6 +3767,6 @@ export default function App() {
         </div>
       )}
 
-    </div>
+    </motion.div>
   );
 }
