@@ -718,7 +718,7 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({
                       </div>
 
                       <button type="submit" disabled={loading} className="mkt2-submit-btn">
-                        {loading ? 'Salvando dados...' : 'CONTINUAR PARA O PAGAMENTO ->'}
+                        {loading ? 'Salvando dados...' : 'Continuar Para o Pagamento ->'}
                       </button>
 
                       <button 
@@ -897,7 +897,7 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({
                       </div>
 
                       <button type="submit" disabled={loading} className="mkt2-submit-btn">
-                        {loading ? 'Cadastrando...' : 'CRIAR CONTA & IR PARA PAGAMENTO ->'}
+                        {loading ? 'Cadastrando...' : 'Criar Conta e Ir Para Pagamento ->'}
                       </button>
                       </motion.form>
                     ) : (
@@ -946,7 +946,7 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({
                       </div>
 
                       <button type="submit" disabled={loading} className="mkt2-submit-btn">
-                        {loading ? 'Acessando...' : 'ENTRAR & SELECIONAR PAGAMENTO ->'}
+                        {loading ? 'Acessando...' : 'Entrar e Selecionar Pagamento ->'}
                       </button>
                       </motion.form>
                     )}
@@ -1049,7 +1049,7 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({
                     {renderCardFields()}
 
                     <button type="submit" disabled={loading} className="mkt2-submit-btn">
-                      {loading ? 'Processando transação...' : `FINALIZAR PAGAMENTO DE R$ ${displayPrice.toFixed(2).replace('.', ',')} ->`}
+                      {loading ? 'Processando transação...' : `Finalizar Pagamento de R$ ${displayPrice.toFixed(2).replace('.', ',')} ->`}
                     </button>
                   </form>
                 </motion.div>
