@@ -16,7 +16,7 @@ serve(async (req) => {
   }
 
   try {
-    const { billingType, card, adminTestMode } = await req.json()
+    const { billingType, card, adminTestMode, couponCode } = await req.json()
 
     // 1. Initialize Supabase Clients
     const supabaseUrl = Deno.env.get('SUPABASE_URL') ?? ''
@@ -86,8 +86,75 @@ serve(async (req) => {
       paymentValue = billingType === 'CREDIT_CARD' ? 5.00 : 0.03
     }
 
+    // Apply discount coupon if provided
+    let appliedCouponInfo = ''
+    if (couponCode) {
+      const cleanCoupon = couponCode.trim().toUpperCase()
+      try {
+        const { data: couponData, error: couponError } = await supabaseAdmin
+          .from('coupons')
+          .select('*')
+          .eq('code', cleanCoupon)
+          .maybeSingle()
+
+        if (couponError) {
+          console.error(`Error querying coupon ${cleanCoupon}:`, couponError)
+        } else if (couponData) {
+          const discountType = couponData.type
+          const discountVal = Number(couponData.value)
+          let discountAmount = 0
+
+          if (discountType === 'percentage') {
+            discountAmount = paymentValue * (discountVal / 100)
+            paymentValue = Math.max(0, paymentValue - discountAmount)
+            appliedCouponInfo = ` | Cupom: ${cleanCoupon} (-${discountVal}%)`
+          } else {
+            discountAmount = discountVal
+            paymentValue = Math.max(0, paymentValue - discountAmount)
+            appliedCouponInfo = ` | Cupom: ${cleanCoupon} (-R$ ${discountVal.toFixed(2)})`
+          }
+          console.log(`Coupon ${cleanCoupon} applied: discount amount = R$ ${discountAmount}, final price = R$ ${paymentValue}`)
+        } else {
+          console.warn(`Coupon code ${cleanCoupon} was provided but not found in database.`)
+        }
+      } catch (err) {
+        console.error(`Failed to apply coupon ${cleanCoupon}:`, err)
+      }
+    }
+
     // 5. Generate unique ID for the participant row
     const participantId = 'part_' + Date.now() + Math.random().toString(36).substring(2, 6)
+
+    // Check if price is 0 (100% discount free pass)
+    if (paymentValue <= 0) {
+      const { error: dbError } = await supabaseAdmin
+        .from('participants')
+        .insert({
+          id: participantId,
+          name: name,
+          whatsapp: phone,
+          city: city ? city + (uf ? ' - ' + uf : '') : '',
+          company: '',
+          role: '',
+          observations: `CPF: ${cpf} | Como Conheceu: ${howHeard}${appliedCouponInfo} [Desconto Integral]`,
+          status: 'Pago',
+          date_added: new Date().toISOString().split('T')[0]
+        })
+
+      if (dbError) {
+        throw new Error(`Error saving free participant: ${dbError.message}`)
+      }
+
+      return new Response(
+        JSON.stringify({
+          success: true,
+          freePass: true,
+          participantId,
+          invoiceUrl: ''
+        }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      )
+    }
 
     // 6. Insert participant into database with status 'Interessado' (Aguardando Pagamento)
     const { error: dbError } = await supabaseAdmin
@@ -99,7 +166,7 @@ serve(async (req) => {
         city: city ? city + (uf ? ' - ' + uf : '') : '',
         company: '',
         role: '',
-        observations: `CPF: ${cpf} | Como Conheceu: ${howHeard}`,
+        observations: `CPF: ${cpf} | Como Conheceu: ${howHeard}${appliedCouponInfo}`,
         status: 'Interessado',
         date_added: new Date().toISOString().split('T')[0]
       })

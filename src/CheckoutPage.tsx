@@ -15,15 +15,18 @@ import {
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import './CheckoutPage.css';
+import type { Coupon } from './utils/db';
 
 interface CheckoutPageProps {
   onNavigateToLanding: () => void;
   confirmedCount?: number;
+  coupons?: Coupon[];
 }
 
 export const CheckoutPage: React.FC<CheckoutPageProps> = ({
   onNavigateToLanding,
-  confirmedCount = 0
+  confirmedCount = 0,
+  coupons = []
 }) => {
   const [activeTab, setActiveTab] = useState<'register' | 'login'>('register');
   const [checkoutStep, setCheckoutStep] = useState<'form' | 'payment-select' | 'payment' | 'success'>('form');
@@ -60,6 +63,12 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({
   const [errorMsg, setErrorMsg] = useState('');
   const [copied, setCopied] = useState(false);
   const [needProfileDetails, setNeedProfileDetails] = useState(false);
+
+  // --- Coupon States ---
+  const [couponInput, setCouponInput] = useState('');
+  const [appliedCoupon, setAppliedCoupon] = useState<Coupon | null>(null);
+  const [couponError, setCouponError] = useState('');
+  const [couponSuccess, setCouponSuccess] = useState('');
   const [paymentDetails, setPaymentDetails] = useState<{
     participantId: string;
     paymentId: string;
@@ -78,7 +87,7 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({
   }, [email, loginEmail]);
 
   // --- Dynamic price (reflects Admin Test Mode & Lotes) ---
-  const displayPrice = useMemo(() => {
+  const basePrice = useMemo(() => {
     if (adminTestMode && isAdmin) {
       return selectedBilling === 'CREDIT_CARD' ? 5.00 : 0.03;
     }
@@ -86,6 +95,15 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({
     if (confirmedCount >= 21) return 450;
     return 400;
   }, [adminTestMode, isAdmin, selectedBilling, confirmedCount]);
+
+  const displayPrice = useMemo(() => {
+    if (!appliedCoupon) return basePrice;
+    if (appliedCoupon.type === 'percentage') {
+      return Math.max(0, basePrice * (1 - appliedCoupon.value / 100));
+    } else {
+      return Math.max(0, basePrice - appliedCoupon.value);
+    }
+  }, [basePrice, appliedCoupon]);
 
 
 
@@ -196,6 +214,32 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({
   }, [checkoutStep, paymentDetails?.participantId]);
 
   // --- Handlers ---
+  const handleApplyCoupon = () => {
+    setCouponError('');
+    setCouponSuccess('');
+    const code = couponInput.trim().toUpperCase();
+    if (!code) return;
+
+    if (!coupons || coupons.length === 0) {
+      setCouponError('Nenhum cupom disponível.');
+      return;
+    }
+
+    const found = coupons.find(c => c.code === code);
+    if (found) {
+      setAppliedCoupon(found);
+      setCouponSuccess('Cupom aplicado com sucesso!');
+      setCouponInput('');
+    } else {
+      setCouponError('Cupom inválido ou expirado.');
+    }
+  };
+
+  const handleRemoveCoupon = () => {
+    setAppliedCoupon(null);
+    setCouponSuccess('');
+    setCouponError('');
+  };
   const handleCopyPix = () => {
     if (paymentDetails?.pixCopyPaste) {
       navigator.clipboard.writeText(paymentDetails.pixCopyPaste);
@@ -269,13 +313,14 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({
       const payload = {
         billingType: selectedBilling,
         card,
-        adminTestMode: adminTestMode && isAdmin
+        adminTestMode: adminTestMode && isAdmin,
+        couponCode: appliedCoupon ? appliedCoupon.code : undefined
       };
 
       const result = await invokeCreatePayment(payload);
 
       if (result.success) {
-        if (selectedBilling === 'CREDIT_CARD') {
+        if (selectedBilling === 'CREDIT_CARD' || result.freePass) {
           // Credit card confirms instantly or goes to success directly if approved
           setCheckoutStep('success');
         } else {
@@ -1240,6 +1285,76 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({
                     <span className="mkt2-lot-value">R$ 500,00</span>
                   </div>
                 </div>
+              </div>
+
+              {/* COUPON INPUT SECTION */}
+              <div className="mkt2-coupon-section" style={{ marginTop: '20px', paddingTop: '20px', borderTop: '1px solid rgba(255,255,255,0.06)' }}>
+                {appliedCoupon ? (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'rgba(0,242,254,0.05)', border: '1px dashed var(--neon-cyan)', padding: '10px 14px', borderRadius: '8px' }}>
+                      <div>
+                        <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', display: 'block', fontWeight: 600 }}>CUPOM APLICADO</span>
+                        <strong style={{ color: 'var(--neon-cyan)', fontSize: '0.9rem' }}>{appliedCoupon.code}</strong>
+                      </div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                        <span style={{ fontSize: '0.95rem', fontWeight: 700, color: 'var(--neon-cyan)' }}>
+                          {appliedCoupon.type === 'percentage' ? `-${appliedCoupon.value}%` : `-R$ ${appliedCoupon.value.toFixed(2).replace('.', ',')}`}
+                        </span>
+                        <button 
+                          type="button"
+                          onClick={handleRemoveCoupon} 
+                          style={{ background: 'transparent', border: 'none', color: '#ff4d4d', cursor: 'pointer', fontSize: '0.8rem', padding: '4px' }}
+                        >
+                          Remover
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                ) : (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                    <label style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-muted)' }}>POSSUI UM CUPOM DE DESCONTO?</label>
+                    <div style={{ display: 'flex', gap: '8px' }}>
+                      <input 
+                        type="text" 
+                        placeholder="CÓDIGO DO CUPOM" 
+                        value={couponInput}
+                        onChange={(e) => {
+                          setCouponInput(e.target.value.toUpperCase());
+                          setCouponError('');
+                        }}
+                        style={{ 
+                          flex: 1, 
+                          background: 'rgba(255,255,255,0.02)', 
+                          border: '1px solid var(--border-color)', 
+                          borderRadius: '8px', 
+                          padding: '10px 12px', 
+                          color: '#fff', 
+                          fontSize: '0.85rem',
+                          textTransform: 'uppercase'
+                        }}
+                      />
+                      <button 
+                        type="button"
+                        onClick={handleApplyCoupon}
+                        style={{ 
+                          background: 'linear-gradient(135deg, #00f2fe 0%, #4facfe 100%)', 
+                          color: '#06091e', 
+                          border: 'none', 
+                          borderRadius: '8px', 
+                          padding: '0 16px', 
+                          fontWeight: 700, 
+                          fontSize: '0.8rem', 
+                          cursor: 'pointer',
+                          transition: 'all 0.2s'
+                        }}
+                      >
+                        Aplicar
+                      </button>
+                    </div>
+                    {couponError && <span style={{ fontSize: '0.75rem', color: '#ff4d4d' }}>{couponError}</span>}
+                    {couponSuccess && <span style={{ fontSize: '0.75rem', color: '#00ffaa' }}>{couponSuccess}</span>}
+                  </div>
+                )}
               </div>
 
               <div className="mkt2-lot-disclaimer">

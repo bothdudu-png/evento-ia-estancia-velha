@@ -71,6 +71,13 @@ export interface Scenario {
   isSaved: boolean;
 }
 
+export interface Coupon {
+  id: string;
+  code: string;
+  type: 'value' | 'percentage';
+  value: number;
+}
+
 // Key definitions for localStorage
 const KEYS = {
   EVENT_SETTINGS: 'ai_event_settings',
@@ -81,6 +88,7 @@ const KEYS = {
   TASKS: 'ai_tasks',
   CHECKLISTS: 'ai_checklists',
   SCENARIOS: 'ai_scenarios',
+  COUPONS: 'ai_coupons',
 };
 
 // Initial Seed Data
@@ -321,6 +329,10 @@ const DEFAULT_SCENARIOS: Scenario[] = [
   }
 ];
 
+const DEFAULT_COUPONS: Coupon[] = [
+  { id: 'cp_1', code: 'EXPAI10', type: 'percentage', value: 10 }
+];
+
 // Mapping helpers to convert between CamelCase and SnakeCase for Supabase
 const mapEventSettings = {
   toDb(settings: EventSettings) {
@@ -483,9 +495,28 @@ const mapScenario = {
   }
 };
 
+const mapCoupon = {
+  toDb(c: Coupon) {
+    return {
+      id: c.id,
+      code: c.code,
+      type: c.type,
+      value: c.value
+    };
+  },
+  fromDb(row: any): Coupon {
+    return {
+      id: row.id,
+      code: row.code,
+      type: row.type,
+      value: Number(row.value)
+    };
+  }
+};
+
 // Automatic Database Version Management
 const DB_VERSION_KEY = 'ai_db_version';
-const CURRENT_DB_VERSION = 'v3_estancia'; // increment this whenever you update the seed data
+const CURRENT_DB_VERSION = 'v4_coupons'; // increment this whenever you update the seed data
 
 const checkAndMigrateDB = () => {
   if (typeof window !== 'undefined' && window.localStorage) {
@@ -500,7 +531,8 @@ const checkAndMigrateDB = () => {
       localStorage.removeItem(KEYS.TASKS);
       localStorage.removeItem(KEYS.CHECKLISTS);
       localStorage.removeItem(KEYS.SCENARIOS);
-      
+      localStorage.removeItem(KEYS.COUPONS);
+
       // Seed the new data
       localStorage.setItem(KEYS.EVENT_SETTINGS, JSON.stringify(DEFAULT_EVENT_SETTINGS));
       localStorage.setItem(KEYS.FINANCIAL_SETTINGS, JSON.stringify(DEFAULT_FINANCIAL_SETTINGS));
@@ -510,7 +542,8 @@ const checkAndMigrateDB = () => {
       localStorage.setItem(KEYS.TASKS, JSON.stringify(DEFAULT_TASKS));
       localStorage.setItem(KEYS.CHECKLISTS, JSON.stringify(DEFAULT_CHECKLIST));
       localStorage.setItem(KEYS.SCENARIOS, JSON.stringify(DEFAULT_SCENARIOS));
-      
+      localStorage.setItem(KEYS.COUPONS, JSON.stringify(DEFAULT_COUPONS));
+
       localStorage.setItem(DB_VERSION_KEY, CURRENT_DB_VERSION);
     }
   }
@@ -523,7 +556,7 @@ export const db = {
   // Sync everything from Supabase Cloud to local storage on mount
   async fetchAllFromCloud() {
     if (!supabase) return null;
-    
+
     try {
       const [
         evtRes,
@@ -562,12 +595,13 @@ export const db = {
             supabase.from('participants').upsert(DEFAULT_PARTICIPANTS.map(mapParticipant.toDb)),
             supabase.from('tasks').upsert(DEFAULT_TASKS.map(mapTask.toDb)),
             supabase.from('checklists').upsert(DEFAULT_CHECKLIST.map(mapChecklistItem.toDb)),
-            supabase.from('scenarios').upsert(DEFAULT_SCENARIOS.map(mapScenario.toDb))
+            supabase.from('scenarios').upsert(DEFAULT_SCENARIOS.map(mapScenario.toDb)),
+            supabase.from('coupons').upsert(DEFAULT_COUPONS.map(mapCoupon.toDb)).match(cErr => console.warn('Could not seed coupons on cloud:', cErr))
           ]);
         } catch (seedErr) {
           console.error('Error seeding database defaults:', seedErr);
         }
-        
+
         localStorage.setItem(KEYS.EVENT_SETTINGS, JSON.stringify(DEFAULT_EVENT_SETTINGS));
         localStorage.setItem(KEYS.FINANCIAL_SETTINGS, JSON.stringify(DEFAULT_FINANCIAL_SETTINGS));
         localStorage.setItem(KEYS.INVESTMENTS, JSON.stringify(DEFAULT_INVESTMENTS));
@@ -575,6 +609,7 @@ export const db = {
         localStorage.setItem(KEYS.TASKS, JSON.stringify(DEFAULT_TASKS));
         localStorage.setItem(KEYS.CHECKLISTS, JSON.stringify(DEFAULT_CHECKLIST));
         localStorage.setItem(KEYS.SCENARIOS, JSON.stringify(DEFAULT_SCENARIOS));
+        localStorage.setItem(KEYS.COUPONS, JSON.stringify(DEFAULT_COUPONS));
 
         return {
           eventSettings: DEFAULT_EVENT_SETTINGS,
@@ -583,12 +618,13 @@ export const db = {
           participants: DEFAULT_PARTICIPANTS,
           tasks: DEFAULT_TASKS,
           checklists: DEFAULT_CHECKLIST,
-          scenarios: DEFAULT_SCENARIOS
+          scenarios: DEFAULT_SCENARIOS,
+          coupons: DEFAULT_COUPONS
         };
       }
 
       const data: any = {};
-      
+
       if (evtRes.data && evtRes.data.length > 0) {
         data.eventSettings = mapEventSettings.fromDb(evtRes.data[0]);
         localStorage.setItem(KEYS.EVENT_SETTINGS, JSON.stringify(data.eventSettings));
@@ -601,7 +637,7 @@ export const db = {
         data.investments = invRes.data.map(mapInvestment.fromDb);
         localStorage.setItem(KEYS.INVESTMENTS, JSON.stringify(data.investments));
       }
-      
+
       if (partRes.data && partRes.data.length > 0) {
         data.participants = partRes.data.map(mapParticipant.fromDb);
         localStorage.setItem(KEYS.PARTICIPANTS, JSON.stringify(data.participants));
@@ -613,7 +649,7 @@ export const db = {
             .from('public_confirmed_count')
             .select('count')
             .maybeSingle();
-            
+
           if (countData && typeof countData.count === 'number') {
             const dummyParticipants = Array.from({ length: countData.count }, (_, i) => ({
               id: `dummy_${i}`,
@@ -633,7 +669,7 @@ export const db = {
           console.error('Error fetching public confirmed count:', countErr);
         }
       }
-      
+
       if (tskRes.data && tskRes.data.length > 0) {
         data.tasks = tskRes.data.map(mapTask.fromDb);
         localStorage.setItem(KEYS.TASKS, JSON.stringify(data.tasks));
@@ -646,7 +682,23 @@ export const db = {
         data.scenarios = scenRes.data.map(mapScenario.fromDb);
         localStorage.setItem(KEYS.SCENARIOS, JSON.stringify(data.scenarios));
       }
-      
+
+      // Sync coupons table if exists
+      try {
+        const couponsRes = await supabase.from('coupons').select('*');
+        if (couponsRes.data && couponsRes.data.length > 0) {
+          data.coupons = couponsRes.data.map(mapCoupon.fromDb);
+          localStorage.setItem(KEYS.COUPONS, JSON.stringify(data.coupons));
+        } else {
+          const local = localStorage.getItem(KEYS.COUPONS);
+          data.coupons = local ? JSON.parse(local) : DEFAULT_COUPONS;
+        }
+      } catch (couponErr) {
+        console.warn('Coupons table not available in Supabase, using localStorage:', couponErr);
+        const local = localStorage.getItem(KEYS.COUPONS);
+        data.coupons = local ? JSON.parse(local) : DEFAULT_COUPONS;
+      }
+
       return data;
     } catch (err) {
       console.error('Error fetching data from Supabase:', err);
@@ -705,13 +757,13 @@ export const db = {
   saveInvestments(investments: Investment[]): void {
     const prevData = localStorage.getItem(KEYS.INVESTMENTS);
     const prevList: Investment[] = prevData ? JSON.parse(prevData) : [];
-    
+
     localStorage.setItem(KEYS.INVESTMENTS, JSON.stringify(investments));
-    
+
     if (supabase) {
       const newIds = new Set(investments.map(i => i.id));
       const deletedIds = prevList.filter(i => !newIds.has(i.id)).map(i => i.id);
-      
+
       if (deletedIds.length > 0) {
         supabase
           .from('investments')
@@ -721,7 +773,7 @@ export const db = {
             if (error) console.error('Error deleting investments:', error);
           });
       }
-      
+
       if (investments.length > 0) {
         supabase
           .from('investments')
@@ -744,13 +796,13 @@ export const db = {
   saveParticipants(participants: Participant[]): void {
     const prevData = localStorage.getItem(KEYS.PARTICIPANTS);
     const prevList: Participant[] = prevData ? JSON.parse(prevData) : [];
-    
+
     localStorage.setItem(KEYS.PARTICIPANTS, JSON.stringify(participants));
-    
+
     if (supabase) {
       const newIds = new Set(participants.map(p => p.id));
       const deletedIds = prevList.filter(p => !newIds.has(p.id)).map(p => p.id);
-      
+
       if (deletedIds.length > 0) {
         supabase
           .from('participants')
@@ -760,7 +812,7 @@ export const db = {
             if (error) console.error('Error deleting participants:', error);
           });
       }
-      
+
       if (participants.length > 0) {
         supabase
           .from('participants')
@@ -792,13 +844,13 @@ export const db = {
   saveTasks(tasks: Task[]): void {
     const prevData = localStorage.getItem(KEYS.TASKS);
     const prevList: Task[] = prevData ? JSON.parse(prevData) : [];
-    
+
     localStorage.setItem(KEYS.TASKS, JSON.stringify(tasks));
-    
+
     if (supabase) {
       const newIds = new Set(tasks.map(t => t.id));
       const deletedIds = prevList.filter(t => !newIds.has(t.id)).map(t => t.id);
-      
+
       if (deletedIds.length > 0) {
         supabase
           .from('tasks')
@@ -808,7 +860,7 @@ export const db = {
             if (error) console.error('Error deleting tasks:', error);
           });
       }
-      
+
       if (tasks.length > 0) {
         supabase
           .from('tasks')
@@ -831,13 +883,13 @@ export const db = {
   saveChecklist(checklist: ChecklistItem[]): void {
     const prevData = localStorage.getItem(KEYS.CHECKLISTS);
     const prevList: ChecklistItem[] = prevData ? JSON.parse(prevData) : [];
-    
+
     localStorage.setItem(KEYS.CHECKLISTS, JSON.stringify(checklist));
-    
+
     if (supabase) {
       const newIds = new Set(checklist.map(c => c.id));
       const deletedIds = prevList.filter(c => !newIds.has(c.id)).map(c => c.id);
-      
+
       if (deletedIds.length > 0) {
         supabase
           .from('checklists')
@@ -847,7 +899,7 @@ export const db = {
             if (error) console.error('Error deleting checklists:', error);
           });
       }
-      
+
       if (checklist.length > 0) {
         supabase
           .from('checklists')
@@ -870,13 +922,13 @@ export const db = {
   saveScenarios(scenarios: Scenario[]): void {
     const prevData = localStorage.getItem(KEYS.SCENARIOS);
     const prevList: Scenario[] = prevData ? JSON.parse(prevData) : [];
-    
+
     localStorage.setItem(KEYS.SCENARIOS, JSON.stringify(scenarios));
-    
+
     if (supabase) {
       const newIds = new Set(scenarios.map(s => s.id));
       const deletedIds = prevList.filter(s => !newIds.has(s.id)).map(s => s.id);
-      
+
       if (deletedIds.length > 0) {
         supabase
           .from('scenarios')
@@ -886,13 +938,52 @@ export const db = {
             if (error) console.error('Error deleting scenarios:', error);
           });
       }
-      
+
       if (scenarios.length > 0) {
         supabase
           .from('scenarios')
           .upsert(scenarios.map(mapScenario.toDb))
           .then(({ error }) => {
             if (error) console.error('Error syncing scenarios:', error);
+          });
+      }
+    }
+  },
+
+  getCoupons(): Coupon[] {
+    const data = localStorage.getItem(KEYS.COUPONS);
+    if (!data) {
+      localStorage.setItem(KEYS.COUPONS, JSON.stringify(DEFAULT_COUPONS));
+      return DEFAULT_COUPONS;
+    }
+    return JSON.parse(data);
+  },
+  saveCoupons(coupons: Coupon[]): void {
+    const prevData = localStorage.getItem(KEYS.COUPONS);
+    const prevList: Coupon[] = prevData ? JSON.parse(prevData) : [];
+
+    localStorage.setItem(KEYS.COUPONS, JSON.stringify(coupons));
+
+    if (supabase) {
+      const newIds = new Set(coupons.map(c => c.id));
+      const deletedIds = prevList.filter(c => !newIds.has(c.id)).map(c => c.id);
+
+      if (deletedIds.length > 0) {
+        supabase
+          .from('coupons')
+          .delete()
+          .in('id', deletedIds)
+          .then(({ error }) => {
+            if (error) console.error('Error deleting coupons:', error);
+          });
+      }
+
+      if (coupons.length > 0) {
+        supabase
+          .from('coupons')
+          .upsert(coupons.map(mapCoupon.toDb))
+          .then(({ error }) => {
+            if (error) console.error('Error syncing coupons:', error);
           });
       }
     }
@@ -908,6 +999,7 @@ export const db = {
     localStorage.setItem(KEYS.TASKS, JSON.stringify(DEFAULT_TASKS));
     localStorage.setItem(KEYS.CHECKLISTS, JSON.stringify(DEFAULT_CHECKLIST));
     localStorage.setItem(KEYS.SCENARIOS, JSON.stringify(DEFAULT_SCENARIOS));
+    localStorage.setItem(KEYS.COUPONS, JSON.stringify(DEFAULT_COUPONS));
 
     const client = supabase;
     if (client) {
@@ -919,14 +1011,16 @@ export const db = {
         client.from('participants').delete().neq('id', 'placeholder'),
         client.from('tasks').delete().neq('id', 'placeholder'),
         client.from('checklists').delete().neq('id', 'placeholder'),
-        client.from('scenarios').delete().neq('id', 'placeholder')
+        client.from('scenarios').delete().neq('id', 'placeholder'),
+        client.from('coupons').delete().neq('id', 'placeholder').match(err => console.warn('Could not clear coupons on cloud:', err))
       ]).then(() => {
         Promise.all([
           client.from('investments').upsert(DEFAULT_INVESTMENTS.map(mapInvestment.toDb)),
           client.from('participants').upsert(DEFAULT_PARTICIPANTS.map(mapParticipant.toDb)),
           client.from('tasks').upsert(DEFAULT_TASKS.map(mapTask.toDb)),
           client.from('checklists').upsert(DEFAULT_CHECKLIST.map(mapChecklistItem.toDb)),
-          client.from('scenarios').upsert(DEFAULT_SCENARIOS.map(mapScenario.toDb))
+          client.from('scenarios').upsert(DEFAULT_SCENARIOS.map(mapScenario.toDb)),
+          client.from('coupons').upsert(DEFAULT_COUPONS.map(mapCoupon.toDb)).match(err => console.warn('Could not seed coupons on cloud:', err))
         ]).catch(err => console.error('Error resetting cloud seed data:', err));
       }).catch(err => console.error('Error wiping cloud database on reset:', err));
     }

@@ -49,7 +49,8 @@ import type {
   ParticipantStatus,
   Task,
   ChecklistItem,
-  Scenario
+  Scenario,
+  Coupon
 } from './utils/db';
 import { supabase } from './integrations/supabase/client';
 import type { Session } from '@supabase/supabase-js';
@@ -106,6 +107,7 @@ export default function App() {
   const [tasks, setTasks] = useState<Task[]>(db.getTasks());
   const [checklist, setChecklist] = useState<ChecklistItem[]>(db.getChecklist());
   const [scenarios, setScenarios] = useState<Scenario[]>(db.getScenarios());
+  const [coupons, setCoupons] = useState<Coupon[]>(db.getCoupons());
   const statuses: ParticipantStatus[] = db.getParticipantStatuses();
 
   // --- Auth & Session States ---
@@ -222,7 +224,13 @@ export default function App() {
   const [dragOverColumn, setDragOverColumn] = useState<string | null>(null);
 
   // --- CRM Sub-view State ---
-  const [crmSubView, setCrmSubView] = useState<'kanban' | 'dashboard'>('kanban');
+  const [crmSubView, setCrmSubView] = useState<'kanban' | 'dashboard' | 'cupons'>('kanban');
+
+  // --- Coupons Editor States ---
+  const [newCouponCode, setNewCouponCode] = useState('');
+  const [newCouponType, setNewCouponType] = useState<'value' | 'percentage'>('percentage');
+  const [newCouponValue, setNewCouponValue] = useState<number>(10);
+  const [editingCoupon, setEditingCoupon] = useState<Coupon | null>(null);
 
   // --- Temporary Launch Settings States ---
   const [tempName, setTempName] = useState('');
@@ -256,6 +264,7 @@ export default function App() {
     setTasks(db.getTasks());
     setChecklist(db.getChecklist());
     setScenarios(db.getScenarios());
+    setCoupons(db.getCoupons());
 
     // Sync temporary parameters
     setTempName(settings.name);
@@ -284,6 +293,7 @@ export default function App() {
           if (cloudData.tasks) setTasks(cloudData.tasks);
           if (cloudData.checklists) setChecklist(cloudData.checklists);
           if (cloudData.scenarios) setScenarios(cloudData.scenarios);
+          if (cloudData.coupons) setCoupons(cloudData.coupons);
         }
       }).catch(err => {
         console.error('Failed to sync public data on mount:', err);
@@ -388,6 +398,7 @@ export default function App() {
           if (cloudData.tasks) setTasks(cloudData.tasks);
           if (cloudData.checklists) setChecklist(cloudData.checklists);
           if (cloudData.scenarios) setScenarios(cloudData.scenarios);
+          if (cloudData.coupons) setCoupons(cloudData.coupons);
         }
       });
     }
@@ -700,6 +711,67 @@ export default function App() {
   const updateFinancialSettingsState = (newSettings: FinancialSettings) => {
     setFinancialSettings(newSettings);
     db.saveFinancialSettings(newSettings);
+  };
+
+  const updateCouponsState = (newCoupons: Coupon[]) => {
+    setCoupons(newCoupons);
+    db.saveCoupons(newCoupons);
+  };
+
+  const handleSaveCoupon = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newCouponCode.trim() || newCouponValue <= 0) return;
+
+    const formattedCode = newCouponCode.trim().toUpperCase();
+
+    const exists = coupons.some(c => c.code === formattedCode && (!editingCoupon || c.id !== editingCoupon.id));
+    if (exists) {
+      alert('Já existe um cupom com este código.');
+      return;
+    }
+
+    if (editingCoupon) {
+      const updated = coupons.map(c => c.id === editingCoupon.id ? {
+        ...c,
+        code: formattedCode,
+        type: newCouponType,
+        value: newCouponValue
+      } : c);
+      updateCouponsState(updated);
+      setEditingCoupon(null);
+    } else {
+      const newCp: Coupon = {
+        id: 'cp_' + Date.now(),
+        code: formattedCode,
+        type: newCouponType,
+        value: newCouponValue
+      };
+      updateCouponsState([...coupons, newCp]);
+    }
+
+    setNewCouponCode('');
+    setNewCouponType('percentage');
+    setNewCouponValue(10);
+  };
+
+  const handleEditCouponClick = (c: Coupon) => {
+    setEditingCoupon(c);
+    setNewCouponCode(c.code);
+    setNewCouponType(c.type);
+    setNewCouponValue(c.value);
+  };
+
+  const handleDeleteCouponClick = (id: string) => {
+    if (confirm('Tem certeza que deseja excluir este cupom?')) {
+      const filtered = coupons.filter(c => c.id !== id);
+      updateCouponsState(filtered);
+      if (editingCoupon && editingCoupon.id === id) {
+        setEditingCoupon(null);
+        setNewCouponCode('');
+        setNewCouponType('percentage');
+        setNewCouponValue(10);
+      }
+    }
   };
 
   // --- Calculations for Real-Time Indicators ---
@@ -1362,6 +1434,7 @@ export default function App() {
           window.history.pushState({}, document.title, '?page=marketing');
         }}
         confirmedCount={metrics.confirmedCount}
+        coupons={coupons}
       />
     );
   }
@@ -2526,6 +2599,21 @@ export default function App() {
                 >
                   Métricas & Dashboard
                 </button>
+                <button 
+                  className={`tab-btn ${crmSubView === 'cupons' ? 'active' : ''}`}
+                  onClick={() => setCrmSubView('cupons')}
+                  style={{ 
+                    padding: '8px 16px', 
+                    fontSize: '0.8rem', 
+                    minWidth: '140px', 
+                    border: 'none', 
+                    background: crmSubView === 'cupons' ? 'linear-gradient(135deg, rgba(30, 64, 175, 0.25) 0%, rgba(124, 58, 237, 0.25) 100%)' : 'transparent', 
+                    color: crmSubView === 'cupons' ? 'var(--neon-blue)' : 'var(--text-secondary)',
+                    borderRadius: '6px'
+                  }}
+                >
+                  Cupons (Admin)
+                </button>
               </div>
 
               <button className="btn-primary" onClick={handleAddParticipant}>
@@ -2533,7 +2621,7 @@ export default function App() {
               </button>
             </div>
 
-            {crmSubView === 'kanban' ? (
+            {crmSubView === 'kanban' && (
               <>
                 {/* Filter and Search Panel */}
                 <div className="glass-panel" style={{ padding: '16px', display: 'flex', gap: '12px', flexWrap: 'wrap', alignItems: 'center' }}>
@@ -2693,7 +2781,9 @@ export default function App() {
 
                 </div>
               </>
-            ) : (
+            )}
+
+            {crmSubView === 'dashboard' && (
               /* DASHBOARD & ANALYTICS VIEW */
               <div className="animate-fadeInUp" style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
                 
@@ -2893,6 +2983,147 @@ export default function App() {
                   </div>
                 </div>
 
+              </div>
+            )}
+
+            {crmSubView === 'cupons' && (
+              <div className="animate-fadeInUp" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '24px' }}>
+                
+                {/* LIST OF COUPONS */}
+                <div className="glass-panel" style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: '16px', gridColumn: 'span 2' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <div>
+                      <h4 style={{ fontSize: '1.1rem', fontWeight: 600 }}>Cupons Disponíveis</h4>
+                      <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Estes cupons podem ser usados na página de checkout pelos participantes.</p>
+                    </div>
+                  </div>
+
+                  <div style={{ overflowX: 'auto' }}>
+                    <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '0.9rem' }}>
+                      <thead>
+                        <tr style={{ borderBottom: '1px solid var(--border-color)', color: 'var(--text-muted)' }}>
+                          <th style={{ padding: '12px 8px' }}>Código do Cupom</th>
+                          <th style={{ padding: '12px 8px' }}>Tipo</th>
+                          <th style={{ padding: '12px 8px' }}>Valor do Desconto</th>
+                          <th style={{ padding: '12px 8px', textAlign: 'right' }}>Ações</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {coupons.length === 0 ? (
+                          <tr>
+                            <td colSpan={4} style={{ padding: '20px 8px', textAlign: 'center', color: 'var(--text-muted)' }}>
+                              Nenhum cupom cadastrado.
+                            </td>
+                          </tr>
+                        ) : (
+                          coupons.map((c) => (
+                            <tr key={c.id} style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.03)' }}>
+                              <td style={{ padding: '12px 8px', fontWeight: 700, color: 'var(--neon-cyan)' }}>
+                                {c.code}
+                              </td>
+                              <td style={{ padding: '12px 8px' }}>
+                                {c.type === 'percentage' ? 'Porcentagem (%)' : 'Valor Fixo (R$)'}
+                              </td>
+                              <td style={{ padding: '12px 8px', fontWeight: 600 }}>
+                                {c.type === 'percentage' ? `${c.value}%` : `R$ ${c.value.toFixed(2).replace('.', ',')}`}
+                              </td>
+                              <td style={{ padding: '12px 8px', textAlign: 'right' }}>
+                                <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
+                                  <button 
+                                    onClick={() => handleEditCouponClick(c)}
+                                    style={{ background: 'transparent', border: 'none', color: 'var(--text-secondary)', cursor: 'pointer', padding: '4px' }}
+                                    title="Editar"
+                                  >
+                                    <Edit2 size={14} />
+                                  </button>
+                                  <button 
+                                    onClick={() => handleDeleteCouponClick(c.id)}
+                                    style={{ background: 'transparent', border: 'none', color: 'var(--neon-pink)', cursor: 'pointer', padding: '4px' }}
+                                    title="Excluir"
+                                  >
+                                    <Trash2 size={14} />
+                                  </button>
+                                </div>
+                              </td>
+                            </tr>
+                          ))
+                        )}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+
+                {/* ADD/EDIT FORM */}
+                <div className="glass-panel" style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                  <h4 style={{ fontSize: '1.1rem', fontWeight: 600 }}>
+                    {editingCoupon ? 'Editar Cupom' : 'Novo Cupom'}
+                  </h4>
+                  
+                  <form onSubmit={handleSaveCoupon} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                      <label style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-secondary)' }}>CÓDIGO DO CUPOM *</label>
+                      <input 
+                        type="text" 
+                        required
+                        placeholder="Ex: CLIENTE10, DESCONTO50"
+                        value={newCouponCode}
+                        onChange={(e) => setNewCouponCode(e.target.value.toUpperCase())}
+                        className="glass-input"
+                        style={{ textTransform: 'uppercase' }}
+                      />
+                    </div>
+
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                      <label style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-secondary)' }}>TIPO DE DESCONTO *</label>
+                      <select
+                        value={newCouponType}
+                        onChange={(e) => setNewCouponType(e.target.value as any)}
+                        className="glass-select"
+                        style={{ padding: '10px' }}
+                      >
+                        <option value="percentage">Porcentagem (%)</option>
+                        <option value="value">Valor Fixo (R$)</option>
+                      </select>
+                    </div>
+
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                      <label style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-secondary)' }}>
+                        {newCouponType === 'percentage' ? 'PORCENTAGEM (%) *' : 'VALOR (R$) *'}
+                      </label>
+                      <input 
+                        type="number" 
+                        required
+                        min="0.01"
+                        step={newCouponType === 'percentage' ? '1' : '0.01'}
+                        max={newCouponType === 'percentage' ? '100' : '10000'}
+                        value={newCouponValue}
+                        onChange={(e) => setNewCouponValue(Number(e.target.value))}
+                        className="glass-input"
+                      />
+                    </div>
+
+                    <div style={{ display: 'flex', gap: '10px', marginTop: '8px' }}>
+                      <button type="submit" className="btn-primary" style={{ flex: 1, justifyContent: 'center' }}>
+                        {editingCoupon ? 'Salvar Alterações' : 'Criar Cupom'}
+                      </button>
+                      {editingCoupon && (
+                        <button 
+                          type="button" 
+                          className="btn-secondary" 
+                          onClick={() => {
+                            setEditingCoupon(null);
+                            setNewCouponCode('');
+                            setNewCouponType('percentage');
+                            setNewCouponValue(10);
+                          }}
+                          style={{ flex: 1, justifyContent: 'center' }}
+                        >
+                          Cancelar
+                        </button>
+                      )}
+                    </div>
+                  </form>
+                </div>
               </div>
             )}
 
