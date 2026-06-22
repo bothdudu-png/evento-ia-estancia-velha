@@ -3093,7 +3093,7 @@ export default function App() {
                       <input 
                         type="number" 
                         required
-                        min="0.01"
+                        min={newCouponType === 'percentage' ? '1' : '0.01'}
                         step={newCouponType === 'percentage' ? '1' : '0.01'}
                         max={newCouponType === 'percentage' ? '100' : '10000'}
                         value={newCouponValue}
