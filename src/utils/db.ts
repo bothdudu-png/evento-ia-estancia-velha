@@ -596,7 +596,7 @@ export const db = {
             supabase.from('tasks').upsert(DEFAULT_TASKS.map(mapTask.toDb)),
             supabase.from('checklists').upsert(DEFAULT_CHECKLIST.map(mapChecklistItem.toDb)),
             supabase.from('scenarios').upsert(DEFAULT_SCENARIOS.map(mapScenario.toDb)),
-            supabase.from('coupons').upsert(DEFAULT_COUPONS.map(mapCoupon.toDb)).match(cErr => console.warn('Could not seed coupons on cloud:', cErr))
+            supabase.from('coupons').upsert(DEFAULT_COUPONS.map(mapCoupon.toDb)).catch(cErr => console.warn('Could not seed coupons on cloud:', cErr))
           ]);
         } catch (seedErr) {
           console.error('Error seeding database defaults:', seedErr);
@@ -1012,7 +1012,7 @@ export const db = {
         client.from('tasks').delete().neq('id', 'placeholder'),
         client.from('checklists').delete().neq('id', 'placeholder'),
         client.from('scenarios').delete().neq('id', 'placeholder'),
-        client.from('coupons').delete().neq('id', 'placeholder').match(err => console.warn('Could not clear coupons on cloud:', err))
+        client.from('coupons').delete().neq('id', 'placeholder').catch(err => console.warn('Could not clear coupons on cloud:', err))
       ]).then(() => {
         Promise.all([
           client.from('investments').upsert(DEFAULT_INVESTMENTS.map(mapInvestment.toDb)),
@@ -1020,7 +1020,7 @@ export const db = {
           client.from('tasks').upsert(DEFAULT_TASKS.map(mapTask.toDb)),
           client.from('checklists').upsert(DEFAULT_CHECKLIST.map(mapChecklistItem.toDb)),
           client.from('scenarios').upsert(DEFAULT_SCENARIOS.map(mapScenario.toDb)),
-          client.from('coupons').upsert(DEFAULT_COUPONS.map(mapCoupon.toDb)).match(err => console.warn('Could not seed coupons on cloud:', err))
+          client.from('coupons').upsert(DEFAULT_COUPONS.map(mapCoupon.toDb)).catch(err => console.warn('Could not seed coupons on cloud:', err))
         ]).catch(err => console.error('Error resetting cloud seed data:', err));
       }).catch(err => console.error('Error wiping cloud database on reset:', err));
     }
