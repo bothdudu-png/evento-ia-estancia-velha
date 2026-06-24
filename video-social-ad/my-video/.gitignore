@@ -1,0 +1,11 @@
+# Ferramentas instaladas (não commitar — rodar `npx hyperframes init` para restaurar)
+.claude/skills/
+
+# Cache e gerados pelo dev server
+.hyperframes/
+.thumbnails/
+
+# Dependências e output
+node_modules/
+render/
+dist/

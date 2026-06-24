@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=1080, height=1920">
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+    <style>
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html, body {
+        width: 1080px;
+        height: 1920px;
+        overflow: hidden;
+        background: #050816;
+      }
+      body { font-family: "Arial", sans-serif; }
+      .mono { font-family: "Courier New", monospace; }
+
+      .grad-text {
+        background: linear-gradient(135deg, #7c3aed 0%, #00f2fe 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+      }
+
+
+    </style>
+  </head>
+  <body>
+    <div data-hf-id="hf-ke4j" id="root" data-composition-id="main" data-start="0" data-duration="15" data-width="1080" data-height="1920" style="position: relative; width: 1080px; height: 1920px; overflow: hidden; background: #050816;">
+
+      <!-- ── PERSISTENT AMBIENT GLOWS ── -->
+      <div data-hf-id="hf-pjyn" id="glow-purple" class="clip" data-start="0" data-duration="15" data-track-index="1" style="position: absolute; width: 800px; height: 800px; border-radius: 50%;
+                  background: radial-gradient(circle, rgba(124,58,237,0.22) 0%, transparent 70%);
+                  left: -200px; bottom: -150px; filter: blur(50px);"></div>
+
+      <div data-hf-id="hf-javp" id="glow-cyan" class="clip" data-start="0" data-duration="15" data-track-index="19" style="position: absolute; width: 600px; height: 600px; border-radius: 50%;
+                  background: radial-gradient(circle, rgba(0,242,254,0.13) 0%, transparent 70%);
+                  right: -150px; top: -100px; filter: blur(40px);"></div>
+
+      <!-- ══════════════════════════════════════════════════════
+           BEAT 1 — HOOK (0–3s)
+      ══════════════════════════════════════════════════════ -->
+
+      <div data-hf-id="hf-kr6o" id="b1-label" class="clip mono" data-start="0" data-duration="3" data-track-index="3" style="position: absolute; top: 540px; left: 60px; right: 60px; text-align: center;
+                  font-size: 24px; font-weight: 400; color: #9ca3af;
+                  letter-spacing: 0.25em; text-transform: uppercase;">
+        IMERSÃO DE IA · ESTÂNCIA VELHA
+      </div>
+
+      <div data-hf-id="hf-7p2b" id="b1-line1" class="clip" data-start="0" data-duration="3" data-track-index="4" style="position: absolute; top: 620px; left: 60px; right: 60px; text-align: center;
+                  font-size: 148px; font-weight: 900; color: #ffffff; text-transform: uppercase; line-height: 1.0;">
+        E SE VOCÊ
+      </div>
+
+      <div data-hf-id="hf-j7o5" id="b1-line2" class="clip" data-start="0" data-duration="3" data-track-index="5" style="position: absolute; top: 772px; left: 60px; right: 60px; text-align: center;
+                  font-size: 148px; font-weight: 900; color: #ffffff; text-transform: uppercase; line-height: 1.0;">
+        PUDESSE
+      </div>
+
+      <div data-hf-id="hf-3lj5" id="b1-line3" class="clip" data-start="0" data-duration="3" data-track-index="6" style="position: absolute; top: 924px; left: 60px; right: 60px; text-align: center;
+                  font-size: 148px; font-weight: 900; color: #ffffff; text-transform: uppercase; line-height: 1.0;">
+        CRIAR SEU
+      </div>
+
+      <div data-hf-id="hf-p6b1" id="b1-line4" class="clip" data-start="0" data-duration="3" data-track-index="7" style="position: absolute; top: 1076px; left: 60px; right: 60px; text-align: center;
+                  font-size: 148px; font-weight: 900; color: #ffffff; text-transform: uppercase; line-height: 1.0;">
+        PRÓPRIO
+      </div>
+
+      <div data-hf-id="hf-4d91" id="b1-hoje" class="clip grad-text" data-start="0" data-duration="3" data-track-index="8" style="position: absolute; top: 1270px; left: 60px; right: 60px; text-align: center;
+                  font-size: 190px; font-weight: 900; text-transform: uppercase; line-height: 1.0;
+                  display: block; width: 960px;">
+        APP HOJE?
+      </div>
+
+      <!-- ── B1 GLITCH FLASH OUT ── -->
+      <div data-hf-id="hf-k69i" id="b1-flash-out" class="clip" data-start="2.85" data-duration="0.15" data-track-index="20" style="position: absolute; inset: 0; background: #00f2fe; opacity: 0;"></div>
+
+      <!-- ══════════════════════════════════════════════════════
+           BEAT 2 — MÉTODO (3–7s)
+      ══════════════════════════════════════════════════════ -->
+
+      <!-- Tech grid background -->
+      <svg data-hf-id="hf-hoky" id="b2-grid" class="clip" data-start="3" data-duration="4" data-track-index="2" viewBox="0 0 1080 1920" width="1080" height="1920" style="position: absolute; inset: 0; opacity: 0;">
+        <defs data-hf-id="hf-mh0t">
+          <pattern data-hf-id="hf-orhi" id="hgrid" x="0" y="0" width="1080" height="80" patternUnits="userSpaceOnUse">
+            <line data-hf-id="hf-y9at" x1="0" y1="79" x2="1080" y2="79" stroke="rgba(255,255,255,0.025)" stroke-width="1" />
+          </pattern>
+        </defs>
+        <rect data-hf-id="hf-r1t9" width="1080" height="1920" fill="url(#hgrid)" />
+      </svg>
+
+      <!-- Card container -->
+      <div data-hf-id="hf-q60b" id="b2-card" class="clip" data-start="3" data-duration="4" data-track-index="4" style="position: absolute; top: 580px; left: 60px; right: 60px;
+                  background: rgba(124,58,237,0.07); border: 1px solid rgba(124,58,237,0.28);
+                  border-radius: 28px; padding: 72px 64px; opacity: 0;">
+
+        <div data-hf-id="hf-xbjs" style="font-size: 92px; font-weight: 800; color: #ffffff; line-height: 1.05; margin-bottom: 12px;">
+          Com IA. Ao vivo.
+        </div>
+
+        <div data-hf-id="hf-xtox" style="font-size: 92px; font-weight: 800; color: #00f2fe; line-height: 1.05; margin-bottom: 44px;
+                    text-shadow: 0 0 30px rgba(0,242,254,0.35);">
+          Do zero ao deploy.
+        </div>
+
+        <div data-hf-id="hf-tdeg" class="mono" style="font-size: 24px; font-weight: 400; color: #9ca3af;
+                                  letter-spacing: 0.12em; text-transform: uppercase;">
+          100% HANDS-ON · SEM CÓDIGO TRADICIONAL
+        </div>
+      </div>
+
+      <!-- "10x" badge -->
+      <div data-hf-id="hf-1xyr" id="b2-badge" class="clip" data-start="3.5" data-duration="3.5" data-track-index="5" style="position: absolute; top: 510px; right: 70px;
+                  width: 150px; height: 150px; border-radius: 50%;
+                  background: #7c3aed; display: flex; align-items: center; justify-content: center;
+                  font-size: 56px; font-weight: 900; color: #fff; opacity: 0;
+                  box-shadow: 0 0 50px rgba(124,58,237,0.65);">
+        10x
+      </div>
+
+      <!-- B2 flash out -->
+      <div data-hf-id="hf-0ibx" id="b2-flash-out" class="clip" data-start="6.85" data-duration="0.15" data-track-index="20" style="position: absolute; inset: 0; background: rgba(255,255,255,0.9); opacity: 0;"></div>
+
+      <!-- ══════════════════════════════════════════════════════
+           BEAT 3 — EVENTO (7–11s)
+      ══════════════════════════════════════════════════════ -->
+
+      <!-- Extra center glow for this beat -->
+      <div data-hf-id="hf-6rnc" id="b3-glow" class="clip" data-start="7" data-duration="4" data-track-index="2" style="position: absolute; width: 900px; height: 900px; border-radius: 50%;
+                  background: radial-gradient(circle, rgba(124,58,237,0.18) 0%, transparent 70%);
+                  left: 90px; top: 510px; filter: blur(70px); opacity: 0;"></div>
+
+      <!-- Vertical accent line (drawn via GSAP height animation) -->
+      <div data-hf-id="hf-d2ma" id="b3-vline" class="clip" data-start="7" data-duration="4" data-track-index="3" style="position: absolute; left: 64px; top: 0; width: 4px; height: 0; display: block;
+                  background: linear-gradient(to bottom, #7c3aed, #00f2fe);
+                  box-shadow: 0 0 16px rgba(124,58,237,0.5);"></div>
+
+      <div data-hf-id="hf-30af" id="b3-date" class="clip mono" data-start="7.2" data-duration="3.8" data-track-index="4" style="position: absolute; top: 440px; left: 100px;
+                  font-size: 27px; color: #00f2fe; letter-spacing: 0.28em; text-transform: uppercase; opacity: 0;">
+        [ 15 DE AGOSTO · 2026 ]
+      </div>
+
+      <div data-hf-id="hf-5ksm" id="b3-ai" class="clip" data-start="7.3" data-duration="3.7" data-track-index="5" style="position: absolute; top: 510px; left: 96px;
+                  font-size: 230px; font-weight: 900; color: #ffffff; line-height: 0.9;
+                  text-transform: uppercase; opacity: 0;">
+        AI
+      </div>
+
+      <div data-hf-id="hf-at69" id="b3-exp" class="clip" data-start="7.19" data-duration="3.5" data-track-index="19" style="position: absolute; top: 740px; left: 96px; right: 60px;
+                  font-size: 130px; font-weight: 900; line-height: 0.9; color: #7c3aed;
+                  text-shadow: 0 0 40px rgba(124,58,237,0.5);
+                  text-transform: uppercase; opacity: 0; display: block;">
+        EXPERIENCE
+      </div>
+
+      <div data-hf-id="hf-4twp" id="b3-est" class="clip" data-start="7.7" data-duration="3.3" data-track-index="6" style="position: absolute; top: 940px; left: 96px;
+                  font-size: 160px; font-weight: 900; color: #ffffff; line-height: 0.9;
+                  text-transform: uppercase; opacity: 0;">
+        ESTÂNCIA
+      </div>
+
+      <div data-hf-id="hf-v8e9" id="b3-vel" class="clip" data-start="8.01" data-duration="3.1" data-track-index="8" style="position: absolute; top: 1104px; left: 96px; right: 60px;
+                  font-size: 160px; font-weight: 900; line-height: 0.9; color: #00f2fe;
+                  text-shadow: 0 0 40px rgba(0,242,254,0.4);
+                  text-transform: uppercase; opacity: 0; display: block;">
+        VELHA
+      </div>
+
+      <div data-hf-id="hf-xry1" id="b3-local" class="clip mono" data-start="8.2" data-duration="2.8" data-track-index="7" style="position: absolute; top: 1318px; left: 96px;
+                  font-size: 30px; color: #9ca3af; letter-spacing: 0.04em; opacity: 0;">
+        Auditório Müller · Estância Velha, RS
+      </div>
+
+      <!-- B3 flash out -->
+      <div data-hf-id="hf-046b" id="b3-flash-out" class="clip" data-start="10.85" data-duration="0.15" data-track-index="20" style="position: absolute; inset: 0; background: #7c3aed; opacity: 0;"></div>
+
+      <!-- ══════════════════════════════════════════════════════
+           BEAT 4 — CTA (11–15s)
+      ══════════════════════════════════════════════════════ -->
+
+      <!-- Beat 4 radial bg overlay -->
+      <div data-hf-id="hf-ly1n" id="b4-bg" class="clip" data-start="11" data-duration="4" data-track-index="3" style="position: absolute; inset: 0;
+                  background: radial-gradient(ellipse 800px 800px at 50% 50%, #0d0621 0%, #050816 100%);
+                  opacity: 0;"></div>
+
+      <div data-hf-id="hf-4qjq" id="b4-vagas" class="clip" data-start="11" data-duration="4" data-track-index="4" style="position: absolute; top: 580px; left: 0; right: 0; text-align: center;
+                  font-size: 190px; font-weight: 900; color: #ffffff; line-height: 0.9;
+                  text-transform: uppercase;
+                  text-shadow: 0 0 80px rgba(124,58,237,0.7); opacity: 0; display: block;">
+        VAGAS
+      </div>
+
+      <div data-hf-id="hf-nbpx" id="b4-lim" class="clip grad-text" data-start="11" data-duration="4" data-track-index="5" style="position: absolute; top: 790px; left: 0; right: 0; text-align: center;
+                  font-size: 155px; font-weight: 900; line-height: 0.9;
+                  text-transform: uppercase; opacity: 0; display: block; width: 1080px;">
+        LIMITADAS.
+      </div>
+
+      <div data-hf-id="hf-gbcq" id="b4-sub" class="clip mono" data-start="11.4" data-duration="3.6" data-track-index="6" style="position: absolute; top: 1010px; left: 0; right: 0; text-align: center;
+                  font-size: 32px; font-weight: 400; color: #9ca3af;
+                  letter-spacing: 0.08em; opacity: 0;">
+        Apenas por convite nominal.
+      </div>
+
+      <div data-hf-id="hf-5yka" id="b4-cta" class="clip" data-start="11.7" data-duration="3.3" data-track-index="7" style="position: absolute; top: 1110px; left: 80px; right: 80px;
+                  background: linear-gradient(135deg, #7c3aed 0%, #00f2fe 100%);
+                  border-radius: 60px; padding: 52px 40px; text-align: center; opacity: 0;
+                  box-shadow: 0 16px 60px rgba(124,58,237,0.5); display: block;">
+        <span data-hf-id="hf-yy3e" style="font-family: 'Inter', sans-serif; font-size: 46px; font-weight: 700;
+                     color: #fff; text-transform: uppercase; letter-spacing: 0.04em;
+                     display: block; width: 100%;">
+          GARANTIR MINHA VAGA →
+        </span>
+      </div>
+
+      <div data-hf-id="hf-uo65" id="b4-brand" class="clip mono" data-start="12" data-duration="3" data-track-index="8" style="position: absolute; top: 1370px; left: 0; right: 0; text-align: center;
+                  font-size: 26px; color: rgba(124,58,237,0.75); letter-spacing: 0.1em;
+                  text-transform: uppercase; opacity: 0;">
+        AI EXPERIENCE · 15 AGO · ESTÂNCIA VELHA
+      </div>
+
+    </div>
+
+    <script>
+      window.__timelines = window.__timelines || {};
+      const tl = gsap.timeline({ paused: true });
+
+      // ── AMBIENT GLOWS: fade in once ──
+      tl.fromTo("#glow-purple", { opacity: 0 }, { opacity: 1, duration: 1.2 }, 0);
+      tl.fromTo("#glow-cyan", { opacity: 0 }, { opacity: 1, duration: 1.2 }, 0.4);
+
+      // ══════════ BEAT 1 — HOOK (0–3s) ══════════
+
+      tl.fromTo("#b1-label",  { opacity: 0, y: -18 }, { opacity: 1, y: 0, duration: 0.45, ease: "power2.out" }, 0.2);
+      tl.fromTo("#b1-line1",  { opacity: 0, y: 40 },  { opacity: 1, y: 0, duration: 0.5,  ease: "power3.out" }, 0.35);
+      tl.fromTo("#b1-line2",  { opacity: 0, y: 40 },  { opacity: 1, y: 0, duration: 0.5,  ease: "power3.out" }, 0.5);
+      tl.fromTo("#b1-line3",  { opacity: 0, y: 40 },  { opacity: 1, y: 0, duration: 0.5,  ease: "power3.out" }, 0.65);
+      tl.fromTo("#b1-line4",  { opacity: 0, y: 40 },  { opacity: 1, y: 0, duration: 0.5,  ease: "power3.out" }, 0.8);
+      tl.fromTo("#b1-hoje",   { opacity: 0, scale: 0.82, y: 30 }, { opacity: 1, scale: 1, y: 0, duration: 0.6, ease: "back.out(1.7)" }, 1.1);
+
+      // Flash out transition
+      tl.fromTo("#b1-flash-out", { opacity: 0 }, { opacity: 0.85, duration: 0.07 }, 2.85);
+      tl.to("#b1-flash-out", { opacity: 0, duration: 0.08 }, 2.92);
+      tl.set("#b1-flash-out", { opacity: 0 }, 3.00);
+
+      // ══════════ BEAT 2 — MÉTODO (3–7s) ══════════
+
+      tl.fromTo("#b2-grid",  { opacity: 0 }, { opacity: 1, duration: 0.35 }, 3.0);
+      tl.fromTo("#b2-card",  { opacity: 0, y: 55 }, { opacity: 1, y: 0, duration: 0.55, ease: "power3.out" }, 3.05);
+      tl.fromTo("#b2-badge", { opacity: 0, scale: 0 }, { opacity: 1, scale: 1, duration: 0.4,  ease: "back.out(2.2)" }, 3.65);
+
+      // Badge pulse: cycle 0.6s, repeat = floor(2.45 / 0.6) - 1 = 3
+      tl.to("#b2-badge", { scale: 1.09, duration: 0.3, ease: "power1.inOut", yoyo: true, repeat: 3 }, 4.55);
+
+      // Flash out transition
+      tl.fromTo("#b2-flash-out", { opacity: 0 }, { opacity: 0.9, duration: 0.07 }, 6.85);
+      tl.to("#b2-flash-out", { opacity: 0, duration: 0.08 }, 6.92);
+      tl.set("#b2-flash-out", { opacity: 0 }, 7.00);
+
+      // ══════════ BEAT 3 — EVENTO (7–11s) ══════════
+
+      tl.fromTo("#b3-glow",  { opacity: 0, scale: 0.6 }, { opacity: 1, scale: 1, duration: 0.9 }, 7.0);
+      tl.fromTo("#b3-vline", { height: 0 }, { height: 1920, duration: 0.75, ease: "power2.inOut" }, 7.0);
+      tl.fromTo("#b3-date",  { opacity: 0, x: -20 }, { opacity: 1, x: 0, duration: 0.4, ease: "power2.out" }, 7.2);
+      tl.fromTo("#b3-ai",    { opacity: 0, y: -50 }, { opacity: 1, y: 0, duration: 0.5, ease: "power3.out" }, 7.3);
+      tl.fromTo("#b3-exp",   { opacity: 0, x: -35 }, { opacity: 1, x: 0, duration: 0.45, ease: "power2.out" }, 7.19);
+      tl.fromTo("#b3-est",   { opacity: 0, y: -30 }, { opacity: 1, y: 0, duration: 0.45, ease: "power3.out" }, 7.7);
+      tl.fromTo("#b3-vel",   { opacity: 0, x: -30 }, { opacity: 1, x: 0, duration: 0.45, ease: "power2.out" }, 8.01);
+      tl.fromTo("#b3-local", { opacity: 0 },          { opacity: 1, duration: 0.5 }, 8.2);
+
+      // Flash out transition
+      tl.fromTo("#b3-flash-out", { opacity: 0 }, { opacity: 0.8, duration: 0.07 }, 10.85);
+      tl.to("#b3-flash-out", { opacity: 0, duration: 0.08 }, 10.92);
+      tl.set("#b3-flash-out", { opacity: 0 }, 11.00);
+
+      // ══════════ BEAT 4 — CTA (11–15s) ══════════
+
+      tl.fromTo("#b4-bg",    { opacity: 0 }, { opacity: 1, duration: 0.4 }, 11.0);
+      tl.fromTo("#b4-vagas", { opacity: 0, scale: 0.82 }, { opacity: 1, scale: 1, duration: 0.55, ease: "back.out(1.5)" }, 11.05);
+      tl.fromTo("#b4-lim",   { opacity: 0, scale: 0.82 }, { opacity: 1, scale: 1, duration: 0.55, ease: "back.out(1.5)" }, 11.2);
+      tl.fromTo("#b4-sub",   { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.4 }, 11.4);
+      tl.fromTo("#b4-cta",   { opacity: 0, y: 40 }, { opacity: 1, y: 0, duration: 0.5, ease: "power3.out" }, 11.7);
+      tl.fromTo("#b4-brand", { opacity: 0 }, { opacity: 1, duration: 0.5 }, 12.0);
+
+      // CTA pulse: cycle 0.5s, repeat = floor(2.3 / 0.5) - 1 = 3
+      tl.to("#b4-cta", { scale: 1.04, duration: 0.25, ease: "power1.inOut", yoyo: true, repeat: 3 }, 12.7);
+
+      window.__timelines["main"] = tl;
+    </script>
+  </body>
+</html>
