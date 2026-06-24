@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    width: 1080px;
+    height: 1080px;
+    background: #050816;
+    font-family: Inter, Arial, sans-serif;
+    overflow: hidden;
+    position: relative;
+  }
+
+  /* Grid */
+  .grid {
+    position: absolute;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(124,58,237,0.06) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(124,58,237,0.06) 1px, transparent 1px);
+    background-size: 54px 54px;
+  }
+
+  .glow-tl {
+    position: absolute;
+    width: 600px; height: 600px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(0,242,254,0.18) 0%, transparent 65%);
+    top: -200px; right: -100px;
+  }
+  .glow-br {
+    position: absolute;
+    width: 600px; height: 600px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(124,58,237,0.22) 0%, transparent 65%);
+    bottom: -150px; left: -100px;
+  }
+
+  /* Corner brackets */
+  .corner { position: absolute; width: 52px; height: 52px; }
+  .tl { top: 44px; left: 44px; border-top: 2px solid #7c3aed; border-left: 2px solid #7c3aed; }
+  .tr { top: 44px; right: 44px; border-top: 2px solid #00f2fe; border-right: 2px solid #00f2fe; }
+  .bl { bottom: 44px; left: 44px; border-bottom: 2px solid #00f2fe; border-left: 2px solid #00f2fe; }
+  .br { bottom: 44px; right: 44px; border-bottom: 2px solid #7c3aed; border-right: 2px solid #7c3aed; }
+
+  .content {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: center;
+    padding: 80px 90px;
+  }
+
+  .tag-top {
+    font-size: 18px;
+    letter-spacing: 6px;
+    color: rgba(0,242,254,0.7);
+    text-transform: uppercase;
+    font-family: 'Courier New', monospace;
+    margin-bottom: 48px;
+  }
+
+  .headline {
+    font-size: 58px;
+    font-weight: 800;
+    color: #ffffff;
+    line-height: 1.1;
+    margin-bottom: 52px;
+    max-width: 880px;
+  }
+
+  .headline em {
+    font-style: normal;
+    background: linear-gradient(90deg, #7c3aed, #00f2fe);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .stat-row {
+    display: flex;
+    gap: 40px;
+    margin-bottom: 52px;
+    width: 100%;
+  }
+
+  .stat-card {
+    flex: 1;
+    padding: 28px 24px;
+    border: 1px solid rgba(124,58,237,0.35);
+    border-radius: 6px;
+    background: rgba(124,58,237,0.06);
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .stat-card.cyan {
+    border-color: rgba(0,242,254,0.35);
+    background: rgba(0,242,254,0.04);
+  }
+
+  .stat-card.pink {
+    border-color: rgba(236,72,153,0.35);
+    background: rgba(236,72,153,0.04);
+  }
+
+  .stat-number {
+    font-size: 64px;
+    font-weight: 900;
+    color: #7c3aed;
+    line-height: 1;
+  }
+  .stat-card.cyan .stat-number { color: #00f2fe; }
+  .stat-card.pink .stat-number { color: #ec4899; }
+
+  .stat-unit {
+    font-size: 24px;
+    color: rgba(255,255,255,0.5);
+    font-family: 'Courier New', monospace;
+    letter-spacing: 2px;
+  }
+
+  .stat-desc {
+    font-size: 20px;
+    color: rgba(255,255,255,0.7);
+    line-height: 1.4;
+  }
+
+  .footer-line {
+    font-size: 22px;
+    color: rgba(255,255,255,0.5);
+    letter-spacing: 1px;
+    margin-bottom: 28px;
+  }
+
+  .event-tag {
+    font-size: 19px;
+    letter-spacing: 4px;
+    color: rgba(124,58,237,0.8);
+    font-family: 'Courier New', monospace;
+  }
+</style>
+</head>
+<body>
+  <div class="grid"></div>
+  <div class="glow-tl"></div>
+  <div class="glow-br"></div>
+
+  <div class="corner tl"></div>
+  <div class="corner tr"></div>
+  <div class="corner bl"></div>
+  <div class="corner br"></div>
+
+  <div class="content">
+    <div class="tag-top">Por que participar?</div>
+
+    <div class="headline">
+      Um funcionário que usa IA recupera
+      <em>52 dias de trabalho</em> por ano.
+    </div>
+
+    <div class="stat-row">
+      <div class="stat-card">
+        <div class="stat-number">10x</div>
+        <div class="stat-unit">mais rápido</div>
+        <div class="stat-desc">Em tarefas operacionais e rotinas administrativas</div>
+      </div>
+      <div class="stat-card cyan">
+        <div class="stat-number">8h</div>
+        <div class="stat-unit">por semana</div>
+        <div class="stat-desc">Recuperadas de tarefas manuais e repetitivas</div>
+      </div>
+      <div class="stat-card pink">
+        <div class="stat-number">R$0</div>
+        <div class="stat-unit">pra começar</div>
+        <div class="stat-desc">Ferramentas gratuitas com poder profissional</div>
+      </div>
+    </div>
+
+    <div class="footer-line">
+      Aprenda na prática no AI Experience · 15 de Agosto · Auditório Müller
+    </div>
+    <div class="event-tag">AI EXPERIENCE · ESTÂNCIA VELHA</div>
+  </div>
+</body>
+</html>

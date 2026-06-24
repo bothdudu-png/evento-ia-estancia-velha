@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    width: 1080px;
+    height: 1920px;
+    background: #050816;
+    font-family: Inter, Arial, sans-serif;
+    overflow: hidden;
+    position: relative;
+  }
+
+  /* Grid */
+  .grid {
+    position: absolute;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(124,58,237,0.07) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(124,58,237,0.07) 1px, transparent 1px);
+    background-size: 60px 60px;
+  }
+
+  /* Glow blobs */
+  .glow-top {
+    position: absolute;
+    width: 900px; height: 900px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(124,58,237,0.3) 0%, transparent 60%);
+    top: -300px; left: -200px;
+  }
+  .glow-bottom {
+    position: absolute;
+    width: 800px; height: 800px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(0,242,254,0.2) 0%, transparent 60%);
+    bottom: -200px; right: -200px;
+  }
+  .glow-mid {
+    position: absolute;
+    width: 700px; height: 700px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(236,72,153,0.08) 0%, transparent 60%);
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+  }
+
+  /* Corner brackets */
+  .corner { position: absolute; width: 60px; height: 60px; }
+  .tl { top: 60px; left: 60px; border-top: 2px solid #7c3aed; border-left: 2px solid #7c3aed; }
+  .tr { top: 60px; right: 60px; border-top: 2px solid #00f2fe; border-right: 2px solid #00f2fe; }
+  .bl { bottom: 60px; left: 60px; border-bottom: 2px solid #00f2fe; border-left: 2px solid #00f2fe; }
+  .br { bottom: 60px; right: 60px; border-bottom: 2px solid #7c3aed; border-right: 2px solid #7c3aed; }
+
+  /* Top section */
+  .top-section {
+    position: absolute;
+    top: 0;
+    left: 0; right: 0;
+    height: 680px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 80px 80px 0;
+  }
+
+  .tag {
+    font-size: 22px;
+    letter-spacing: 8px;
+    color: #7c3aed;
+    text-transform: uppercase;
+    font-family: 'Courier New', monospace;
+    margin-bottom: 36px;
+  }
+
+  .ai-text {
+    font-size: 240px;
+    font-weight: 900;
+    line-height: 0.85;
+    letter-spacing: -10px;
+    background: linear-gradient(135deg, #7c3aed 0%, #00f2fe 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .experience-text {
+    font-size: 76px;
+    font-weight: 800;
+    letter-spacing: 22px;
+    color: #ffffff;
+    margin-top: -12px;
+  }
+
+  .city-text {
+    font-size: 32px;
+    font-weight: 600;
+    letter-spacing: 14px;
+    color: #00f2fe;
+    margin-top: 10px;
+  }
+
+  /* Center divider line */
+  .h-line {
+    position: absolute;
+    top: 50%;
+    left: 80px; right: 80px;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, #7c3aed 20%, #00f2fe 80%, transparent);
+    transform: translateY(-50%);
+  }
+
+  /* Main info block */
+  .info-block {
+    position: absolute;
+    top: 50%;
+    left: 0; right: 0;
+    transform: translateY(-50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 60px 100px;
+    text-align: center;
+    gap: 0;
+  }
+
+  .info-label {
+    font-size: 20px;
+    letter-spacing: 6px;
+    color: rgba(0,242,254,0.6);
+    text-transform: uppercase;
+    font-family: 'Courier New', monospace;
+    margin-bottom: 28px;
+  }
+
+  .info-date {
+    font-size: 70px;
+    font-weight: 900;
+    color: #ec4899;
+    letter-spacing: 2px;
+    line-height: 1;
+    margin-bottom: 16px;
+  }
+
+  .info-month {
+    font-size: 38px;
+    font-weight: 700;
+    color: #ffffff;
+    letter-spacing: 8px;
+    margin-bottom: 40px;
+  }
+
+  .divider-small {
+    width: 160px;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(124,58,237,0.6), transparent);
+    margin-bottom: 36px;
+  }
+
+  .info-local {
+    font-size: 30px;
+    color: rgba(255,255,255,0.85);
+    letter-spacing: 2px;
+    margin-bottom: 12px;
+  }
+
+  .info-mentor {
+    font-size: 26px;
+    color: rgba(255,255,255,0.6);
+    letter-spacing: 1px;
+  }
+
+  /* Bottom CTA */
+  .bottom-section {
+    position: absolute;
+    bottom: 0;
+    left: 0; right: 0;
+    height: 480px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 0 80px 80px;
+    gap: 32px;
+  }
+
+  .cta-vagas {
+    font-size: 48px;
+    font-weight: 800;
+    letter-spacing: 4px;
+    color: #ffffff;
+    text-align: center;
+  }
+
+  .cta-vagas span {
+    background: linear-gradient(90deg, #7c3aed, #00f2fe);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .cta-button {
+    padding: 24px 72px;
+    background: linear-gradient(135deg, #7c3aed, #5b21b6);
+    border: 1px solid rgba(124,58,237,0.8);
+    border-radius: 4px;
+    font-size: 28px;
+    font-weight: 700;
+    color: #ffffff;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    box-shadow: 0 0 40px rgba(124,58,237,0.4);
+  }
+
+  .cta-link {
+    font-size: 22px;
+    letter-spacing: 3px;
+    color: rgba(0,242,254,0.7);
+    font-family: 'Courier New', monospace;
+  }
+
+  /* Vertical side lines */
+  .vline-left {
+    position: absolute;
+    left: 40px;
+    top: 200px; bottom: 200px;
+    width: 1px;
+    background: linear-gradient(180deg, transparent, rgba(124,58,237,0.3) 30%, rgba(0,242,254,0.3) 70%, transparent);
+  }
+  .vline-right {
+    position: absolute;
+    right: 40px;
+    top: 200px; bottom: 200px;
+    width: 1px;
+    background: linear-gradient(180deg, transparent, rgba(0,242,254,0.3) 30%, rgba(124,58,237,0.3) 70%, transparent);
+  }
+</style>
+</head>
+<body>
+  <div class="grid"></div>
+  <div class="glow-top"></div>
+  <div class="glow-bottom"></div>
+  <div class="glow-mid"></div>
+
+  <div class="vline-left"></div>
+  <div class="vline-right"></div>
+
+  <div class="corner tl"></div>
+  <div class="corner tr"></div>
+  <div class="corner bl"></div>
+  <div class="corner br"></div>
+
+  <!-- Top: Event name -->
+  <div class="top-section">
+    <div class="tag">Imersão Presencial</div>
+    <div class="ai-text">AI</div>
+    <div class="experience-text">EXPERIENCE</div>
+    <div class="city-text">ESTÂNCIA VELHA</div>
+  </div>
+
+  <!-- Center: Date + Local -->
+  <div class="info-block">
+    <div class="info-label">Data do evento</div>
+    <div class="info-date">15</div>
+    <div class="info-month">AGOSTO 2026</div>
+    <div class="divider-small"></div>
+    <div class="info-local">Auditório Müller</div>
+    <div class="info-mentor">Com Thiago Diaz · Builderz</div>
+  </div>
+
+  <!-- Bottom: CTA -->
+  <div class="bottom-section">
+    <div class="cta-vagas">Apenas <span>60 vagas</span> disponíveis</div>
+    <div class="cta-button">GARANTA A SUA</div>
+    <div class="cta-link">evento-ia-estancia-velha.vercel.app</div>
+  </div>
+</body>
+</html>

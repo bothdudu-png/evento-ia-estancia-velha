@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    width: 1080px;
+    height: 1080px;
+    background: #050816;
+    font-family: Inter, Arial, sans-serif;
+    overflow: hidden;
+    position: relative;
+  }
+
+  /* Grid */
+  .grid {
+    position: absolute;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(124,58,237,0.07) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(124,58,237,0.07) 1px, transparent 1px);
+    background-size: 54px 54px;
+  }
+
+  /* Glow blobs */
+  .glow-tl {
+    position: absolute;
+    width: 700px; height: 700px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(124,58,237,0.28) 0%, transparent 65%);
+    top: -250px; left: -200px;
+    pointer-events: none;
+  }
+  .glow-br {
+    position: absolute;
+    width: 600px; height: 600px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(0,242,254,0.18) 0%, transparent 65%);
+    bottom: -200px; right: -150px;
+    pointer-events: none;
+  }
+  .glow-center {
+    position: absolute;
+    width: 500px; height: 500px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(236,72,153,0.08) 0%, transparent 60%);
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+  }
+
+  /* Corner brackets */
+  .corner { position: absolute; width: 52px; height: 52px; }
+  .tl { top: 44px; left: 44px; border-top: 2px solid #7c3aed; border-left: 2px solid #7c3aed; }
+  .tr { top: 44px; right: 44px; border-top: 2px solid #00f2fe; border-right: 2px solid #00f2fe; }
+  .bl { bottom: 44px; left: 44px; border-bottom: 2px solid #00f2fe; border-left: 2px solid #00f2fe; }
+  .br { bottom: 44px; right: 44px; border-bottom: 2px solid #7c3aed; border-right: 2px solid #7c3aed; }
+
+  /* Top label */
+  .top-label {
+    position: absolute;
+    top: 54px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 19px;
+    letter-spacing: 7px;
+    color: rgba(124,58,237,0.9);
+    text-transform: uppercase;
+    font-family: 'Courier New', monospace;
+    white-space: nowrap;
+  }
+
+  /* Main content */
+  .content {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 120px 80px;
+    gap: 0;
+  }
+
+  .ai-text {
+    font-size: 200px;
+    font-weight: 900;
+    line-height: 0.85;
+    letter-spacing: -8px;
+    background: linear-gradient(135deg, #7c3aed 0%, #00f2fe 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    text-shadow: none;
+  }
+
+  .experience-text {
+    font-size: 64px;
+    font-weight: 800;
+    letter-spacing: 20px;
+    color: #ffffff;
+    margin-top: -8px;
+    margin-bottom: 6px;
+  }
+
+  .city-text {
+    font-size: 28px;
+    font-weight: 600;
+    letter-spacing: 12px;
+    color: #00f2fe;
+    margin-bottom: 48px;
+    text-transform: uppercase;
+  }
+
+  .divider {
+    width: 240px;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, #7c3aed 30%, #00f2fe 70%, transparent);
+    margin-bottom: 40px;
+  }
+
+  .date-line {
+    font-size: 36px;
+    font-weight: 700;
+    color: #ec4899;
+    letter-spacing: 3px;
+    margin-bottom: 14px;
+  }
+
+  .detail-line {
+    font-size: 24px;
+    color: rgba(255,255,255,0.75);
+    letter-spacing: 1px;
+    margin-bottom: 8px;
+  }
+
+  .vagas-badge {
+    margin-top: 44px;
+    padding: 14px 52px;
+    border: 1px solid rgba(124,58,237,0.7);
+    border-radius: 3px;
+    font-size: 20px;
+    color: rgba(124,58,237,0.95);
+    letter-spacing: 5px;
+    text-transform: uppercase;
+    font-family: 'Courier New', monospace;
+    background: rgba(124,58,237,0.06);
+  }
+
+  /* Bottom label */
+  .bottom-label {
+    position: absolute;
+    bottom: 54px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 17px;
+    letter-spacing: 4px;
+    color: rgba(255,255,255,0.35);
+    font-family: 'Courier New', monospace;
+    white-space: nowrap;
+  }
+</style>
+</head>
+<body>
+  <div class="grid"></div>
+  <div class="glow-tl"></div>
+  <div class="glow-br"></div>
+  <div class="glow-center"></div>
+
+  <div class="corner tl"></div>
+  <div class="corner tr"></div>
+  <div class="corner bl"></div>
+  <div class="corner br"></div>
+
+  <div class="top-label">Imersão Presencial · Vale dos Sinos</div>
+
+  <div class="content">
+    <div class="ai-text">AI</div>
+    <div class="experience-text">EXPERIENCE</div>
+    <div class="city-text">ESTÂNCIA VELHA</div>
+    <div class="divider"></div>
+    <div class="date-line">15 DE AGOSTO DE 2026</div>
+    <div class="detail-line">Auditório Müller · Estância Velha / RS</div>
+    <div class="detail-line">Com Thiago Diaz · Builderz</div>
+    <div class="vagas-badge">60 vagas limitadas</div>
+  </div>
+
+  <div class="bottom-label">evento-ia-estancia-velha.vercel.app</div>
+</body>
+</html>

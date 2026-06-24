@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    width: 1080px;
+    height: 1920px;
+    background: #050816;
+    font-family: Inter, Arial, sans-serif;
+    overflow: hidden;
+    position: relative;
+  }
+
+  /* Grid mais sutil aqui */
+  .grid {
+    position: absolute;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(236,72,153,0.05) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(236,72,153,0.05) 1px, transparent 1px);
+    background-size: 60px 60px;
+  }
+
+  .glow-top {
+    position: absolute;
+    width: 900px; height: 900px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(236,72,153,0.2) 0%, transparent 55%);
+    top: -300px; left: 50%;
+    transform: translateX(-50%);
+  }
+  .glow-bottom {
+    position: absolute;
+    width: 800px; height: 800px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(124,58,237,0.25) 0%, transparent 60%);
+    bottom: -200px; left: 50%;
+    transform: translateX(-50%);
+  }
+
+  .corner { position: absolute; width: 60px; height: 60px; }
+  .tl { top: 60px; left: 60px; border-top: 2px solid #ec4899; border-left: 2px solid #ec4899; }
+  .tr { top: 60px; right: 60px; border-top: 2px solid #ec4899; border-right: 2px solid #ec4899; }
+  .bl { bottom: 60px; left: 60px; border-bottom: 2px solid #7c3aed; border-left: 2px solid #7c3aed; }
+  .br { bottom: 60px; right: 60px; border-bottom: 2px solid #7c3aed; border-right: 2px solid #7c3aed; }
+
+  /* Top bar */
+  .top-bar {
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 420px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-end;
+    padding-bottom: 40px;
+  }
+
+  .event-mini {
+    font-size: 20px;
+    letter-spacing: 8px;
+    color: rgba(255,255,255,0.4);
+    font-family: 'Courier New', monospace;
+    margin-bottom: 20px;
+  }
+
+  .h-line-top {
+    width: 300px;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, #ec4899, transparent);
+  }
+
+  /* Center block - urgência */
+  .center-block {
+    position: absolute;
+    top: 50%;
+    left: 0; right: 0;
+    transform: translateY(-50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: 0 80px;
+  }
+
+  .urgencia-label {
+    font-size: 22px;
+    letter-spacing: 8px;
+    color: #ec4899;
+    text-transform: uppercase;
+    font-family: 'Courier New', monospace;
+    margin-bottom: 40px;
+  }
+
+  /* Big countdown number */
+  .countdown-box {
+    width: 100%;
+    padding: 48px;
+    border: 2px solid rgba(236,72,153,0.5);
+    border-radius: 8px;
+    background: rgba(236,72,153,0.04);
+    margin-bottom: 48px;
+    box-shadow: 0 0 60px rgba(236,72,153,0.15), inset 0 0 40px rgba(236,72,153,0.04);
+  }
+
+  .vagas-num {
+    font-size: 180px;
+    font-weight: 900;
+    line-height: 1;
+    background: linear-gradient(135deg, #ec4899, #7c3aed);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .vagas-label {
+    font-size: 36px;
+    font-weight: 600;
+    color: rgba(255,255,255,0.85);
+    letter-spacing: 6px;
+    margin-top: 8px;
+  }
+
+  .vagas-total {
+    font-size: 22px;
+    color: rgba(255,255,255,0.35);
+    letter-spacing: 4px;
+    font-family: 'Courier New', monospace;
+    margin-top: 12px;
+  }
+
+  .scarcity-text {
+    font-size: 42px;
+    font-weight: 700;
+    color: #ffffff;
+    line-height: 1.25;
+    margin-bottom: 40px;
+    max-width: 800px;
+  }
+
+  .scarcity-text em {
+    font-style: normal;
+    color: #ec4899;
+  }
+
+  /* Bottom CTA */
+  .bottom-block {
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 460px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 0 80px 100px;
+    gap: 28px;
+  }
+
+  .h-line-bottom {
+    width: 280px;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, #7c3aed, transparent);
+    margin-bottom: 8px;
+  }
+
+  .date-reminder {
+    font-size: 32px;
+    color: rgba(255,255,255,0.6);
+    letter-spacing: 2px;
+  }
+
+  .date-reminder strong {
+    color: #00f2fe;
+    font-weight: 700;
+  }
+
+  .cta-btn {
+    padding: 26px 80px;
+    background: linear-gradient(135deg, #ec4899, #7c3aed);
+    border-radius: 4px;
+    font-size: 30px;
+    font-weight: 800;
+    color: #ffffff;
+    letter-spacing: 5px;
+    text-transform: uppercase;
+    box-shadow: 0 0 50px rgba(236,72,153,0.35);
+  }
+
+  .link-label {
+    font-size: 20px;
+    letter-spacing: 3px;
+    color: rgba(255,255,255,0.3);
+    font-family: 'Courier New', monospace;
+  }
+</style>
+</head>
+<body>
+  <div class="grid"></div>
+  <div class="glow-top"></div>
+  <div class="glow-bottom"></div>
+
+  <div class="corner tl"></div>
+  <div class="corner tr"></div>
+  <div class="corner bl"></div>
+  <div class="corner br"></div>
+
+  <div class="top-bar">
+    <div class="event-mini">AI EXPERIENCE · ESTÂNCIA VELHA</div>
+    <div class="h-line-top"></div>
+  </div>
+
+  <div class="center-block">
+    <div class="urgencia-label">⚠ vagas restantes</div>
+    <div class="countdown-box">
+      <!-- Edite o número abaixo conforme as vagas restantes -->
+      <div class="vagas-num">12</div>
+      <div class="vagas-label">VAGAS</div>
+      <div class="vagas-total">de 60 disponíveis</div>
+    </div>
+    <div class="scarcity-text">
+      O Auditório Müller tem <em>limite físico.</em>
+      Não haverá segunda chamada.
+    </div>
+  </div>
+
+  <div class="bottom-block">
+    <div class="h-line-bottom"></div>
+    <div class="date-reminder">15 de Agosto · <strong>Garanta hoje</strong></div>
+    <div class="cta-btn">INSCREVA-SE</div>
+    <div class="link-label">evento-ia-estancia-velha.vercel.app</div>
+  </div>
+</body>
+</html>
